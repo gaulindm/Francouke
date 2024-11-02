@@ -10,12 +10,8 @@ from django.views.generic import (
     DeleteView,
     )
 from .models import Song
+from django.db. models import Prefetch
 from unidecode import unidecode
-
-
-
-
-
 
 
 def home(request):
@@ -29,20 +25,18 @@ class SongListView (ListView):
     template_name = 'songbook/home.html'
     context_object_name = 'songs'
     ordering = ['songTitle']
-    paginate_by = 5
+    paginate_by = 15
 
     def get_queryset(self):
-        # Retrieve all songs and sort them by an unaccented title
-        songs = Song.objects.all()
-        # Sort using unidecode to remove accents for sorting purposes
-        return sorted(songs, key=lambda song: unidecode(song.songTitle or ""))
+        # Sort by title and return
+        return Song.objects.all()
     
 class UserSongListView (ListView):
     model = Song
     template_name = 'songbook/user_songs.html'
     context_object_name = 'songs'
     ordering = ['songTitle']
-    paginate_by = 5
+    paginate_by = 15
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))

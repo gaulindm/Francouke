@@ -1,17 +1,29 @@
 {% extends "songbook/base.html" %}
   {% block content %}
-    {% for song in songs %}
-      <article class ="media content-section">
-        <div class="media-body">
-          <div class="article-metadata">
-            <a class="mr-2" href="{% url 'user-songs' song.contributor.username %}" >{{ song.contributor}}</a>
-            <small class="text-muted">{{ song.date_posted|date:"F d, Y" }}</small>
-        </div>
-        <h2><a class="article-title" href="{% url 'song-detail' song.id %}"> {{song.songTitle}}</a></h2>
-        <!--<p class="article=content">{{ song.songChordPro}}</p>-->
-        </div>
-      </article>
-    {% endfor%}
+
+  <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Other Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for song in songs %}
+            <tr>
+                <td>
+                    <a href="{% url 'song-detail' song.id %}" class="song-link">{{ song.songTitle }}</a>
+                </td>
+                <td>{{ song.metadata.artist|default:"Unknown Artist" }}</td>
+                <td>{{ song.metadata.otherInfo|default:"N/A" }}</td>
+            </tr>
+
+
+        {% endfor %}
+    </tbody>
+</table>
+
     {% if is_paginated %}
 
       {% if page_obj.has_previous %}
