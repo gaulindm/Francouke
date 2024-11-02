@@ -10,6 +10,9 @@ from django.views.generic import (
     DeleteView,
     )
 from .models import Song
+from unidecode import unidecode
+
+
 
 
 
@@ -28,6 +31,12 @@ class SongListView (ListView):
     ordering = ['songTitle']
     paginate_by = 5
 
+    def get_queryset(self):
+        # Retrieve all songs and sort them by an unaccented title
+        songs = Song.objects.all()
+        # Sort using unidecode to remove accents for sorting purposes
+        return sorted(songs, key=lambda song: unidecode(song.songTitle or ""))
+    
 class UserSongListView (ListView):
     model = Song
     template_name = 'songbook/user_songs.html'
@@ -44,14 +53,14 @@ class SongDetailView (DetailView):
 
 class SongCreateView(LoginRequiredMixin, CreateView):
     model = Song
-    fields = ['songTitle','songChordPro',]
+    fields = ['songTitle','songChordPro','metadata']
     def form_valid(self, form):
         form.instance.contributor = self.request.user
         return super().form_valid(form)
 
 class SongUpdateView (LoginRequiredMixin, UpdateView):
     model = Song
-    fields = ['songTitle', 'songChordPro']
+    fields = ['songTitle', 'songChordPro','metadata']
 
     def form_valid(self, form):
         form.instance.contributor = self.request.user
