@@ -72,6 +72,9 @@ body {
     vertical-align: middle;
   }
   
+
+
+
   .account-img {
     height: 125px;
     width: 125px;
@@ -82,6 +85,8 @@ body {
   .account-heading {
     font-size: 2.5rem;
   }
+
+
 
   /* Format 1 */
 .media.format-1 .article-title {
@@ -101,5 +106,10 @@ body {
 }
 
 .media.format-2 .article-content {
+  font-weight: bold;
+}
+
+span.chord {
+  color: red;
   font-weight: bold;
 }

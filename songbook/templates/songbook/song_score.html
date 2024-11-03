@@ -1,0 +1,16 @@
+{% extends "songbook/base.html" %}
+{% load chord_filters %}
+{% block content %}
+
+<div style="background-color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
+
+    <h1>{{ score.songTitle}}</h1>
+    <h2>{{ score.metadata.artist }}</h2>
+    <div class="lyrics">
+        <p>{{ score.lyrics_with_chords|format_chords }}</p>
+    </div>
+</div>
+
+
+
+{% endblock content %}

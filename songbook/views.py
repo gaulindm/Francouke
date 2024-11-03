@@ -14,6 +14,12 @@ from django.db. models import Prefetch
 from unidecode import unidecode
 
 
+#def score_view(request, song_id):
+#    song = get_object_or_404(Song, id=song_id)  # Fetch the song based on the id
+#    return render(request, 'score.html', {'score': song})  
+
+
+
 def home(request):
     context = {
         'songs':Song.objects.all()
@@ -47,7 +53,7 @@ class SongDetailView (DetailView):
 
 class ScoreView(DetailView):
     model = Song
-    template_name = 'songbook/score.html'
+    template_name = 'songbook/song_score.html' #While I am experimenting with scoreview
     context_object_name = 'score'
 
 
