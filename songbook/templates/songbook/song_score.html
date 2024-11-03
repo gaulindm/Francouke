@@ -22,14 +22,26 @@
         <option value="1.6">1.6</option>
         <option value="1.8">1.8</option>
     </select>
-
+    
     <!-- Chord Color Control -->
     <label for="chordColor">Chord Color:</label>
-    <input type="color" id="chordColor" onchange="updateChordColor(this.value)">
+    <input type="color" id="chordColor" onchange="updateChordStyle()">
+
+    <!-- Chord Weight Control -->
+    <label for="chordWeight">Chord Weight:</label>
+    <select id="chordWeight" onchange="updateChordStyle()">
+        <option value="normal">Normal</option>
+        <option value="bold">Bold</option>
+        <option value="bolder">Bolder</option>
+        <option value="lighter">Lighter</option>
+    </select>
+
+
 
     <!-- Print Button -->
     <button onclick="printDiv('printableScore')">Print Score</button>
 </div>
+
 
 
 
@@ -42,41 +54,55 @@
     </div>
 </div>
 
-<button onclick="printDiv('printableScore')" style="display: block; margin: 20px auto;">Print Score</button>
+
 <script>
+    // Function to update general styles for the score content
+    function updateStyle(styleName, value) {
+        document.getElementById('printableScore').style[styleName] = value;
+    }
+
+    // Function to update chord color and weight
+    function updateChordStyle() {
+        const chordColor = document.getElementById('chordColor').value;
+        const chordWeight = document.getElementById('chordWeight').value;
+        const chords = document.querySelectorAll('#printableScore .chord');
+        chords.forEach(chord => {
+            chord.style.color = chordColor;
+            chord.style.fontWeight = chordWeight;
+        });
+    }
+
+    // Print function to carry over custom styles, including chord color and weight
     function printDiv(divId) {
         var content = document.getElementById(divId).innerHTML;
         var printWindow = window.open('', '', 'height=600,width=800');
-
-        // Capture current styles from the main div
+        
+        // Capture the main score styles
         var scoreStyles = document.getElementById(divId).style.cssText;
 
-        printWindow.document.write('<html><head><title>Print Score</title>');
-        printWindow.document.write('<style>body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }</style>');
-        printWindow.document.write('</head><body>');
+        // Get the custom chord color and weight
+        var chordColor = document.getElementById('chordColor').value;
+        var chordWeight = document.getElementById('chordWeight').value;
 
+        printWindow.document.write('<html><head><title>Print Score</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
+        printWindow.document.write('.chord { color: ' + chordColor + '; font-weight: ' + chordWeight + '; }'); // Apply custom chord color and weight
+        printWindow.document.write('</style></head><body>');
+        
         // Apply captured styles to the printable content
         printWindow.document.write('<div style="' + scoreStyles + '">');
         printWindow.document.write(content);
         printWindow.document.write('</div>');
-
+        
         // Custom footer
         printWindow.document.write('<div style="text-align: center; position: fixed; bottom: 0; width: 100%; font-size: 12px; color: gray;">Created with FrancoUke</div>');
-
+        
         printWindow.document.write('</body></html>');
         printWindow.document.close();
-
+        
         // Print and close the window
         printWindow.print();
-    }
-</script>
-
-
-<!-- JavaScript to apply CSS changes dynamically -->
-<script>
-    function updateStyle(styleName, value) {
-        // Apply the CSS change to the printableScore div
-        document.getElementById('printableScore').style[styleName] = value;
     }
 </script>
 
