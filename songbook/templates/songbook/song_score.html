@@ -2,7 +2,7 @@
 {% load chord_filters %}
 {% block content %}
 
-<div style="background-color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
+<div id="printableScore" style="background-color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
 
     <h1>{{ score.songTitle}}</h1>
     <h2>{{ score.metadata.artist }}</h2>
@@ -11,6 +11,30 @@
     </div>
 </div>
 
+<button onclick="printDiv('printableScore')" style="display: block; margin: 20px auto;">Print Score</button>
+<script>
+    function printDiv(divId) {
+        var content = document.getElementById(divId).innerHTML;
+        var printWindow = window.open('', '', 'height=600,width=800');
 
+        printWindow.document.write('<html><head><title>Print Score</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
+        printWindow.document.write('h1, h2 { text-align: center; }');
+        printWindow.document.write('.footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px 0; font-size: 12px; color: gray; }');
+        printWindow.document.write('</style></head><body>');
 
+        // Content to be printed
+        printWindow.document.write(content);
+
+        // Custom footer positioned at the bottom of the page
+        printWindow.document.write('<div class="footer">Created with FrancoUke</div>');
+
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        // Print and close the window
+        printWindow.print();
+    }
+</script>
 {% endblock content %}
