@@ -45,6 +45,12 @@ class UserSongListView (ListView):
 class SongDetailView (DetailView):
     model = Song
 
+class ScoreView(DetailView):
+    model = Song
+    template_name = 'songbook/score.html'
+    context_object_name = 'score'
+
+
 class SongCreateView(LoginRequiredMixin, CreateView):
     model = Song
     fields = ['songTitle','songChordPro','metadata']
@@ -54,7 +60,7 @@ class SongCreateView(LoginRequiredMixin, CreateView):
 
 class SongUpdateView (LoginRequiredMixin, UpdateView):
     model = Song
-    fields = ['songTitle', 'songChordPro','metadata']
+    fields = ['songTitle', 'songChordPro','lyrics_with_chords','metadata']
 
     def form_valid(self, form):
         form.instance.contributor = self.request.user

@@ -4,7 +4,8 @@
   <table class="table table-striped">
     <thead>
         <tr>
-            <th>Title</th>
+            <th>Partition</th>
+            <th>Titre</th>
             <th>Artist</th>
             <th>Other Info</th>
         </tr>
@@ -12,6 +13,9 @@
     <tbody>
         {% for song in songs %}
             <tr>
+                <td>
+                  <a href="{% url 'score' song.id %}" target="_blank" class="song-link">{{ song.songTitle }}</a>
+                </td>
                 <td>
                     <a href="{% url 'song-detail' song.id %}" class="song-link">{{ song.songTitle }}</a>
                 </td>

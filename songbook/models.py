@@ -7,7 +7,8 @@ import json
 
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
-    songChordPro = models.TextField()
+    songChordPro = models.TextField()  #Original
+    lyrics_with_chords = models.TextField(editable=True,blank=True)
     metadata = models.JSONField(blank=True, null=True)  # Stores metadata as JSON
     date_posted = models.DateField(default=timezone.now)
     contributor = models.ForeignKey(User, on_delete=models.CASCADE)
