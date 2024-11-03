@@ -2,7 +2,38 @@
 {% load chord_filters %}
 {% block content %}
 
-<div id="printableScore" style="background-color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
+<!-- View Options for customization -->
+<div id="viewOptions" style="margin-bottom: 20px;">
+    <label for="fontSize">Font Size:</label>
+    <select id="fontSize" onchange="updateStyle('fontSize', this.value)">
+        <option value="14px">14px</option>
+        <option value="16px">16px</option>
+        <option value="18px">18px</option>
+        <option value="20px">20px</option>
+    </select>
+
+    <label for="textColor">Text Color:</label>
+    <input type="color" id="textColor" onchange="updateStyle('color', this.value)">
+
+    <label for="lineSpacing">Line Spacing:</label>
+    <select id="lineSpacing" onchange="updateStyle('lineHeight', this.value)">
+        <option value="1.2">1.2</option>
+        <option value="1.4">1.4</option>
+        <option value="1.6">1.6</option>
+        <option value="1.8">1.8</option>
+    </select>
+
+    <!-- Chord Color Control -->
+    <label for="chordColor">Chord Color:</label>
+    <input type="color" id="chordColor" onchange="updateChordColor(this.value)">
+
+    <!-- Print Button -->
+    <button onclick="printDiv('printableScore')">Print Score</button>
+</div>
+
+
+
+<div id="printableScore" style="background-color: #fff; padding: 10px;  max-width: 800px; margin: 10px auto;">
 
     <h1>{{ score.songTitle}}</h1>
     <h2>{{ score.metadata.artist }}</h2>
@@ -17,18 +48,20 @@
         var content = document.getElementById(divId).innerHTML;
         var printWindow = window.open('', '', 'height=600,width=800');
 
+        // Capture current styles from the main div
+        var scoreStyles = document.getElementById(divId).style.cssText;
+
         printWindow.document.write('<html><head><title>Print Score</title>');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
-        printWindow.document.write('h1, h2 { text-align: center; }');
-        printWindow.document.write('.footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px 0; font-size: 12px; color: gray; }');
-        printWindow.document.write('</style></head><body>');
+        printWindow.document.write('<style>body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }</style>');
+        printWindow.document.write('</head><body>');
 
-        // Content to be printed
+        // Apply captured styles to the printable content
+        printWindow.document.write('<div style="' + scoreStyles + '">');
         printWindow.document.write(content);
+        printWindow.document.write('</div>');
 
-        // Custom footer positioned at the bottom of the page
-        printWindow.document.write('<div class="footer">Created with FrancoUke</div>');
+        // Custom footer
+        printWindow.document.write('<div style="text-align: center; position: fixed; bottom: 0; width: 100%; font-size: 12px; color: gray;">Created with FrancoUke</div>');
 
         printWindow.document.write('</body></html>');
         printWindow.document.close();
@@ -37,4 +70,16 @@
         printWindow.print();
     }
 </script>
+
+
+<!-- JavaScript to apply CSS changes dynamically -->
+<script>
+    function updateStyle(styleName, value) {
+        // Apply the CSS change to the printableScore div
+        document.getElementById('printableScore').style[styleName] = value;
+    }
+</script>
+
+
+
 {% endblock content %}
