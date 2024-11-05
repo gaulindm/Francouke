@@ -1,0 +1,60 @@
+<!-- song_simplescore.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ song.title }} - {{ song.artist }}</title>
+    <style>
+        .song {
+            font-family: Arial, sans-serif;
+        }
+        .chorus {
+            background-color: #f0f8ff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .bridge {
+            background-color: #ffe4e1;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .verse {
+            background-color: #e6e6fa;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .chord {
+            font-weight: bold;
+            color: #ff4500;
+        }
+        p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ score.songTitle }}someh1</h1>
+    <h2>{{ score.metadata.artist }}someh2</h2>
+    <div class="song">
+        {% for section, lines in parsed_data.items %}
+            {% if section == 'Other' %}
+                {% for line in lines %}
+                    <p>{{ line }}</p>
+                {% endfor %}
+            {% else %}
+                <div class="{{ section|lower }}">
+                    {% for line in lines %}
+                        <p>
+                            {% for chord in line.chords %}
+                                <span class="chord">{{ chord }}</span>
+                            {% endfor %}
+                            {{ line.lyrics }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</body>
+</html>

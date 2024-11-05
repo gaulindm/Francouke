@@ -20,15 +20,3 @@ class Command(BaseCommand):
             song.lyrics_with_chords = lyrics_with_chords
             song.save()  # Save changes to the database
 
-    #    self.stdout.write(self.style.SUCCESS("Successfully populated Song records"))
-      #  song = Song.objects.first()
-      #  metadata, lyrics_with_chords = parse_chordpro(song.songChordPro)
-
-        # Ensure lyrics_with_chords is a list of dictionaries, not a JSON string
-      #  if isinstance(lyrics_with_chords, str):
-      #      import json
-      #      lyrics_with_chords = json.loads(lyrics_with_chords)
-
-      #  song.metadata = metadata
-      #  song.lyrics_with_chords = lyrics_with_chords
-      #  song.save()
