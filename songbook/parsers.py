@@ -1,38 +1,84 @@
 import re
 
 def parse_chordpro(content):
+    """
+    Parses ChordPro formatted content into metadata and lyrics with chords.
+    
+    Args:
+        content (str): The ChordPro formatted content.
+        
+    Returns:
+        tuple: A tuple containing metadata (dict) and lyrics with chords (list).
+    """
     metadata = {}
     lyrics_with_chords = []
 
-    # Split content by line
-    lines = content.splitlines()
-    for line in lines:
-        # Extract metadata (e.g., title, artist)
-        if line.startswith("{"):
-            if "title:" in line.lower():
-                metadata["title"] = line.split(":")[1].strip("} ")
-            elif "artist:" in line.lower():
-                metadata["artist"] = line.split(":")[1].strip("} ")
-            # Add more metadata parsing here if needed
-            continue
-        
-        # Parse lyrics with chords
-        parsed_line = []
-        parts = re.split(r'(\[.*?\])', line)  # Split by chords in brackets
-        for part in parts:
-            if part.startswith("[") and part.endswith("]"):
-                chord = part.strip("[]")
-                parsed_line.append({"chord": chord, "lyric": ""})  # Add empty lyric if chord-only
+    try:
+        # Replace two consecutive line breaks with <br>
+        content = re.sub(r'\n{2,}', '<br>', content)
+
+        # Split content by line
+        lines = content.splitlines()
+        for line in lines:
+            # Extract metadata (e.g., title, artist)
+            if line.startswith("{"):
+                parse_metadata(line, metadata)
+                continue
+            
+            # Check for section markers
+            if line.lower().startswith("{verse}") or line.lower().startswith("{chorus}"):
+                lyrics_with_chords.append({"type": "section", "name": line.strip("{}").lower()})
+                continue
+
+            # Parse lyrics with chords
+            parsed_line = parse_lyrics_with_chords(line)
+            if parsed_line:
+                lyrics_with_chords.append(parsed_line)
             else:
-                if parsed_line and "lyric" in parsed_line[-1] and parsed_line[-1]["lyric"] == "":
-                    # Attach lyrics to the previous chord dictionary if it exists
-                    parsed_line[-1]["lyric"] = part
-                else:
-                    # Add lyrics without chord if no chord was found before
-                    parsed_line.append({"chord": "", "lyric": part})
-        
-        # Only add non-empty parsed lines to lyrics_with_chords
-        if parsed_line:
-            lyrics_with_chords.append(parsed_line)
+                # Add a marker for paragraph breaks
+                print("Adding paragraph break marker")
+                lyrics_with_chords.append({"type": "break"})
+
+    except Exception as e:
+        print(f"Error parsing content: {e}")
 
     return metadata, lyrics_with_chords
+
+def parse_metadata(line, metadata):
+    """
+    Parses a metadata line and updates the metadata dictionary.
+    
+    Args:
+        line (str): The metadata line.
+        metadata (dict): The metadata dictionary to update.
+    """
+    if "title:" in line.lower():
+        metadata["title"] = line.split(":")[1].strip("} ")
+    elif "artist:" in line.lower():
+        metadata["artist"] = line.split(":")[1].strip("} ")
+    # Add more metadata parsing here if needed
+
+def parse_lyrics_with_chords(line):
+    """
+    Parses a line of lyrics with chords.
+    
+    Args:
+        line (str): The line of lyrics with chords.
+        
+    Returns:
+        list: A list of dictionaries with chords and lyrics.
+    """
+    parsed_line = []
+    parts = re.split(r'(\[.*?\])', line)  # Split by chords in brackets
+    for part in parts:
+        if part.startswith("[") and part.endswith("]"):
+            chord = part.strip("[]")
+            parsed_line.append({"chord": chord, "lyric": ""})  # Add empty lyric if chord-only
+        else:
+            if parsed_line and "lyric" in parsed_line[-1] and parsed_line[-1]["lyric"] == "":
+                # Attach lyrics to the previous chord dictionary if it exists
+                parsed_line[-1]["lyric"] = part
+            else:
+                # Add lyrics without chord if no chord was found before
+                parsed_line.append({"chord": "", "lyric": part})
+    return parsed_line if parsed_line else None

@@ -9,26 +9,26 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Retrieve all Song records
-#        songs = Song.objects.all()
- #       for song in songs:
+        songs = Song.objects.all()
+        for song in songs:
             # Parse the ChordPro content of the song
-  #          metadata, lyrics_with_chords = parse_chordpro(song.songChordPro)
+            metadata, lyrics_with_chords = parse_chordpro(song.songChordPro)
             
-            # Update the song record with parsed data
-   #         song.metadata = metadata
+             #Update the song record with parsed data
+            song.metadata = metadata
     
-    #        song.lyrics_with_chords = lyrics_with_chords
-    #        song.save()  # Save changes to the database
+            song.lyrics_with_chords = lyrics_with_chords
+            song.save()  # Save changes to the database
 
     #    self.stdout.write(self.style.SUCCESS("Successfully populated Song records"))
-        song = Song.objects.first()
-        metadata, lyrics_with_chords = parse_chordpro(song.songChordPro)
+      #  song = Song.objects.first()
+      #  metadata, lyrics_with_chords = parse_chordpro(song.songChordPro)
 
         # Ensure lyrics_with_chords is a list of dictionaries, not a JSON string
-        if isinstance(lyrics_with_chords, str):
-            import json
-            lyrics_with_chords = json.loads(lyrics_with_chords)
+      #  if isinstance(lyrics_with_chords, str):
+      #      import json
+      #      lyrics_with_chords = json.loads(lyrics_with_chords)
 
-        song.metadata = metadata
-        song.lyrics_with_chords = lyrics_with_chords
-        song.save()
+      #  song.metadata = metadata
+      #  song.lyrics_with_chords = lyrics_with_chords
+      #  song.save()

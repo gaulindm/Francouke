@@ -123,6 +123,13 @@ body {
   margin: 10px auto;
 }
 
+.lyrics-container {
+  line-height: 1.4; /* Adjust this value as needed */
+}
+.lyrics-container p {
+  margin: 1em 0; /* Adjust the margin for paragraph breaks */
+}
+
 .lyrics {
   --font-color: #000; /* Default color */
 }

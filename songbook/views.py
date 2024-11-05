@@ -53,7 +53,7 @@ class SongDetailView (DetailView):
 
 class ScoreView(DetailView):
     model = Song
-    template_name = 'songbook/song_score.html' #While I am experimenting with scoreview
+    template_name = 'songbook/song_simplescore.html' #While I am experimenting with scoreview
     context_object_name = 'score'
 
     def song_detail(request, song_id):

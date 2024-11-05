@@ -1,6 +1,17 @@
 {% extends "songbook/base.html" %}
 {% block content %}
-
+<style>
+    .lyrics-container {
+        line-height: 1.4; /* Adjust this value as needed */
+    }
+    .lyrics-container p {
+        margin: 1em 0; /* Adjust the margin for paragraph breaks */
+    }
+    .lyrics-container h3 {
+        margin-top: 1.5em; /* Adjust the margin for section headers */
+        font-weight: bold;
+    }
+</style>
 <div id="viewOptions">
     <label for="fontSize">Font Size:</label>
     <select id="fontSize" onchange="updateStyle('font-size', this.value)">
@@ -35,23 +46,27 @@
     <button onclick="printDiv('printableScore')">Print Score</button>
 </div>
 
-<div id="printableScore">
+<div class="lyrics-container">
     <h1>{{ score.songTitle }}</h1>
     <h2>{{ score.metadata.artist }}</h2>
 
-    <div class="lyrics">
-        {% for line in score.lyrics_with_chords %}
-            
+    {% for line in score.lyrics_with_chords %}
+        {% if line.type == "section" %}
+            <h3>{{ line.name|title }}</h3>
+        {% elif line.type == "break" %}
+            <p></p> <!-- Add a paragraph break -->
+        {% else %}
+            <div>
                 {% for part in line %}
                     {% if part.chord %}
-                        <span class="chord">[{{ part.chord }}]</span>
+                        [{{ part.chord }}]
                     {% endif %}
-                    <span class="lyric">{{ part.lyric }}</span>
+                    {{ part.lyric }}
                 {% endfor %}
-            
-        {% endfor %}
-    </div>
-    
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
 </div>
 
 
