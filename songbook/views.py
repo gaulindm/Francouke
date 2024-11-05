@@ -56,6 +56,13 @@ class ScoreView(DetailView):
     template_name = 'songbook/song_score.html' #While I am experimenting with scoreview
     context_object_name = 'score'
 
+    def song_detail(request, song_id):
+        song = get_object_or_404(Song, id=song_id)
+        context = {
+            'score': song,  # 'score' will map to the 'song' instance
+        }
+        return render(request, 'song_score.html', context)
+
 
 class SongCreateView(LoginRequiredMixin, CreateView):
     model = Song

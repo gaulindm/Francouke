@@ -1,11 +1,9 @@
 {% extends "songbook/base.html" %}
-{% load chord_filters %}
 {% block content %}
 
-<!-- View Options for customization -->
-<div id="viewOptions" style="margin-bottom: 20px;">
+<div id="viewOptions">
     <label for="fontSize">Font Size:</label>
-    <select id="fontSize" onchange="updateStyle('fontSize', this.value)">
+    <select id="fontSize" onchange="updateStyle('font-size', this.value)">
         <option value="14px">14px</option>
         <option value="16px">16px</option>
         <option value="18px">18px</option>
@@ -16,18 +14,16 @@
     <input type="color" id="textColor" onchange="updateStyle('color', this.value)">
 
     <label for="lineSpacing">Line Spacing:</label>
-    <select id="lineSpacing" onchange="updateStyle('lineHeight', this.value)">
+    <select id="lineSpacing" onchange="updateStyle('line-height', this.value)">
         <option value="1.2">1.2</option>
         <option value="1.4">1.4</option>
         <option value="1.6">1.6</option>
         <option value="1.8">1.8</option>
     </select>
-    
-    <!-- Chord Color Control -->
+
     <label for="chordColor">Chord Color:</label>
     <input type="color" id="chordColor" onchange="updateChordStyle()">
 
-    <!-- Chord Weight Control -->
     <label for="chordWeight">Chord Weight:</label>
     <select id="chordWeight" onchange="updateChordStyle()">
         <option value="normal">Normal</option>
@@ -36,76 +32,66 @@
         <option value="lighter">Lighter</option>
     </select>
 
-
-
-    <!-- Print Button -->
     <button onclick="printDiv('printableScore')">Print Score</button>
 </div>
 
-
-
-
-<div id="printableScore" style="background-color: #fff; padding: 10px;  max-width: 800px; margin: 10px auto;">
-
-    <h1>{{ score.songTitle}}</h1>
+<div id="printableScore">
+    <h1>{{ score.songTitle }}</h1>
     <h2>{{ score.metadata.artist }}</h2>
+
     <div class="lyrics">
-        <p>{{ score.lyrics_with_chords|format_chords }}</p>
+        {% for line in score.lyrics_with_chords %}
+            
+                {% for part in line %}
+                    {% if part.chord %}
+                        <span class="chord">[{{ part.chord }}]</span>
+                    {% endif %}
+                    <span class="lyric">{{ part.lyric }}</span>
+                {% endfor %}
+            
+        {% endfor %}
     </div>
+    
 </div>
 
 
+<!-- Step 3: Add JavaScript here for dynamic style updates -->
 <script>
     // Function to update general styles for the score content
     function updateStyle(styleName, value) {
-        document.getElementById('printableScore').style[styleName] = value;
+    if (styleName === 'color') {
+        document.documentElement.style.setProperty('--font-color', value);
+    } else {
+        document.documentElement.style.setProperty(`--${styleName}`, value);
     }
-
+}
     // Function to update chord color and weight
     function updateChordStyle() {
         const chordColor = document.getElementById('chordColor').value;
         const chordWeight = document.getElementById('chordWeight').value;
-        const chords = document.querySelectorAll('#printableScore .chord');
-        chords.forEach(chord => {
-            chord.style.color = chordColor;
-            chord.style.fontWeight = chordWeight;
-        });
+
+        // Apply chord color and weight
+        document.documentElement.style.setProperty('--chord-color', chordColor);
+        document.documentElement.style.setProperty('--chord-weight', chordWeight);
     }
 
     // Print function to carry over custom styles, including chord color and weight
     function printDiv(divId) {
         var content = document.getElementById(divId).innerHTML;
         var printWindow = window.open('', '', 'height=600,width=800');
-        
-        // Capture the main score styles
-        var scoreStyles = document.getElementById(divId).style.cssText;
-
-        // Get the custom chord color and weight
-        var chordColor = document.getElementById('chordColor').value;
-        var chordWeight = document.getElementById('chordWeight').value;
 
         printWindow.document.write('<html><head><title>Print Score</title>');
         printWindow.document.write('<style>');
         printWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }');
-        printWindow.document.write('.chord { color: ' + chordColor + '; font-weight: ' + chordWeight + '; }'); // Apply custom chord color and weight
+        printWindow.document.write(`.chord { color: ${getComputedStyle(document.documentElement).getPropertyValue('--chord-color')}; font-weight: ${getComputedStyle(document.documentElement).getPropertyValue('--chord-weight')}; }`);
+        printWindow.document.write('.lyrics p { line-height: ' + getComputedStyle(document.documentElement).getPropertyValue('--line-height') + '; font-size: ' + getComputedStyle(document.documentElement).getPropertyValue('--font-size') + '; }');
         printWindow.document.write('</style></head><body>');
-        
-        // Apply captured styles to the printable content
-        printWindow.document.write('<div style="' + scoreStyles + '">');
         printWindow.document.write(content);
-        printWindow.document.write('</div>');
-        
-        // Custom footer
-        printWindow.document.write('<div style="text-align: center; position: fixed; bottom: 0; width: 100%; font-size: 12px; color: gray;">Created with FrancoUke</div>');
-        
         printWindow.document.write('</body></html>');
         printWindow.document.close();
-        
-        // Print and close the window
+
         printWindow.print();
     }
 </script>
-
-
 
 {% endblock content %}

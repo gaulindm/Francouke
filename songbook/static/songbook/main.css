@@ -108,3 +108,30 @@ body {
 .media.format-2 .article-content {
   font-weight: bold;
 }
+#viewOptions {
+  margin-bottom: 20px;
+}
+
+#fontSize, #textColor, #lineSpacing, #chordColor, #chordWeight {
+  margin-right: 10px;
+}
+
+#score {
+  background-color: #fff;
+  padding: 10px;
+  max-width: 800px;
+  margin: 10px auto;
+}
+
+.lyrics {
+  --font-color: #000; /* Default color */
+}
+
+.lyric {
+  color: var(--font-color); /* Apply the font color variable */
+}
+
+.chord {
+  color: var(--chord-color, #007bff); /* Default chord color, customizable */
+  font-weight: bold;
+}
