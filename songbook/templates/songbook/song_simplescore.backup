@@ -1,0 +1,42 @@
+{% extends "songbook/base.html" %}
+{% block content %}
+<style>
+    .lyrics-container {
+        line-height: 1.0; /* Adjust this value as needed */
+    }
+    .lyrics-container p {
+        margin: 1em 0; /* Adjust the margin for paragraph breaks */
+    }
+    .line {
+        margin-bottom: 0.5em; /* Adjust spacing between lines */
+    }
+    .chord {
+        font-weight: bold;
+        color: #0000FF; /* Adjust chord color as needed */
+    }
+    .lyric {
+        margin-left: 0.2em; /* Adjust spacing between chord and lyric */
+    }
+</style>
+    <div class="lyrics-container">
+        <h1>{{ score.songTitle }}</h1>
+        <h2>{{ score.metadata.artist }}</h2>
+
+        {% for line in score.lyrics_with_chords %}
+            {% if line.type == "section" %}
+                <h3>{{ line.name|title }}</h3>
+            {% elif line.type == "break" %}
+                <p></p> <!-- Add a paragraph break -->
+            {% else %}
+                <div class="line">
+                    {% for part in line %}
+                        {% if part.chord %}
+                            <span class="chord">[{{ part.chord }}]</span>
+                        {% endif %}
+                        <span class="lyric">{{ part.lyric }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock content %}

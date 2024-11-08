@@ -1,42 +1,92 @@
 {% extends "songbook/base.html" %}
 {% block content %}
+
 <style>
     .lyrics-container {
-        line-height: 1.0; /* Adjust this value as needed */
+        font-family: Arial, sans-serif;
+        margin: 20px;
     }
-    .lyrics-container p {
-        margin: 1em 0; /* Adjust the margin for paragraph breaks */
+    .lyrics-container h1, .lyrics-container h2 {
+        text-align: center;
     }
-    .line {
-        margin-bottom: 0.5em; /* Adjust spacing between lines */
+    .lyrics-container h3 {
+        margin-top: 20px;
+        font-size: 1.5em;
     }
-    .chord {
+    .lyrics-container .line {
+        display: inline-block;
+        margin: 5px 0;
+    }
+    .lyrics-container .chord {
         font-weight: bold;
-        color: #0000FF; /* Adjust chord color as needed */
+        color: #007BFF;
+        padding:0;
+        margin:0;
+        line-height: 1;
     }
-    .lyric {
-        margin-left: 0.2em; /* Adjust spacing between chord and lyric */
+    .lyrics-container .lyric {
+        margin-left: 0px;
+    }
+    .lyrics-container .chorus {
+        text-align: center;
+        font-style: normal;
+    }
+    .lyrics-container .verse {
+        /* Future styling for verse */
+        font-style: normal;
+    }
+    .lyrics-container .bridge {
+        /* Future styling for bridge */
+        font-style: italic;
     }
 </style>
-    <div class="lyrics-container">
-        <h1>{{ score.songTitle }}</h1>
-        <h2>{{ score.metadata.artist }}</h2>
 
-        {% for line in score.lyrics_with_chords %}
-            {% if line.type == "section" %}
-                <h3>{{ line.name|title }}</h3>
-            {% elif line.type == "break" %}
-                <p></p> <!-- Add a paragraph break -->
+
+
+<div class="lyrics-container">
+    <!-- Display the song title -->
+    <h1>{{ score.songTitle }}</h1>
+    <!-- Display the artist's name -->
+    <h2>{{ score.metadata.artist }}</h2>
+
+    <!-- Loop through each line in the lyrics with chords -->
+    {% for line in score.lyrics_with_chords %}
+        <!-- Check for directives and handle them accordingly -->
+        {% for part in line %}
+            {% if part.directive %}
+                {% if part.directive == "{sov}" %}
+                    <div class="verse">
+                        <h3>Verse</h3>
+                {% elif part.directive == "{eov}" %}
+                    </div> <!-- End of verse -->
+                {% elif part.directive == "{soc}" %}
+                    <div class="chorus">
+                        <h3>Chorus</h3>
+                {% elif part.directive == "{eoc}" %}
+                    </div> <!-- End of chorus -->
+                {% elif part.directive == "{sob}" %}
+                    <div class="bridge">
+                        <h3>Bridge</h3>
+                {% elif part.directive == "{eob}" %}
+                    </div> <!-- End of bridge -->
+                {% endif %}
+            {% elif part.format == "LINEBREAK" %}
+                <!-- Add a line break -->
+                <br>
             {% else %}
-                <div class="line">
-                    {% for part in line %}
-                        {% if part.chord %}
-                            <span class="chord">[{{ part.chord }}]</span>
-                        {% endif %}
-                        <span class="lyric">{{ part.lyric }}</span>
-                    {% endfor %}
-                </div>
+                <!-- Display the chord and lyric in the same line -->
+                <span class="line">
+                    {% if part.chord %}
+                        <span class="chord">[{{ part.chord }}]</span>
+                    {% endif %}
+                    <span class="lyric">{{ part.lyric }}</span>
+                </span>
             {% endif %}
         {% endfor %}
-    </div>
+    {% endfor %}
+</div>
+
+
+
+
 {% endblock content %}

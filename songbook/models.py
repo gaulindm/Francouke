@@ -1,13 +1,15 @@
+# models.py
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 import re
 import json
+from .parsers import parse_song_data  # Import the parse_song_data function
 
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
-    songChordPro = models.TextField()  #Original
+    songChordPro = models.TextField()  # Original
     lyrics_with_chords = models.JSONField(null=True, blank=True)
     metadata = models.JSONField(blank=True, null=True)  # Stores metadata as JSON
     date_posted = models.DateField(default=timezone.now)
@@ -20,8 +22,11 @@ class Song(models.Model):
         else:
             # Only update metadata
             _, self.metadata = self.parse_metadata_from_chordpro()
-        super().save(*args, **kwargs)
+        
+        # Parse the songChordPro content of the song
+        self.lyrics_with_chords = parse_song_data(self.songChordPro)
 
+        super().save(*args, **kwargs)
 
     def parse_metadata_from_chordpro(self):
         # Regular expressions to find all relevant metadata tags

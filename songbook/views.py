@@ -11,6 +11,7 @@ from django.views.generic import (
     )
 from .models import Song
 from django.db. models import Prefetch
+from .parsers import parse_song_data
 from unidecode import unidecode
 
 
@@ -76,14 +77,21 @@ class SongUpdateView (LoginRequiredMixin, UpdateView):
     fields = ['songTitle', 'songChordPro','lyrics_with_chords','metadata']
 
     def form_valid(self, form):
+        # Set the contributor to the current user
         form.instance.contributor = self.request.user
+        
+        # Parse the songChordPro field
+        raw_lyrics = form.cleaned_data['songChordPro']
+        parsed_lyrics = parse_song_data(raw_lyrics)
+        
+        # Update the lyrics_with_chords field with the parsed data
+        form.instance.lyrics_with_chords = parsed_lyrics
+        
         return super().form_valid(form)
         
     def test_func(self):
-        song= self.get_object()
-        if self.request.user ==song.contributor:
-            return True
-        return False
+        song = self.get_object()
+        return self.request.user == song.contributor
 
 
 
