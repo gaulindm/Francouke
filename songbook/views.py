@@ -12,6 +12,7 @@ from django.views.generic import (
 from .models import Song
 from django.db. models import Prefetch
 from .parsers import parse_song_data
+from .transposer import extract_chords
 from unidecode import unidecode
 
 
@@ -37,6 +38,24 @@ class SongListView (ListView):
     def get_queryset(self):
         # Sort by title and return
         return Song.objects.all()
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        song_data = []
+
+        for song in context['songs']:
+            parsed_data = song.lyrics_with_chords  # Assuming this is already parsed and stored
+            chords = extract_chords(parsed_data,unique=True)
+            song_data.append({
+                'song': song,
+                'chords': ', '.join(chords)  # Join chords into a string for display
+            })
+
+        context['song_data'] = song_data
+        return context
+
+
     
 class UserSongListView (ListView):
     model = Song

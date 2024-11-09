@@ -7,24 +7,22 @@
             <th>Partition</th>
             <th>Titre</th>
             <th>Artist</th>
-            <th>Other Info</th>
+            <th>Chords used</th>
         </tr>
     </thead>
     <tbody>
-        {% for song in songs %}
-            <tr>
-                <td>
-                <a href="{% url 'score' song.id %}" class="song-link">{{ song.songTitle }}</a>
-                </td>
-                <td>
-                    <a href="{% url 'song-detail' song.id %}" class="song-link">{{ song.songTitle }}</a>
-                </td>
-                <td>{{ song.metadata.artist|default:"Unknown Artist" }}</td>
-                <td>{{ song.metadata.otherInfo|default:"N/A" }}</td>
-            </tr>
-
-
-        {% endfor %}
+      {% for item in song_data %}
+      <tr>
+          <td>
+              <a href="{% url 'score' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
+          </td>
+          <td>
+              <a href="{% url 'song-detail' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
+          </td>
+          <td>{{ item.song.metadata.artist|default:"Unknown Artist" }}</td>
+          <td>{{ item.chords|default:"N/A" }}</td>
+      </tr>
+  {% endfor %}
     </tbody>
 </table>
 
