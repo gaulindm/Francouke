@@ -6,8 +6,8 @@
         <tr>
             <th>Partition</th>
             <th>Titre</th>
-            <th>Artist</th>
-            <th>Chords used</th>
+            <th>Interprète</th>
+            <th>Tonalité et (accords jouées)</th>
         </tr>
     </thead>
     <tbody>
@@ -20,7 +20,7 @@
               <a href="{% url 'song-detail' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
           </td>
           <td>{{ item.song.metadata.artist|default:"Unknown Artist" }}</td>
-          <td>{{ item.chords|default:"N/A" }}</td>
+          <td>{{ item.song.metadata.key|default:"Unkown" }} - ({{ item.chords|default:"N/A" }})</td>
       </tr>
   {% endfor %}
     </tbody>

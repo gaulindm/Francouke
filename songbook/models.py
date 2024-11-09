@@ -6,6 +6,7 @@ from django.urls import reverse
 import re
 import json
 from .parsers import parse_song_data  # Import the parse_song_data function
+from .transposer import detect_key
 
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
@@ -26,6 +27,10 @@ class Song(models.Model):
         # Parse the songChordPro content of the song
         self.lyrics_with_chords = parse_song_data(self.songChordPro)
 
+        # Detect the key if not already specified
+        if not self.metadata.get('key'):
+            self.metadata['key'] = detect_key(self.lyrics_with_chords)
+            
         super().save(*args, **kwargs)
 
     def parse_metadata_from_chordpro(self):

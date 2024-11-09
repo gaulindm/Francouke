@@ -12,14 +12,22 @@ from django.views.generic import (
 from .models import Song
 from django.db. models import Prefetch
 from .parsers import parse_song_data
-from .transposer import extract_chords
+from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
+
 
 
 #def score_view(request, song_id):
 #    song = get_object_or_404(Song, id=song_id)  # Fetch the song based on the id
 #    return render(request, 'score.html', {'score': song})  
 
+def transpose_song_view(request, song_id, new_key):
+    song = get_object_or_404(Song, id=song_id)
+    parsed_data = song.lyrics_with_chords  # Assuming this is already parsed and stored
+    original_key = song.metadata.get('key') or detect_key(parsed_data)
+    steps = calculate_steps(original_key, new_key)
+    transposed_lyrics = transpose_lyrics(parsed_data, steps)
+    return render(request, 'songbook/song_detail.html', {'song': song, 'transposed_lyrics': transposed_lyrics})
 
 
 def home(request):
@@ -82,6 +90,8 @@ class ScoreView(DetailView):
             'score': song,  # 'score' will map to the 'song' instance
         }
         return render(request, 'song_score.html', context)
+    
+
 
 
 class SongCreateView(LoginRequiredMixin, CreateView):
