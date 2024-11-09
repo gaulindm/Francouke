@@ -27,8 +27,7 @@ def transpose_song_view(request, song_id, new_key):
     original_key = song.metadata.get('key') or detect_key(parsed_data)
     steps = calculate_steps(original_key, new_key)
     transposed_lyrics = transpose_lyrics(parsed_data, steps)
-    return render(request, 'songbook/song_detail.html', {'song': song, 'transposed_lyrics': transposed_lyrics})
-
+    return render(request, 'songbook/song_simplescore.html', {'score': song, 'transposed_lyrics': transposed_lyrics})
 
 def home(request):
     context = {
