@@ -56,4 +56,4 @@ class Song(models.Model):
         return self.songTitle or "Untitled Song"
     
     def get_absolute_url(self):
-        return reverse('song-detail', kwargs={'pk': self.pk})
+        return reverse('score', kwargs={'pk': self.pk})

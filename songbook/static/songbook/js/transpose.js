@@ -1,53 +1,4 @@
-{% extends "songbook/base_cp.html" %}
-{% block content %}
-
-<style>
-    .lyrics-container {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    .lyrics-container h1, .lyrics-container h2 {
-        text-align: center;
-    }
-    .lyrics-container h3 {
-        margin-top: 20px;
-        font-size: 1.5em;
-    }
-    .lyrics-container .line {
-        display: inline-block;
-        margin: 5px 0;
-    }
-    .lyrics-container .chord {
-        font-weight: bold;
-        color: #007BFF;
-        padding:0;
-        margin:0;
-        line-height: 1;
-    }
-    .lyrics-container .lyric {
-        margin-left: 0px;
-    }
-    .lyrics-container .chorus {
-        text-align: center;
-        font-style: normal;
-    }
-    .lyrics-container .verse {
-        font-style: normal;
-    }
-    .lyrics-container .bridge {
-        font-style: italic;
-    }
-</style>
-
-<div class="lyrics-container">
-    <h1>{{ score.songTitle }}</h1>
-    <h2>{{ score.metadata.artist }}</h2>
-    <div id="song-content"></div>
-
-</div>
-<script>
-    const songDict = {{ score.lyrics_with_chords|safe }};
-    const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
+const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
 const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
 
 function transposeChord(chord, semitones) {
@@ -108,5 +59,3 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
     renderSong(songDict, 0);
 });
-</script>
-{% endblock content %}
