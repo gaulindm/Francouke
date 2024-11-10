@@ -8,6 +8,36 @@ import json
 from .parsers import parse_song_data  # Import the parse_song_data function
 from .transposer import detect_key
 
+
+class Instrument(models.Model):
+    name = models.CharField(max_length=100)
+    tuning = models.JSONField()
+    alternate_names = models.JSONField()
+
+    def __str__(self):
+        return self.name
+
+class Chord(models.Model):
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
+    name = models.CharField(max_length=10)
+    positions = models.JSONField()
+
+    def __str__(self):
+        return f"{self.name} ({self.instrument.name})"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
     songChordPro = models.TextField()  # Original
