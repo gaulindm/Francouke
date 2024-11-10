@@ -75,20 +75,25 @@ class UserSongListView (ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Song.objects.filter(contributor=user).order_by('songTitle')
 
-class SongDetailView (DetailView):
+class SongDetailView (DetailView): 
     model = Song
+
+# This Function Based view of the SongDetail is no longer used. 
+# But I kept in here in case I need to go back to it if the CBV is not working out 
+   # def song_detail(request, song_id):
+   #     song = get_object_or_404(Song, id=song_id)
+   #     context = {
+   #         'score': song,  # 'score' will map to the 'song' instance
+   #     }
+   #     return render(request, 'song_score.html', context)
+
+
 
 class ScoreView(DetailView):
     model = Song
     template_name = 'songbook/song_simplescore.html' #While I am experimenting with scoreview
     context_object_name = 'score'
 
-    def song_detail(request, song_id):
-        song = get_object_or_404(Song, id=song_id)
-        context = {
-            'score': song,  # 'score' will map to the 'song' instance
-        }
-        return render(request, 'song_score.html', context)
     
 
 
