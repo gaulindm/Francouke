@@ -1,13 +1,15 @@
 [
-    {
-        "name": "Ukulele",
-        "tuning": ["G", "C", "E", "A"],
-        "alternate_names": ["Uke"]
-    },
-    {
-        "name": "Baritone Ukulele",
-        "tuning": ["D", "G", "B", "E"],
-        "alternate_names": ["Baritone Uke"]
-    }
+  {
+    "name": "Soprano Ukulele",
+    "tuning": "GCEA",
+    "alternate_names": ["Uke", "Soprano Uke", "Ukulele"],
+    "chord_definitions": "soprano_ukulele_chords.json"
+  },
+  {
+    "name": "Baritone Ukulele",
+    "tuning": "DGBE",
+    "alternate_names": ["Baritone Uke"],
+    "chord_definitions": "soprano_ukulele_chords.json",
+    "transpose": "+5"
+  }
 ]
-

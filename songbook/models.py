@@ -13,6 +13,8 @@ class Instrument(models.Model):
     name = models.CharField(max_length=100)
     tuning = models.JSONField()
     alternate_names = models.JSONField()
+    chord_definitions = models.JSONField()
+    transpose = models.IntegerField(null=True, blank=True)  # Add this line for optional transpose
 
     def __str__(self):
         return self.name

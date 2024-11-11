@@ -14,6 +14,19 @@ from django.db. models import Prefetch
 from .parsers import parse_song_data
 from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
+import svgwrite
+from django.http import HttpResponse
+
+def chord_diagram_view(request):
+    # Create an SVG diagram
+    dwg = svgwrite.Drawing(size=("100px", "100px"))
+    dwg.add(dwg.line((10, 10), (90, 90), stroke=svgwrite.rgb(10, 10, 16, '%')))
+    dwg.add(dwg.text("Chord Diagram", insert=(10, 20), fill="black"))
+
+    # Return as SVG response
+    response = HttpResponse(dwg.tostring(), content_type="image/svg+xml")
+    return response
+
 
 
 
