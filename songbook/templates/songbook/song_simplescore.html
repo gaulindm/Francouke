@@ -39,12 +39,25 @@
     }
 </style>
 
-<div class="lyrics-container">
-    <h1>{{ score.songTitle }}</h1>
-    <h2>{{ score.metadata.artist }}</h2>
-    <div id="song-content"></div>
+<div class="row">
+    <div class="col-md-8">
+        <div class="lyrics-container">
+            <h1>{{ score.songTitle }}</h1>
+            <h2>{{ score.metadata.artist }}</h2>
+            <div id="song-content"></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h4>Chord Diagrams</h4>
+        {% for chord in chords %}
+            <div class="chord-diagram">
 
+            </div>
+        {% endfor %}
+    </div>
 </div>
+
+
 <script>
     const songDict = {{ score.lyrics_with_chords|safe }};
     const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
