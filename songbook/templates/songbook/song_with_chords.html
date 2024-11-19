@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song with Chords</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .left, .right {
+            width: 48%;
+        }
+        .right svg {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Side: Transposed Song -->
+        <div class="left">
+            <h2>{{ score.title }}</h2>
+            <p><strong>Original Key:</strong> {{ score.metadata.key }}</p>
+            <p><strong>Transposed to:</strong> {{ score.metadata.new_key }}</p>
+            <pre>{{ transposed_lyrics }}</pre>
+        </div>
+
+        <!-- Right Side: Chord Diagrams -->
+        <div class="right">
+            <h3>Chord Diagrams ({{ instrument }})</h3>
+            {% for chord in chords %}
+                <div>
+                    <h4>{{ chord.name }}</h4>
+                    {{ chord.svg|safe }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

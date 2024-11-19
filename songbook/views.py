@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin,  UserPassesTestMixin
 from django.contrib.auth.models import User
+from monAccordeur.models import Chord
+from monAccordeur.svg_generator import generate_chord_svg
 from django.views.generic import (
     ListView, 
     DetailView,
@@ -20,6 +22,54 @@ from unidecode import unidecode
 #def score_view(request, song_id):
 #    song = get_object_or_404(Song, id=song_id)  # Fetch the song based on the id
 #    return render(request, 'score.html', {'score': song})  
+
+def song_with_chords_view(request, song_id, new_key, instrument='ukulele'):
+    # Data for the left side (transposed song)
+    song = get_object_or_404(Song, id=song_id)
+    parsed_data = song.lyrics_with_chords  # Assuming this is parsed and stored
+    original_key = song.metadata.get('key') or detect_key(parsed_data)
+    steps = calculate_steps(original_key, new_key)
+    transposed_lyrics = transpose_lyrics(parsed_data, steps)
+
+    # Data for the right side (chord diagrams)
+    chords_param = request.GET.get('chords', '')  # Optional: Pass chords via query params
+    desired_chords = chords_param.split(',') if chords_param else []
+    is_lefty = request.GET.get('isLefty', 'false').lower() == 'true'
+
+    # Fetch chords for the instrument
+    chords_queryset = Chord.objects.filter(
+        instrument__name=instrument,
+        name__in=desired_chords
+    ) if desired_chords else Chord.objects.filter(instrument__name=instrument)
+
+    chords = []
+    for chord in chords_queryset:
+        frets = chord.frets[::-1] if is_lefty else chord.frets
+        fingers = chord.fingers[::-1] if is_lefty and chord.fingers else chord.fingers
+        chords.append({
+            "name": chord.name,
+            "frets": frets,
+            "fingers": fingers,
+            "svg": generate_chord_svg(
+                chord_name=chord.name,
+                frets=frets,
+                fingers=fingers
+            )
+        })
+
+    context = {
+        'score': song,
+        'transposed_lyrics': transposed_lyrics,
+        'chords': chords,
+        'instrument': instrument,
+        'isLefty': is_lefty,
+    }
+    return render(request, 'songbook/song_with_chords.html', context)
+
+
+
+
+
 
 def transpose_song_view(request, song_id, new_key):
     song = get_object_or_404(Song, id=song_id)

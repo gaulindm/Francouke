@@ -19,5 +19,6 @@ urlpatterns = [
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),
     path('transpose/<int:song_id>/<str:new_key>/', transpose_song_view, name='transpose_song'),
+    path('song/<int:song_id>/with-chords/<str:new_key>/', views.song_with_chords_view, name='song_with_chords'),
 
 ]

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'monAccordeur.apps.MonaccordeurConfig',
     'songbook.apps.SongbookConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
