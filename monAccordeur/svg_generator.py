@@ -5,9 +5,9 @@ import logging
 PADDING = 20
 TITLE_HEIGHT = 20
 STRING_AREA_PADDING = 10
-DEFAULT_FRET_COUNT = 5
-DEFAULT_WIDTH = 120
-DEFAULT_HEIGHT = 150
+DEFAULT_FRET_COUNT = 4
+DEFAULT_WIDTH = 80
+DEFAULT_HEIGHT = 110
 
 # Configure logger (remove basicConfig; assume it's set globally)
 logger = logging.getLogger(__name__)
@@ -81,6 +81,10 @@ def generate_chord_svg(
             end=(x, TITLE_HEIGHT + STRING_AREA_PADDING + fret_spacing * fret_count), 
             stroke="black", stroke_width=2
         ))
+
+    #Draw nut 
+    dwg.add(dwg.line(start=(PADDING,TITLE_HEIGHT + STRING_AREA_PADDING),end=(width - PADDING,TITLE_HEIGHT + STRING_AREA_PADDING),stroke="black", stroke_width=4)
+    )
 
     # Draw frets
     for i in range(fret_count + 1):

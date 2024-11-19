@@ -22,15 +22,16 @@
     <div class="container">
         <!-- Left Side: Transposed Song -->
         <div class="left">
-            <h2>{{ score.title }}</h2>
-            <p><strong>Original Key:</strong> {{ score.metadata.key }}</p>
-            <p><strong>Transposed to:</strong> {{ score.metadata.new_key }}</p>
-            <pre>{{ transposed_lyrics }}</pre>
+            <h1>This should be on the left</h1>
+            <h1>{{ score.songTitle }}</h1>
+            <h2>{{ score.metadata.artist }}</h2>
+            <div id="song-content"></div>
         </div>
-
+    
         <!-- Right Side: Chord Diagrams -->
         <div class="right">
-            <h3>Chord Diagrams ({{ instrument }})</h3>
+            <h1>This should be on the right</h1>
+            <h3>Chord Diagrams</h3>
             {% for chord in chords %}
                 <div>
                     <h4>{{ chord.name }}</h4>

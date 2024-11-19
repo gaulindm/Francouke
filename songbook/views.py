@@ -125,13 +125,23 @@ class UserSongListView (ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Song.objects.filter(contributor=user).order_by('songTitle')
 
-
+#This is the view that works well in first column of home.html
 class ScoreView(DetailView):
     model = Song
-    template_name = 'songbook/song_simplescore.html' #While I am experimenting with scoreview
+    template_name = 'songbook/song_simplescore.html' 
     context_object_name = 'score'
 
-    
+#This is second column of home.html
+class NewScoreView(DetailView):
+    model = Song
+    template_name = 'songbook/new_score_view.html'  # Temporary template for experiments 
+    context_object_name = 'score'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add custom context data for experimentation
+        context['experiment'] = "This is a test for the new score view"
+        return context    
 
 
 class SongCreateView(LoginRequiredMixin, CreateView):

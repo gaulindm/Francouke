@@ -1,6 +1,31 @@
 import os
 import re
 import yaml
+from .models import Chord
+from .svg_generator import generate_chord_svg
+
+def get_chord_diagrams(desired_chords=None, instrument='ukulele', is_lefty=False):
+    chords_queryset = Chord.objects.filter(
+        instrument__name=instrument,
+        name__in=desired_chords
+    ) if desired_chords else Chord.objects.filter(instrument__name=instrument)
+
+    chords = []
+    for chord in chords_queryset:
+        frets = chord.frets[::-1] if is_lefty else chord.frets
+        fingers = chord.fingers[::-1] if is_lefty and chord.fingers else chord.fingers
+        chords.append({
+            "name": chord.name,
+            "frets": frets,
+            "fingers": fingers,
+            "svg": generate_chord_svg(
+                chord_name=chord.name,
+                frets=frets,
+                fingers=fingers
+            )
+        })
+    return chords
+
 
 class Instrument:
     def __init__(self, name, tuning, is_lefty=False):
