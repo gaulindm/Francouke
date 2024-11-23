@@ -1,4 +1,4 @@
-{% extends "songbook/base_cp.html" %}
+{% extends "songbook/base.html" %}
 {% block content %}
 
 <style>
@@ -39,11 +39,74 @@
     }
 </style>
 
-<div class="lyrics-container">
-    <h1>New score view to add Grid view implementation</h1>
-    <h2>{{ score.songTitle }}</h2>
-    <h3>{{ score.metadata.artist }}</h3>
-    <div id="song-content"></div>
+<div class="container">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-8 text-center">
+            <h1>{{ score.songTitle }}</h1>
+            <h2>{{ score.metadata.artist }}</h2>
+        </div>
+        <div class="col-4 text-center">
+            <!-- Blank space for layout -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Lyrics Container -->
+        <div class="col-6">
+            <div id="song-content"></div>    
+        </div>
+        <div class="col-2">
+            <div id="chord-container" class="right">
+                <h3>Chord Diagrams</h3>
+                <div class="chord">
+                    <h4>C</h4>
+                    <pre>
+    e|-----|
+    B|--1--|
+    G|--0--|
+    D|--2--|
+    A|--3--|
+    E|-----|
+                    </pre>
+                </div>
+                <div class="chord">
+                    <h4>F</h4>
+                    <pre>
+    e|--1--|
+    B|--1--|
+    G|--2--|
+    D|--3--|
+    A|--3--|
+    E|--1--|
+                    </pre>
+                </div>
+                <div class="chord">
+                    <h4>G</h4>
+                    <pre>
+    e|--3--|
+    B|--3--|
+    G|--0--|
+    D|--0--|
+    A|--2--|
+    E|--3--|
+                    </pre>
+                </div>
+            </div> 
+        </div> 
+        <div class="col-4">
+            {% include "partials/_control_panel.html" %}
+        </div>
+    
+    
+    
+    </div> 
+
+
+
+
+        
 </div>
 
 

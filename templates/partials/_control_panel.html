@@ -1,0 +1,32 @@
+<div class="content-section">
+    <h3>Control Panel</h3>
+    <p class='text-muted'>You can put any information here you'd like.
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-heavy">Modify ChordPro<div>
+          <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
+          <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
+        </div></li>
+        <li class="list-group-item list-group-item-heavy">Transpose    
+          <select id="transpose-select" onchange="transposeSong(this.value)">
+            <option value="0">Original Key</option>
+            <option value="-7">-7 semitone</option>
+            <option value="-6">-6 semitone</option>
+            <option value="-5">-5 semitone</option>
+            <option value="-4">-4 semitone</option>
+            <option value="-3">-3 semitone</option>
+            <option value="-2">-2 semitone</option>
+            <option value="-1">-1 semitone</option>
+            <option value="1">+1 semitone</option>
+            <option value="2">+2 semitone</option>
+            <option value="3">+3 semitone</option>
+            <option value="4">+4 semitone</option>
+            <option value="5">+5 semitone</option>
+            <option value="6">+6 semitone</option>
+            <option value="7">+7 semitone</option>
+        </select>
+        </li>
+        <li class="list-group-item list-group-item-light">Export</li>
+        <li class="list-group-item list-group-item-light">etc</li>
+      </ul>
+    </p>
+  </div>
