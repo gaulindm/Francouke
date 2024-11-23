@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Layout with Chord Containers</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #header {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        #main-container {
+            display: flex;
+            flex-direction: row; /* Default layout: Two columns */
+            gap: 20px;
+        }
+
+        #chord-container {
+            width: 30%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            display: flex; /* Allows row layout when needed */
+            flex-direction: column; /* Default: Chords stacked vertically */
+            gap: 10px;
+        }
+
+        #lyrics-container {
+            flex-grow: 1;
+            width: 70%;
+        }
+
+        .chord {
+            flex: 1; /* Even spacing when in a row layout */
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .chord h4 {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: #007BFF;
+        }
+
+        /* Position Classes */
+        #main-container.row {
+            flex-direction: row; /* For Left and Right */
+        }
+
+        #main-container.column {
+            flex-direction: column; /* For Top and Bottom */
+        }
+
+        #chord-container.left {
+            order: 1;
+        }
+
+        #lyrics-container.left {
+            order: 2;
+        }
+
+        #chord-container.right {
+            order: 2;
+        }
+
+        #lyrics-container.right {
+            order: 1;
+        }
+
+        #chord-container.top,
+        #chord-container.bottom {
+            width: 100%;
+            flex-direction: row; /* Place chords side by side */
+        }
+
+        #lyrics-container.top {
+            order: 3;
+        }
+
+        #chord-container.bottom {
+            order: 3;
+        }
+
+        #lyrics-container.bottom {
+            order: 2;
+        }
+
+        /* Additional Styling */
+        .lyrics-container {
+            background-color: #fff;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+
+        form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layout Selection Form -->
+    <form id="layout-form">
+        <label>
+            <input type="radio" name="diagram-position" value="left" checked> Left
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="right"> Right
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="top"> Top
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="bottom"> Bottom
+        </label>
+    </form>
+
+    <!-- Header -->
+    <div id="header">
+        <h1>Fake Song Title</h1>
+        <h2>Fake Artist</h2>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-container" class="row">
+        <div id="chord-container" class="right">
+            <h3>Chord Diagrams</h3>
+            <div class="chord">
+                <h4>C</h4>
+                <pre>
+e|-----|
+B|--1--|
+G|--0--|
+D|--2--|
+A|--3--|
+E|-----|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>F</h4>
+                <pre>
+e|--1--|
+B|--1--|
+G|--2--|
+D|--3--|
+A|--3--|
+E|--1--|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>G</h4>
+                <pre>
+e|--3--|
+B|--3--|
+G|--0--|
+D|--0--|
+A|--2--|
+E|--3--|
+                </pre>
+            </div>
+        </div>
+        <div id="lyrics-container" class="lyrics-container">
+            <p>Verse 1:</p>
+            <p>These are fake lyrics, singing all day long.</p>
+            <p>Chorus:</p>
+            <p>Here comes the catchy part, everyone sing along.</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to dynamically update the layout
+        function updateLayout(position) {
+            const chordContainer = document.getElementById('chord-container');
+            const lyricsContainer = document.getElementById('lyrics-container');
+            const mainContainer = document.getElementById('main-container');
+
+            // Clear previous classes
+            chordContainer.classList.remove('left', 'right', 'top', 'bottom');
+            lyricsContainer.classList.remove('left', 'right', 'top', 'bottom');
+            mainContainer.classList.remove('row', 'column');
+
+            // Apply new classes based on the selected position
+            chordContainer.classList.add(position);
+            lyricsContainer.classList.add(position);
+
+            // Adjust flex direction for top/bottom vs. left/right
+            if (position === 'left' || position === 'right') {
+                mainContainer.classList.add('row');
+            } else {
+                mainContainer.classList.add('column');
+            }
+        }
+
+        // Attach event listener to the form
+        document.getElementById('layout-form').addEventListener('change', () => {
+            const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
+            updateLayout(selectedPosition);
+        });
+    </script>
+
+</body>
+</html>
