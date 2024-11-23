@@ -25,7 +25,16 @@
             <option value="7">+7 semitone</option>
         </select>
         </li>
-        <li class="list-group-item list-group-item-light">Export</li>
+        <li class="list-group-item list-group-item-light"><form method="get">
+          <label for="chord_position">Select Chord Position:</label>
+          <select name="chord_position" id="chord_position">
+              <option value="left">Left</option>
+              <option value="right" selected>Right</option>
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+          </select>
+          <button type="submit">Apply</button>
+      </form></li>
         <li class="list-group-item list-group-item-light">etc</li>
       </ul>
     </p>

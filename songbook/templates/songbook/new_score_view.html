@@ -1,184 +1,218 @@
-{% extends "songbook/base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Layout with Chord Containers</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-<style>
-    .lyrics-container {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    .lyrics-container h1, .lyrics-container h2 {
-        text-align: center;
-    }
-    .lyrics-container h3 {
-        margin-top: 20px;
-        font-size: 1.5em;
-    }
-    .lyrics-container .line {
-        display: inline-block;
-        margin: 5px 0;
-    }
-    .lyrics-container .chord {
-        font-weight: bold;
-        color: #007BFF;
-        padding:0;
-        margin:0;
-        line-height: 1;
-    }
-    .lyrics-container .lyric {
-        margin-left: 0px;
-    }
-    .lyrics-container .chorus {
-        text-align: center;
-        font-style: normal;
-    }
-    .lyrics-container .verse {
-        font-style: normal;
-    }
-    .lyrics-container .bridge {
-        font-style: italic;
-    }
-</style>
+        #header {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
 
-<div class="container">
+        #main-container {
+            display: flex;
+            flex-direction: row; /* Default layout: Two columns */
+            gap: 20px;
+        }
+
+        #chord-container {
+            width: 30%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            display: flex; /* Allows row layout when needed */
+            flex-direction: column; /* Default: Chords stacked vertically */
+            gap: 10px;
+        }
+
+        #lyrics-container {
+            flex-grow: 1;
+            width: 70%;
+        }
+
+        .chord {
+            flex: 1; /* Even spacing when in a row layout */
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .chord h4 {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: #007BFF;
+        }
+
+        /* Position Classes */
+        #main-container.row {
+            flex-direction: row; /* For Left and Right */
+        }
+
+        #main-container.column {
+            flex-direction: column; /* For Top and Bottom */
+        }
+
+        #chord-container.left {
+            order: 1;
+        }
+
+        #lyrics-container.left {
+            order: 2;
+        }
+
+        #chord-container.right {
+            order: 2;
+        }
+
+        #lyrics-container.right {
+            order: 1;
+        }
+
+        #chord-container.top,
+        #chord-container.bottom {
+            width: 100%;
+            flex-direction: row; /* Place chords side by side */
+        }
+
+        #lyrics-container.top {
+            order: 3;
+        }
+
+        #chord-container.bottom {
+            order: 3;
+        }
+
+        #lyrics-container.bottom {
+            order: 2;
+        }
+
+        /* Additional Styling */
+        .lyrics-container {
+            background-color: #fff;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+
+        form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layout Selection Form -->
+    <form id="layout-form">
+        <label>
+            <input type="radio" name="diagram-position" value="left" checked> Left
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="right"> Right
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="top"> Top
+        </label>
+        <label>
+            <input type="radio" name="diagram-position" value="bottom"> Bottom
+        </label>
+    </form>
+
     <!-- Header -->
-    <div class="row">
-        <div class="col-8 text-center">
-            <h1>{{ score.songTitle }}</h1>
-            <h2>{{ score.metadata.artist }}</h2>
+    <div id="header">
+        <h1>Fake Song Title</h1>
+        <h2>Fake Artist</h2>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-container" class="row">
+        <div id="chord-container" class="right">
+            <h3>Chord Diagrams</h3>
+            <div class="chord">
+                <h4>C</h4>
+                <pre>
+e|-----|
+B|--1--|
+G|--0--|
+D|--2--|
+A|--3--|
+E|-----|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>F</h4>
+                <pre>
+e|--1--|
+B|--1--|
+G|--2--|
+D|--3--|
+A|--3--|
+E|--1--|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>G</h4>
+                <pre>
+e|--3--|
+B|--3--|
+G|--0--|
+D|--0--|
+A|--2--|
+E|--3--|
+                </pre>
+            </div>
         </div>
-        <div class="col-4 text-center">
-            <!-- Blank space for layout -->
+        <div id="lyrics-container" class="lyrics-container">
+            <p>Verse 1:</p>
+            <p>These are fake lyrics, singing all day long.</p>
+            <p>Chorus:</p>
+            <p>Here comes the catchy part, everyone sing along.</p>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="row">
-        <!-- Lyrics Container -->
-        <div class="col-6">
-            <div id="song-content"></div>    
-        </div>
-        <div class="col-2">
-            <div id="chord-container" class="right">
-                <h3>Chord Diagrams</h3>
-                <div class="chord">
-                    <h4>C</h4>
-                    <pre>
-    e|-----|
-    B|--1--|
-    G|--0--|
-    D|--2--|
-    A|--3--|
-    E|-----|
-                    </pre>
-                </div>
-                <div class="chord">
-                    <h4>F</h4>
-                    <pre>
-    e|--1--|
-    B|--1--|
-    G|--2--|
-    D|--3--|
-    A|--3--|
-    E|--1--|
-                    </pre>
-                </div>
-                <div class="chord">
-                    <h4>G</h4>
-                    <pre>
-    e|--3--|
-    B|--3--|
-    G|--0--|
-    D|--0--|
-    A|--2--|
-    E|--3--|
-                    </pre>
-                </div>
-            </div> 
-        </div> 
-        <div class="col-4">
-            {% include "partials/_control_panel.html" %}
-        </div>
-    
-    
-    
-    </div> 
+    <script>
+        // Function to dynamically update the layout
+        function updateLayout(position) {
+            const chordContainer = document.getElementById('chord-container');
+            const lyricsContainer = document.getElementById('lyrics-container');
+            const mainContainer = document.getElementById('main-container');
 
+            // Clear previous classes
+            chordContainer.classList.remove('left', 'right', 'top', 'bottom');
+            lyricsContainer.classList.remove('left', 'right', 'top', 'bottom');
+            mainContainer.classList.remove('row', 'column');
 
+            // Apply new classes based on the selected position
+            chordContainer.classList.add(position);
+            lyricsContainer.classList.add(position);
 
-
-        
-</div>
-
-
-<script>
-    const songDict = {{ score.lyrics_with_chords|safe }};
-    const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
-const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
-
-function transposeChord(chord, semitones) {
-    const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
-    const match = chord.match(chordRegex);
-
-    if (!match) {
-        return chord; // Return the original chord if it doesn't match the expected pattern
-    }
-
-    const baseChord = match[1];
-    const chordType = match[2] || '';
-
-    const newValue = (chordMap[baseChord] + semitones + 12) % 12;
-
-    return reverseChordMap[newValue] + chordType;
-}
-
-function renderSong(songDict, semitones) {
-    const songContainer = document.getElementById('song-content');
-    songContainer.innerHTML = '';
-    songDict.forEach(section => {
-        section.forEach(item => {
-            if (item.chord !== undefined) {
-                const transposedChord = item.chord ? transposeChord(item.chord, semitones) : '';
-                if (transposedChord) {
-                    songContainer.innerHTML += `<span class="line"><span class="chord">[${transposedChord}]</span> <span class="lyric">${item.lyric}</span></span>`;
-                } else {
-                    songContainer.innerHTML += `<span class="line"><span class="lyric">${item.lyric}</span></span>`;
-                }
-            } else if (item.format === 'LINEBREAK') {
-                songContainer.innerHTML += '<br>';
-            } else if (item.directive) {
-                if (item.directive === "{sov}") {
-                    songContainer.innerHTML += '<div class="verse"><h3>Verse</h3>';
-                } else if (item.directive === "{eov}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{soc}") {
-                    songContainer.innerHTML += '<div class="chorus"><h3>Chorus</h3>';
-                } else if (item.directive === "{eoc}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{sob}") {
-                    songContainer.innerHTML += '<div class="bridge"><h3>Bridge</h3>';
-                } else if (item.directive === "{eob}") {
-                    songContainer.innerHTML += '</div>';
-                }
+            // Adjust flex direction for top/bottom vs. left/right
+            if (position === 'left' || position === 'right') {
+                mainContainer.classList.add('row');
+            } else {
+                mainContainer.classList.add('column');
             }
+        }
+
+        // Attach event listener to the form
+        document.getElementById('layout-form').addEventListener('change', () => {
+            const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
+            updateLayout(selectedPosition);
         });
-    });
-}
+    </script>
 
-function transposeSong(semitones) {
-    renderSong(songDict, parseInt(semitones));
-}
-
-// Initial render
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
-    renderSong(songDict, 0);
-});
-</script>
-
-
-
-
-
-
-{% endblock content %}
+</body>
+</html>
