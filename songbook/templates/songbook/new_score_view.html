@@ -14,113 +14,92 @@
     
     <title>New layout</title>
     <style>
-        /* General Styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    padding-top: 70px; /* Prevent overlap with fixed navbar */
+    margin: 0; /* Remove default margin */
+}
 
-        #header {
-            width: 100%;
-            text-align: center;
-            padding: 10px;
-            background-color: #f3f3f3;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
+#header {
+    text-align: center;
+    padding: 10px;
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
 
-        #main-container {
-            display: flex;
-            flex-direction: row; /* Default layout: Two columns */
-            gap: 20px;
-        }
+#main-container {
+    display: flex;
+    gap: 20px;
+}
 
-        #chord-container {
-            
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #f9f9f9;
-            display: flex; /* Allows row layout when needed */
-            flex-direction: column; /* Default: Chords stacked vertically */
-            gap: 10px;
-        }
+#chord-container, .lyrics-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
 
-        #lyrics-container {
-            flex-grow: 1;
-            width: 70%;
-        }
+#chord-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .chord {
-            flex: 1; /* Even spacing when in a row layout */
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            text-align: center;
-            font-family: monospace;
-        }
+.chord {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    text-align: center;
+    font-family: monospace;
+}
 
-        .chord h4 {
-            margin: 5px 0;
-            font-size: 1.2em;
-            color: #007BFF;
-        }
+.chord h4 {
+    margin: 5px 0;
+    font-size: 1.2em;
+    color: #007BFF;
+}
 
-        /* Position Classes */
-        #main-container.row {
-            flex-direction: row; /* For Left and Right */
-        }
+/* Responsive Layout Management */
+#main-container.row {
+    flex-direction: row;
+}
 
-        #main-container.column {
-            flex-direction: column; /* For Top and Bottom */
-        }
+#main-container.column {
+    flex-direction: column;
+}
 
-        #chord-container.left {
-            order: 1;
-        }
+#chord-container.left { order: 1; }
+#lyrics-container.left { order: 2; }
+#chord-container.right { order: 2; }
+#lyrics-container.right { order: 1; }
 
-        #lyrics-container.left {
-            order: 2;
-        }
+#chord-container.top,
+#chord-container.bottom {
+    width: 100%;
+    flex-direction: row;
+}
 
-        #chord-container.right {
-            order: 2;
-        }
+#chord-container.bottom { order: 3; }
+#lyrics-container.bottom { order: 2; }
 
-        #lyrics-container.right {
-            order: 1;
-        }
+/* Ensure Better Typography */
+.lyrics-container {
+    background-color: #fff;
+    padding: 15px;
+    flex-grow: 1;
+}
 
-        #chord-container.top,
-        #chord-container.bottom {
-            width: 100%;
-            flex-direction: row; /* Place chords side by side */
-        }
+/* Center Text in Helper Divs */
+.row > div:not(.lyrics-container) {
+    text-align: center;
+}
 
-        #lyrics-container.top {
-            order: 3;
-        }
-
-        #chord-container.bottom {
-            order: 3;
-        }
-
-        #lyrics-container.bottom {
-            order: 2;
-        }
-
-        /* Additional Styling */
-        .lyrics-container {
-            background-color: #fff;
-            padding: 15px;
-            border: 1px solid #ccc;
-            width: 60%;
-        }
-
-        form {
-            margin-bottom: 20px;
-            text-align: center;
-        }
+/* Navbar Adjustments */
+.navbar {
+    margin-bottom: 20px;
+}
     </style>
 </head>
 <body>
@@ -153,13 +132,6 @@
         </nav>
       </header>
 <main role="main" class="container">
-    <div class="row">
-        <br>
-        <br>
-        blank to unhide under menu
-
-    </div>
-
     <div class="container">
         <div class="row">
           <div class="col-8 bg-light">
@@ -262,35 +234,7 @@
 
 
 
-    <div class="row">
-        <div class="col-8">
-          .col-8
-          <div class="row">
-            <div class="col-6">.col-6</div>
-            <div class="col-6">.col-6</div>
-          </div>
-        </div>
-        <div class="col-4">.col-4
-            
-        </div>
-      </div>   
-
-    <!-- Header -->
-    <div class="row">
-        <div class="col-8">
-
-            <div class="row">
-                
-                
-            </div>            
-
-        </div>
-        
     
-
-        <div class="col-4"> 
-        </div>
-    </div>
 </main>
        <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
