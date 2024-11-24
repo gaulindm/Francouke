@@ -29,6 +29,10 @@ body {
     margin-bottom: 10px;
 }
 
+
+
+
+
 #main-container {
     display: flex;
     gap: 20px;
@@ -47,7 +51,8 @@ body {
 }
 
 .chord {
-    margin: 10px 0;
+    flex: 0 0 auto; /* Prevent chords from stretching */
+    margin: 5px; /* Add margin around each chord */
     padding: 10px;
     border: 1px solid #ccc;
     background-color: #fff;
@@ -75,10 +80,12 @@ body {
 #chord-container.right { order: 2; }
 #lyrics-container.right { order: 1; }
 
-#chord-container.top,
-#chord-container.bottom {
-    width: 100%;
-    flex-direction: row;
+#top-chord-diagram-placeholder #chord-container,
+#bottom-chord-diagram-placeholder #chord-container {
+    display: flex; /* Switch to horizontal layout */
+    flex-wrap: wrap; /* Allow wrapping if chords exceed container width */
+    justify-content: center; /* Center the chords horizontally */
+    gap: 10px; /* Add spacing between chords */
 }
 
 #chord-container.bottom { order: 3; }
@@ -99,6 +106,9 @@ body {
 /* Navbar Adjustments */
 .navbar {
     margin-bottom: 20px;
+}
+.d-none {
+    display: none !important;
 }
     </style>
 </head>
@@ -132,7 +142,6 @@ body {
         </nav>
       </header>
 <main role="main" class="container">
-    <div class="container">
         <div class="row">
           <div class="col-8 bg-light">
             Page area
@@ -145,39 +154,57 @@ body {
                   </div>
               </div>      	
               <div class="row">
-                  <div class ="col-12 bg-info">
-                  <center>Espace pour top chords l'espace sera vide si les accords sont ailleurs</center>
-                  </div>
-              </div>
-              
-                <div class="row">
-                  <div class="col-8 bg-warning">
-                    <div id="lyrics-container" class="col-6 lyrics-container">
-                        <p>Verse 1:</p>
-                        <p>These are fake lyrics, singing all day long.</p>
-                        <p>Chorus:</p>
-                        <p>Here comes the catchy part, everyone sing along.</p>
-                    </div>
-                  </div>
-                  <div class="col-4 bg-secondary">Diagramme d'acccord
-                    <div id="chord-container">
-                        <h3>Chord Diagrams</h3>
-                        <div class="chord">
-                            <h4>C chord diagram</h4>
-                        </div>
-                        <div class="chord">
-                            <h4>F chord diagram</h4>
-                        </div>
-                        <div class="chord">
-                            <h4>G chord diagram</h4>
-                        </div>
-                    </div>
-                  </div>
+                
+                <div id="top-chord-diagram-placeholder" class="col-12 bg-info">
+                    <center>Espace pour top chords l'espace sera vide si les accords sont ailleurs</center>
                 </div>
-              <div class="row">
-                  <div class ="col-12 bg-info">
-                  <center>Espace pour bottom chords l'espace sera vide si les accords sont ailleurs</center>
-                  </div>
+                
+                <div id="lyrics-and-chords" class="row">
+                    <div id="left-chord-diagram-placeholder" class="col-4 bg-secondary d-none">
+                        <div id="chord-container">
+                            <div class="chord">
+                                <h4>C chord diagram</h4>
+                            </div>
+                            <div class="chord">
+                                <h4>F chord diagram</h4>
+                            </div>
+                            <div class="chord">
+                                <h4>G chord diagram</h4>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="col-8 bg-warning">
+                        <div id="lyrics-container" class="col-6 lyrics-container">
+                            <p>Verse 1:</p>
+                            <p>These are fake lyrics, singing all day long.</p>
+                            <p>Chorus:</p>
+                            <p>Here comes the catchy part, everyone sing along.</p>
+                        </div>
+                    </div>
+                
+                    <div id="right-chord-diagram-placeholder" class="col-4 bg-secondary">
+                        <div id="chord-container">
+                            <h3>Chord Diagrams</h3>
+                            <div class="chord">
+                                <h4>C chord diagram</h4>
+                            </div>
+                            <div class="chord">
+                                <h4>F chord diagram</h4>
+                            </div>
+                            <div class="chord">
+                                <h4>G chord diagram</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="bottom-chord-diagram-placeholder" class="col-12 bg-info d-none">
+                    <center>Espace pour bottom chords l'espace sera vide si les accords sont ailleurs</center>
+                </div>
+                
+                
+
               </div>      
           </div>
           <div class="col-4 bg-success"><div class="content-section">
@@ -228,7 +255,7 @@ body {
             </p>
           </div>
         </div>
-      </div>
+    
 
 
 
@@ -242,36 +269,53 @@ body {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <script>
-        // Function to dynamically update the layout
-        function updateLayout(position) {
-            const chordContainer = document.getElementById('chord-container');
-            const lyricsContainer = document.getElementById('lyrics-container');
-            const mainContainer = document.getElementById('main-container');
+<!-- Layout Initialization -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        updateChordPosition('right'); // Set default position
+    });
+</script>
 
-            // Clear previous classes
-            chordContainer.classList.remove('left', 'right', 'top', 'bottom');
-            lyricsContainer.classList.remove('left', 'right', 'top', 'bottom');
-            mainContainer.classList.remove('row', 'column');
+<!-- Main Script for Position Update -->
+<script>
+    // Function to update the position of chord diagrams
+    function updateChordPosition(position) {
+    // Hide all placeholders first
+    document.getElementById('top-chord-diagram-placeholder').classList.add('d-none');
+    document.getElementById('bottom-chord-diagram-placeholder').classList.add('d-none');
+    document.getElementById('left-chord-diagram-placeholder').classList.add('d-none');
+    document.getElementById('right-chord-diagram-placeholder').classList.add('d-none');
 
-            // Apply new classes based on the selected position
-            chordContainer.classList.add(position);
-            lyricsContainer.classList.add(position);
+    // Remove "d-none" class from the selected placeholder
+    const selectedPlaceholder = document.getElementById(`${position}-chord-diagram-placeholder`);
+    selectedPlaceholder.classList.remove('d-none');
 
-            // Adjust flex direction for top/bottom vs. left/right
-            if (position === 'left' || position === 'right') {
-                mainContainer.classList.add('row');
-            } else {
-                mainContainer.classList.add('column');
-            }
-        }
+    // Move the chord container to the selected placeholder
+    selectedPlaceholder.appendChild(document.getElementById('chord-container'));
+ // Adjust layout for top and bottom positions
+ const chordContainer = document.getElementById('chord-container');
+    if (position === 'top' || position === 'bottom') {
+        chordContainer.style.display = 'flex';
+        chordContainer.style.flexDirection = 'row'; // Ensure horizontal layout
+        chordContainer.style.flexWrap = 'wrap'; // Allow wrapping
+        chordContainer.style.justifyContent = 'center'; // Center-align
+    } else {
+        // Reset layout for left and right positions
+        chordContainer.style.display = 'flex';
+        chordContainer.style.flexDirection = 'column'; // Stack vertically
+        chordContainer.style.flexWrap = 'nowrap';
+        chordContainer.style.justifyContent = 'flex-start'; // Align to top/left
+    }
 
-        // Attach event listener to the form
-        document.getElementById('layout-form').addEventListener('change', () => {
-            const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
-            updateLayout(selectedPosition);
-        });
-    </script>
+}
+
+
+    // Event listener for the layout form
+    document.getElementById('layout-form').addEventListener('change', () => {
+        const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
+        updateChordPosition(selectedPosition);
+    });
+</script>
 
 </body>
 </html>
