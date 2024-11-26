@@ -200,29 +200,8 @@ body {
     
             <!-- Control Panel -->
             <div class="col-4 bg-success">
-                <div class="content-section">
-                    <h3>Control Panel</h3>
-                    <p class="text-muted">You can put any information here you'd like.</p>
-                    <ul class="list-group">
-                        <li class="list-group-item list-group-item-heavy">
-                            Chord Position:
-                            <form id="layout-form">
-                                <label>
-                                    <input type="radio" name="diagram-position" value="left"> Left
-                                </label>
-                                <label>
-                                    <input type="radio" name="diagram-position" value="right" checked> Right
-                                </label>
-                                <label>
-                                    <input type="radio" name="diagram-position" value="top"> Top
-                                </label>
-                                <label>
-                                    <input type="radio" name="diagram-position" value="bottom"> Bottom
-                                </label>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                {% include "partials/_control_panel.html" %}
+                
             </div>
         </div>
     </main>
