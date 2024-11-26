@@ -1,0 +1,9 @@
+<div class="chord-box" id="{{ chord_id }}" style="width: 120px; height: 150px; margin: 20px;"></div>
+
+<script>
+    // Draw the chord diagram
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById("{{ chord_id }}");
+        Raphael.chord(container, {{ chord_data|safe }}, "{{ chord_label }}");
+    });
+</script>

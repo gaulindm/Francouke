@@ -1,9 +1,5 @@
 /*!
- * Any string instrument adaptation  
-*
-*
-*
-Chord 0.1.0 - Raphael plugin
+ * Chord 0.1.0 - Raphael plugin
  *
  * Copyright (c) 2011 Justin D'Arcangelo (http://twitter.com/justindarc)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.

@@ -1,4 +1,4 @@
-chord.data = [
+Raphael.chord.data = [
     {
       root: ["A"],
       types: [

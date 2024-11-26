@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
+<script src="{% static 'js/raphael.adaptivechord_embedded.js' %}"></script>
 
 
     
@@ -47,14 +48,14 @@ body {
 #chord-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    /*gap: 10px;*/
 }
 
 .chordbox {
     flex: 0 0 auto; /* Prevent chords from stretching */
-    margin: 5px; /* Add margin around each chord */
-    padding: 5px;
-    border: 1px solid #ccc;
+    /*margin: 5px;  Add margin around each chord */
+    /*padding: 5px;*/
+    /*border: 1px solid #ccc;*/
     background-color: #fff;
     text-align: center;
     font-family: monospace;
@@ -185,15 +186,16 @@ body {
             <!-- Chord Container -->
             <div id="chord-container" class="d-none">
                 
+
+
+
                 <div class="chordbox">
-                    <h4>C chord diagram</h4>
+                    {% include "partials/draw_chords.html" with chord_id="chord-box-1" chord_data="[0, 0, 0, 3]" chord_label="C maj" %}
                 </div>
                 <div class="chordbox">
-                    <h4>F chord diagram</h4>
+                    {% include "partials/draw_chords.html" with chord_id="chord-box-2" chord_data="[6, 6, 5, 4]" chord_label="C# maj" %}
                 </div>
-                <div class="chordbox">
-                    <h4>G chord diagram</h4>
-                </div>
+
             </div>
     
             <!-- Control Panel -->
