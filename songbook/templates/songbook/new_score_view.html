@@ -97,6 +97,7 @@ body {
     background-color: #fff;
     padding: 15px;
     flex-grow: 1;
+    transition:all 0.3 ease;
 }
 
 /* Center Text in Helper Divs */
@@ -307,11 +308,11 @@ function updateChordPosition(position) {
     selectedPlaceholder.classList.remove('d-none'); // Make it visible
 
     // Append the chord container to the selected placeholder
-    selectedPlaceholder.appendChild(document.getElementById('chord-container'));
-    document.getElementById('chord-container').classList.remove('d-none'); // Ensure visibility
+    const chordContainer = document.getElementById('chord-container');
+    selectedPlaceholder.appendChild(chordContainer);
+    chordContainer.classList.remove('d-none'); // Ensure visibility
 
     // Adjust layout for top and bottom positions
-    const chordContainer = document.getElementById('chord-container');
     if (position === 'top' || position === 'bottom') {
         chordContainer.style.display = 'flex';
         chordContainer.style.flexDirection = 'row'; // Horizontal layout
@@ -324,7 +325,26 @@ function updateChordPosition(position) {
         chordContainer.style.flexWrap = 'nowrap';
         chordContainer.style.justifyContent = 'flex-start'; // Align to top/left
     }
+        // Dynamically adjust lyrics-container
+    adjustLyricsContainer(position);
 }
+
+function adjustLyricsContainer(position) {
+    const lyricsContainer = document.getElementById('lyrics-container');
+    if (position === 'left' || position === 'right') {
+        // Ensure lyrics-container doesn't expand unnecessarily
+        lyricsContainer.style.flexGrow = '1'; 
+        lyricsContainer.parentElement.classList.remove('col-12');
+        lyricsContainer.parentElement.classList.add('col-8');
+    } else {
+        // Expand lyrics-container to full width
+        lyricsContainer.style.flexGrow = '2'; 
+        lyricsContainer.parentElement.classList.remove('col-8');
+        lyricsContainer.parentElement.classList.add('col-12');
+    }
+}
+
+
 
 // Event listener for the control panel
 document.getElementById('layout-form').addEventListener('change', () => {
