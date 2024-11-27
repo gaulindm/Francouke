@@ -4,7 +4,6 @@
  * Copyright (c) 2011 Justin D'Arcangelo (http://twitter.com/justindarc)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
-
 (function(Raphael) {
   
   Raphael.chord = function(elementOrPosition, data, labelOrVariant) {

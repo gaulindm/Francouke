@@ -8,8 +8,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
-<script src="{% static 'js/raphael.adaptivechord_embedded.js' %}"></script>
-
+<script src="{% static 'js/raphael.chord.js' %}"></script>
 
     
     
@@ -181,21 +180,19 @@ body {
                 <!-- Bottom Chord Placeholder -->
                 <div id="bottom-chord-diagram-placeholder" class="col-12 bg-info d-none">
                     <center>Espace pour bottom chords l'espace sera vide si les accords sont ailleurs</center>
+
                 </div>
             </div>
     
             <!-- Chord Container -->
             <div id="chord-container" class="d-none">
-                
-
-
-
-                <div class="chordbox">
-                    {% include "partials/draw_chords.html" with chord_id="chord-box-1" chord_data="[0, 0, 0, 3]" chord_label="C maj" %}
+                <div id="bottom-chord-container" class="chordbox">
+                    <!-- Chords will be dynamically rendered here -->
                 </div>
-                <div class="chordbox">
-                    {% include "partials/draw_chords.html" with chord_id="chord-box-2" chord_data="[6, 6, 5, 4]" chord_label="C# maj" %}
-                </div>
+
+
+
+
 
             </div>
     
@@ -236,6 +233,29 @@ function transposeChord(chord, semitones) {
 
     return reverseChordMap[newValue] + chordType;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add the bottom chord diagrams on page load
+    renderBottomChords();
+});
+
+function renderBottomChords() {
+    const bottomChordContainer = document.getElementById('bottom-chord-container');
+    if (bottomChordContainer) {
+        // Render chords dynamically
+        Raphael.chord('bottom-chord-container', [ 3, 2, 0, 0, 0, 3], 'G maj');
+        Raphael.chord('bottom-chord-container', [ 0, 2, 0, 1, 0, 0], 'Em7');
+        Raphael.chord('bottom-chord-container', [-1, 3, 2, 0, 1, 0], 'C');
+        Raphael.chord('bottom-chord-container', [-1,-1, 0, 2, 1, 2], 'D7');
+        Raphael.chord('bottom-chord-container', [-1,-1, 0, 2, 3, 2], 'D');
+        Raphael.chord('bottom-chord-container', [ 2,-1, 0, 2, 1, 2], 'D7/F#');
+
+    }
+}
+
+
+
+
 
 function renderSong(songDict, semitones) {
     const songContainer = document.getElementById('song-content');

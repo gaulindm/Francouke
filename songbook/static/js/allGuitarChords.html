@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ukulele Chord Demo</title>
+  <style type="text/css">
+    body {
+      background-color: #778;
+      font-family: Helvetica, Arial, FreeSans, san-serif;
+      color: #eee;
+    }
+    a {
+      color: #dde;
+    }
+    a:hover {
+      color: #fff;
+    }
+    h1 {
+      font-size: 3.4em;
+      margin-bottom: 20px;
+      text-shadow: 0px -1px 0px #000;
+    }
+    h2 {
+      font-size: 1.5em;
+      font-weight: normal;
+      margin: 0px;
+      text-shadow: 0px -1px 0px #000;
+    }
+    h2 a {
+      text-decoration: none;
+    }
+    pre {
+      background: #000;
+      color: #0b4;
+      padding: 20px 20px 5px;
+      -webkit-box-shadow: 0px 2px 10px 0px #000;
+      -moz-box-shadow: 0px 2px 10px 0px #000;
+      box-shadow: 0px 2px 10px 0px #000;
+      -moz-border-radius: 9px;
+      -webkit-border-radius: 9px;
+      -o-border-radius: 9px;
+      -ms-border-radius: 9px;
+      -khtml-border-radius: 9px;
+      border-radius: 9px;
+    }
+    .bullet {
+      padding: 20px;
+    }
+    .bullet:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .bullet h2 {
+      font-size: 1.2em;
+    }
+    .description {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      margin-top: 30px;
+      font-style: italic;
+    }
+    .download > a {
+      text-decoration: none;
+      float: right;
+    }
+    .footer {
+      padding-top: 30px;
+      font-style: italic;
+    }
+    .subtext {
+      font-size: 0.9em;
+      font-style: italic;
+    }
+    #container {
+      margin: 0 auto;
+      width: 10150px;
+    }
+    .bullet > div {
+      background-color: #fff;
+      padding: 5px 5px 5px;
+      -webkit-box-shadow: 0px 2px 10px 0px #000;
+      -moz-box-shadow: 0px 2px 10px 0px #000;
+      box-shadow: 0px 2px 10px 0px #000;
+      -moz-border-radius: 9px;
+      -webkit-border-radius: 9px;
+      -o-border-radius: 9px;
+      -ms-border-radius: 9px;
+      -khtml-border-radius: 9px;
+      border-radius: 9px;
+    }
+  </style>
+  <script src="raphael.js"></script>
+  <script src="raphael.chord.js"></script>
+</head>
+<body>
+  
+
+  <script type="module">
+    // Import the guitar chord data from the module
+    import { guitarChords } from './chord_data_guitar.js';
+
+    console.log("Guitar chords loaded:", guitarChords);
+
+    // Override the Raphael.chord.find method to use imported chord data
+    Raphael.chord.find = function(root, name, variation = 1) {
+      const chordData = guitarChords.find(chord => chord.root.includes(root));
+      if (!chordData) return null;
+
+      const typeData = chordData.types.find(type => type.name === name);
+      if (!typeData) return null;
+
+      const variations = typeData.variations;
+      return variations[Math.min(variation - 1, variations.length - 1)];
+    };
+</script>
+<script type="text/javascript">
+
+    // Draw some chords using the imported data
+    window.onload = function() {
+      // Automatically draw the chord using database name under diagram
+    Raphael.chord('div1', 'B');
+    Raphael.chord('div1', 'Bb');
+    Raphael.chord('div1', 'A');
+    Raphael.chord('div1', 'G#');
+    Raphael.chord('div1', 'G');
+    Raphael.chord('div1', 'F#');
+    Raphael.chord('div1', 'F');
+    Raphael.chord('div1', 'E');
+    Raphael.chord('div1', 'D#');
+    Raphael.chord('div1', 'C#');
+    Raphael.chord('div1', 'C');
+    
+    Raphael.chord('div2', 'B min').element.setSize(150,150);
+    Raphael.chord('div2', 'Bb min').element.setSize(150,150);
+    Raphael.chord('div2', 'A min').element.setSize(150,150);
+    Raphael.chord('div2', 'G# min').element.setSize(150,150);
+    Raphael.chord('div2', 'G min').element.setSize(150,150);
+    Raphael.chord('div2', 'F# min').element.setSize(150,150);
+    Raphael.chord('div2', 'F min').element.setSize(150,150);
+    Raphael.chord('div2', 'E min').element.setSize(150,150);
+    Raphael.chord('div2', 'D# min').element.setSize(150,150);
+    Raphael.chord('div2', 'C# min').element.setSize(150,150);
+    Raphael.chord('div2', 'C min').element.setSize(150,150);
+
+    // Manually finding chords with manual labels.
+    Raphael.chord('div3', Raphael.chord.find('B', '7', 2), 'B7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('Bb', '7', 2), 'Bb7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('A', '7', 3), 'A7'); // 3rd ariant
+    Raphael.chord('div3', Raphael.chord.find('Ab', '7', 3), 'Ab7'); // 3rd variant
+    Raphael.chord('div3', Raphael.chord.find('G', '7', 4), 'G7'); // 4th variant
+    Raphael.chord('div3', Raphael.chord.find('F#', '7', 4), 'F#7'); // 4th variant
+    Raphael.chord('div3', Raphael.chord.find('F', '7', 2), 'F7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('E', '7', 2), 'E7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('Eb', '7', 2), 'Eb7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('D', '7', 2), 'D7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('C#', '7', 2), 'C#7'); // 2nd variant
+    Raphael.chord('div3', Raphael.chord.find('C', '7', 2), 'C7'); // 2nd variant
+
+
+};
+
+
+  </script>
+  <!--First section-->
+  <div class="bullet">
+    <h2>All major chords</h2>
+    <p class="subtext">For Guitar: Automatically draws the chord with database name under it. Size set at default of 100 by 100</p>
+    <pre>
+    Raphael.chord('div1', 'B');
+    Raphael.chord('div1', 'Bb');
+    Raphael.chord('div1', 'A');
+    Raphael.chord('div1', 'G#');
+    Raphael.chord('div1', 'G');
+    Raphael.chord('div1', 'F#');
+    Raphael.chord('div1', 'F');
+    Raphael.chord('div1', 'E');
+    Raphael.chord('div1', 'D#');
+    Raphael.chord('div1', 'C#');
+    Raphael.chord('div1', 'C')    
+    </pre>  
+    <div id="div1"></div>
+  </div>
+   <!--Second section-->
+  <div class="bullet">
+    <h2>All minor chords</h2>
+    <p class="subtext">For Guitar: Automatically draws the chord with database name under it. Resized to 150 by 150</p>
+    <pre>
+    Raphael.chord('div2', 'B min').element.setSize(150,150);
+    Raphael.chord('div2', 'Bb min').element.setSize(150,150);
+    Raphael.chord('div2', 'A min').element.setSize(150,150);
+    Raphael.chord('div2', 'G# min').element.setSize(150,150);
+    Raphael.chord('div2', 'G min').element.setSize(150,150);
+    Raphael.chord('div2', 'F# min').element.setSize(150,150);
+    Raphael.chord('div2', 'F min').element.setSize(150,150);
+    Raphael.chord('div2', 'E min').element.setSize(150,150);
+    Raphael.chord('div2', 'D# min').element.setSize(150,150);
+    Raphael.chord('div2', 'C# min').element.setSize(150,150);
+    Raphael.chord('div2', 'C min').element.setSize(150,150)  
+    </pre>  
+    <div id="div2"></div>
+  </div>
+     <!--Third section-->
+     <div class="bullet">
+      <h2>All dominant 7th chords</h2>
+      <p class="subtext">ATTENTION!  These lines finds the various variants and manually return the chord names as it appears in our scores.  
+        PLEASE PAY ATTENTION that there is no space between Note and type below the diagram</p>
+      <pre>
+        Raphael.chord('div3', Raphael.chord.find('B', '7', 2), 'B7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('Bb', '7', 2), 'Bb7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('A', '7', 3), 'A7'); // 3rd ariant
+        Raphael.chord('div3', Raphael.chord.find('Ab', '7', 3), 'Ab7'); // 3rd variant
+        Raphael.chord('div3', Raphael.chord.find('G', '7', 4), 'G7'); // 4th variant
+        Raphael.chord('div3', Raphael.chord.find('F#', '7', 4), 'F#7'); // 4th variant
+        Raphael.chord('div3', Raphael.chord.find('F', '7', 2), 'F7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('E', '7', 2), 'E7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('Eb', '7', 2), 'Eb7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('D', '7', 2), 'D7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('C#', '7', 2), 'C#7'); // 2nd variant
+        Raphael.chord('div3', Raphael.chord.find('C', '7', 2), 'C7'); // 2nd variant
+      </pre>  
+      <div id="div3"></div>
+    </div>
+ 
+   
+
+  <div class="footer">
+    <p>raphael.chord.js is available under the MIT license.</p>
+    <p>
+      <span>Created by Justin D'Arcangelo - </span>
+      <a href="https://github.com/justindarc" target="_blank">GitHub</a>
+      <span> - </span>
+      <a href="http://twitter.com/justindarc" target="_blank">Twitter</a>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
