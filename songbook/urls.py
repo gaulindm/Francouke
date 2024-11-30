@@ -7,6 +7,7 @@ from .views import (
     UserSongListView,
     transpose_song_view,
     NewScoreView,
+    ChordDiagramsView,
     ScoreView
 )
 from . import views
@@ -16,6 +17,7 @@ urlpatterns = [
     path('user/<str:username>', UserSongListView.as_view(), name='user-songs'),
     path('score/<int:pk>/', ScoreView.as_view(),name='score'),
     path('song/new/', SongCreateView.as_view(), name='song-create'),
+    path('chords/<str:chords>/', ChordDiagramsView.as_view(), name='chord-diagrams'),
     path('song/<int:pk>/update/', SongUpdateView.as_view(), name='song-update'),
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),

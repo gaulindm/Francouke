@@ -1,6 +1,28 @@
-{% extends "songbook/base.html" %}
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+     <!-- Bootstrap CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
+      <script src="{% static 'js/raphael.chord.js' %}"></script>
+      <script src="{% static 'js/sopranoUkulele.js' %}"></script>
+      
+      
+      
+      {% if title %}
+        <title>Songbook - {{ title }} </title>
+      {% else %}
+        <title>Songbook </title>
+      {% endif%}
+  </title>
+</head>
+  <body>
 <style>
     .lyrics-container {
         font-family: Arial, sans-serif;
@@ -43,6 +65,9 @@
     <h1>{{ score.songTitle }}</h1>
     <h2>{{ score.metadata.artist }}</h2>
     <div id="song-content"></div>
+</div>
+<div id="chord-diagrams-container" style="margin: 20px;">
+    The chords will be generated here
 </div>
 
 
@@ -100,6 +125,21 @@ function renderSong(songDict, semitones) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+// Example usage: Display unique chords in the console
+document.addEventListener('DOMContentLoaded', () => {
+    const uniqueChords = getUniqueChords(songDict);
+    console.log('Unique Chords:', uniqueChords);
+});
+
 function transposeSong(semitones) {
     renderSong(songDict, parseInt(semitones));
 }
@@ -110,11 +150,116 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
     renderSong(songDict, 0);
 });
+
+// Function to parse chord definition lines into an object
+function parseChordDefinitions(text) {
+    const chordDefinitions = {};
+    const regex = /{define:\s*(\S+)\s*frets\s*([\d\s]*)\s*fingers\s*([\d\s]*)}/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        const name = match[1];
+        const frets = match[2].trim().split(/\s+/).map(Number);
+        const fingers = match[3].trim().split(/\s+/).map(Number);
+        chordDefinitions[name] = { frets, fingers };
+    }
+    return chordDefinitions;
+}
+
+// Function to fetch and load the chord definition file
+async function loadChordDefinitions(url) {
+    try {
+        const response = await fetch(url);
+        const text = await response.text();
+        return parseChordDefinitions(text);
+    } catch (error) {
+        console.error('Error loading chord definitions:', error);
+        return {};
+    }
+}
+
+// Function to extract unique chords from songDict
+function getUniqueChords(songDict) {
+    const chords = new Set();
+    songDict.forEach(section => {
+        section.forEach(item => {
+            if (item.chord) {
+                chords.add(item.chord); // Add chord to the set
+            }
+        });
+    });
+    return Array.from(chords).sort(); // Convert Set to sorted array
+}
+
+// Function to render chord boxes with definitions
+function renderChordBoxesWithDefinitions(chords, chordDefinitions) {
+    const container = document.getElementById('chord-diagrams-container');
+    container.innerHTML = ''; // Clear existing content
+
+    chords.forEach(chord => {
+        // Create the chord box
+        const chordBox = document.createElement('div');
+        chordBox.className = 'chord-box';
+
+        // Add the chord name in an <h3> tag
+        const chordName = document.createElement('h3');
+        chordName.textContent = chord;
+        chordBox.appendChild(chordName);
+
+        // Add the chord definition if available
+        const definition = chordDefinitions[chord];
+        if (definition) {
+            const definitionText = document.createElement('p');
+            definitionText.textContent = `Frets: ${definition.frets.join(' ')} | Fingers: ${definition.fingers.join(' ')}`;
+            chordBox.appendChild(definitionText);
+        } else {
+            const noDefText = document.createElement('p');
+            noDefText.textContent = "No definition available.";
+            chordBox.appendChild(noDefText);
+        }
+
+        // Append the chord box to the container
+        container.appendChild(chordBox);
+    });
+}
+
+// Integrate unique chord extraction and rendering with definitions
+document.addEventListener('DOMContentLoaded', async () => {
+    // Use Django's static tag to get the absolute path
+    const filePath = "{% static 'js/sopranoUkulele.js' %}";
+
+    try {
+        // Fetch the file using the absolute path
+        const chordDefinitions = await loadChordDefinitions(filePath);
+
+        // Extract unique chords and render boxes with definitions
+        const uniqueChords = getUniqueChords(songDict); 
+        renderChordBoxesWithDefinitions(uniqueChords, chordDefinitions);
+    } catch (error) {
+        console.error('Error loading chord definitions:', error);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
+</main>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-
-
-
-
-{% endblock content %}
+</body>
+</html>

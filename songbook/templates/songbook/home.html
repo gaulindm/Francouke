@@ -22,7 +22,8 @@
             <a href="{% url 'newscore' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
         </td>
           <td>{{ item.song.metadata.artist|default:"Unknown Artist" }}</td>
-          <td>{{ item.song.metadata.key|default:"Unkown" }} - ({{ item.chords|default:"N/A" }})</td>
+          <td>{{ item.song.metadata.key|default:"Unkown" }} - ({{ item.chords|default:"N/A" }})
+      </td>
       </tr>
   {% endfor %}
     </tbody>

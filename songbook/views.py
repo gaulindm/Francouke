@@ -12,12 +12,20 @@ from django.views.generic import (
     DeleteView,
     )
 from .models import Song
+from django.views import View
 from django.db. models import Prefetch
 from .parsers import parse_song_data
 from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
 
+class ChordDiagramsView(View):
+    template_name = 'songbook/chord_diagrams_view.html'
 
+    def get(self, request, chords, *args, **kwargs):
+        # Split the comma-separated chords passed in the path
+        chords_list = chords.split(',')
+        context = {'chords': chords_list}
+        return render(request, self.template_name, context)
 
 #def score_view(request, song_id):
 #    song = get_object_or_404(Song, id=song_id)  # Fetch the song based on the id
