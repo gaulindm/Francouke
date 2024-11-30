@@ -67,7 +67,7 @@
     <div id="song-content"></div>
 </div>
 <div id="chord-diagrams-container" style="margin: 20px;">
-    The chords will be generated here
+    <script src="{% static 'js/sopranoUkulele.js' %}"></script> <!-- Definitions -->    
 </div>
 
 
@@ -75,6 +75,58 @@
     const songDict = {{ score.lyrics_with_chords|safe }};
     const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
 const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
+
+// Function to draw a single chord diagram
+function drawChordDiagram(paper, chordName, shape, xOffset, yOffset) {
+    const width = 120; // Diagram width
+    const height = 150; // Diagram height
+    const fretHeight = 25; // Height per fret
+    const stringSpacing = 16; // Spacing between strings
+    const startX = xOffset + 20;
+    const startY = yOffset + 40;
+
+    // Draw the chord name
+    paper.text(xOffset + width / 2, yOffset + 20, chordName).attr({ "font-size": 16, "font-weight": "bold" });
+
+    // Draw the grid (4 frets, 4 strings)
+    for (let i = 0; i <= 4; i++) {
+        paper.path(`M${startX},${startY + i * fretHeight} L${startX + 3 * stringSpacing},${startY + i * fretHeight}`).attr({ stroke: "#000" });
+    }
+    for (let j = 0; j <= 3; j++) {
+        paper.path(`M${startX + j * stringSpacing},${startY} L${startX + j * stringSpacing},${startY + 4 * fretHeight}`).attr({ stroke: "#000" });
+    }
+
+    // Draw finger positions
+    shape.frets.forEach((fret, index) => {
+        if (fret > 0) {
+            const stringPos = startX + index * stringSpacing; // Horizontal position (string)
+            const fretPos = startY + (fret - 1) * fretHeight; // Vertical position (fret)
+            paper.circle(stringPos, fretPos, 6).attr({ fill: "black" });
+        }
+    });
+}
+
+
+// Function to draw all chord diagrams
+function drawChordDiagrams(chords, chordDefinitions) {
+    const container = document.getElementById('chord-diagrams-container');
+    container.innerHTML = ''; // Clear existing content
+
+    // Create a Raphael paper for the diagrams
+    const paper = Raphael(container, 800, 600);
+
+    // Draw each chord
+    chords.forEach((chord, index) => {
+        const shape = chordDefinitions[chord];
+        if (shape) {
+            const xOffset = (index % 6) * 140; // Arrange horizontally (6 per row)
+            const yOffset = Math.floor(index / 6) * 200; // Arrange vertically
+            drawChordDiagram(paper, chord, shape, xOffset, yOffset);
+        } else {
+            console.warn(`No definition found for chord: ${chord}`);
+        }
+    });
+}
 
 function transposeChord(chord, semitones) {
     const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
@@ -234,6 +286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Extract unique chords and render boxes with definitions
         const uniqueChords = getUniqueChords(songDict); 
         renderChordBoxesWithDefinitions(uniqueChords, chordDefinitions);
+        drawChordDiagrams(uniqueChords, chordDefinitions);
+
     } catch (error) {
         console.error('Error loading chord definitions:', error);
     }
