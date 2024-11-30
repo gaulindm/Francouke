@@ -76,7 +76,7 @@
     const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
 const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
 
-// Function to draw a single chord diagram
+// Function to draw a single chord diagram with offsets for high frets
 function drawChordDiagram(paper, chordName, shape, xOffset, yOffset) {
     const width = 120; // Diagram width
     const height = 150; // Diagram height
@@ -85,23 +85,59 @@ function drawChordDiagram(paper, chordName, shape, xOffset, yOffset) {
     const startX = xOffset + 20;
     const startY = yOffset + 40;
 
+    // Determine the minimum fret to decide offset
+    const minFret = Math.min(...shape.frets.filter(fret => fret > 0)); // Lowest non-zero fret
+    const offset = minFret > 3 ? minFret - 1 : 0; // Offset if the minimum fret is above 3
+
     // Draw the chord name
     paper.text(xOffset + width / 2, yOffset + 20, chordName).attr({ "font-size": 16, "font-weight": "bold" });
 
+    // Draw the nut (thicker line at the top) or offset marker
+    if (offset === 0) {
+        paper.path(`M${startX},${startY} L${startX + 3 * stringSpacing},${startY}`)
+            .attr({ stroke: "#000", "stroke-width": 4 });
+    } else {
+        // Draw offset fret number (e.g., "5" for starting fret 5)
+        paper.text(startX - 10, startY + fretHeight / 2, offset + 1).attr({ "font-size": 12, "text-anchor": "end" });
+    }
+
     // Draw the grid (4 frets, 4 strings)
     for (let i = 0; i <= 4; i++) {
-        paper.path(`M${startX},${startY + i * fretHeight} L${startX + 3 * stringSpacing},${startY + i * fretHeight}`).attr({ stroke: "#000" });
+        paper.path(`M${startX},${startY + i * fretHeight} L${startX + 3 * stringSpacing},${startY + i * fretHeight}`)
+            .attr({ stroke: "#000" });
     }
     for (let j = 0; j <= 3; j++) {
-        paper.path(`M${startX + j * stringSpacing},${startY} L${startX + j * stringSpacing},${startY + 4 * fretHeight}`).attr({ stroke: "#000" });
+        paper.path(`M${startX + j * stringSpacing},${startY} L${startX + j * stringSpacing},${startY + 4 * fretHeight}`)
+            .attr({ stroke: "#000" });
     }
+
+    // Draw open or muted string indicators
+    shape.frets.forEach((fret, index) => {
+        const stringPos = startX + index * stringSpacing; // Horizontal position (string)
+        if (fret === 0) {
+            // Open string indicator (O)
+            paper.text(stringPos, startY - 15, "O").attr({ "font-size": 12, fill: "#007BFF" });
+        } else if (fret === -1) {
+            // Muted string indicator (X)
+            paper.text(stringPos, startY - 15, "X").attr({ "font-size": 12, fill: "#FF0000" });
+        }
+    });
 
     // Draw finger positions
     shape.frets.forEach((fret, index) => {
         if (fret > 0) {
+            const adjustedFret = fret - offset; // Adjust for offset
             const stringPos = startX + index * stringSpacing; // Horizontal position (string)
-            const fretPos = startY + (fret - 1) * fretHeight; // Vertical position (fret)
+            const fretPos = startY + (adjustedFret - 1) * fretHeight; // Vertical position (adjusted for offset)
+
+            // Draw the circle for the finger
             paper.circle(stringPos, fretPos, 6).attr({ fill: "black" });
+
+            // Add the finger number inside the circle
+            const finger = shape.fingers[index];
+            if (finger > 0) {
+                paper.text(stringPos, fretPos, finger).attr({ "font-size": 10, fill: "white" });
+            }
         }
     });
 }
