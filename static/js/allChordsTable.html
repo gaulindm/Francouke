@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Chord Diagrams</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="raphael.chord.js"></script> <!-- Ensure this points to your script -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .diagram-container {
+            width: 100px;
+            height: 120px;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Chord Diagrams</h1>
+    <h2>Instrument: Guitar</h2>
+    <div id="guitar-chords"></div>
+
+    <h2>Instrument: Ukulele</h2>
+    <div id="ukulele-chords"></div>
+
+    <script>
+        const chordDefinitions = {
+            guitar: [
+                { root: "A", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "A#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "B", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "C", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "C#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "D", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "D#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "E", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "F", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "F#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "G", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "G#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] }
+            ],
+            ukulele: [
+                { root: "A", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "A#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "B", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "C", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "C#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "D", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "D#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "E", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "F", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "F#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "G", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
+                { root: "G#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] }
+            ]
+        };
+
+        function renderChords(containerId, instrument, data) {
+            const container = document.getElementById(containerId);
+            const table = document.createElement("table");
+
+            // Create header
+            const header = document.createElement("tr");
+            header.innerHTML = "<th>Chord Type</th>" + data.map(chord => `<th>${chord.root}</th>`).join("");
+            table.appendChild(header);
+
+            // Create rows for each chord type
+            const chordTypes = data[0].types;
+            chordTypes.forEach(type => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${type}</td>`;
+                data.forEach(chord => {
+                    const cell = document.createElement("td");
+                    const diagramContainer = document.createElement("div");
+                    diagramContainer.className = "diagram-container";
+                    cell.appendChild(diagramContainer);
+                    row.appendChild(cell);
+
+                    // Render the chord diagram
+                    const chordData = Raphael.chord.find(instrument, chord.root, type, 1);
+                    if (chordData) {
+                        new Raphael.chord.Chord(diagramContainer, chordData, `${chord.root} ${type}`);
+                    }
+                });
+                table.appendChild(row);
+            });
+
+            container.appendChild(table);
+        }
+
+        renderChords("guitar-chords", "guitar", chordDefinitions.guitar);
+        renderChords("ukulele-chords", "ukulele", chordDefinitions.ukulele);
+    </script>
+</body>
+</html>
