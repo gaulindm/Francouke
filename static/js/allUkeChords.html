@@ -34,21 +34,9 @@
     <div id="ukulele-chords"></div>
 
     <script>
-        // Ukulele chord data
-        const chordDefinitions = [
-            { root: "A", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "A#", types: ["", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "B", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "C", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "C#", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "D", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "D#", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "E", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "F", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "F#", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "G", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] },
-            { root: "G#", types: ["maj", "m", "7", "maj7", "m7", "m6", "m9","dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"] }
-        ];
+        // Flat list of chord types for rendering
+        const chordRoots = ["A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#"];
+        const chordTypes = ["", "m", "7", "maj7", "m7", "m6", "m9", "dim", "aug", "sus2", "sus4", "5", "6", "maj9", "maj13", "11"];
 
         // Render the ukulele chord table
         async function renderUkuleleChords() {
@@ -60,25 +48,29 @@
 
             // Create header
             const header = document.createElement("tr");
-            header.innerHTML = "<th>Chord Type</th>" + chordDefinitions.map(chord => `<th>${chord.root}</th>`).join("");
+            header.innerHTML = "<th>Chord Type</th>" + chordRoots.map(root => `<th>${root}</th>`).join("");
             table.appendChild(header);
 
             // Create rows for each chord type
-            const chordTypes = chordDefinitions[0].types;
             chordTypes.forEach(type => {
                 const row = document.createElement("tr");
                 row.innerHTML = `<td>${type}</td>`;
-                chordDefinitions.forEach(chord => {
+                chordRoots.forEach(root => {
                     const cell = document.createElement("td");
                     const diagramContainer = document.createElement("div");
                     diagramContainer.className = "diagram-container";
                     cell.appendChild(diagramContainer);
                     row.appendChild(cell);
 
+                    // Combine root and type into a single chord name
+                    const chordName = `${root}${type}`;
+
                     // Render the chord diagram
-                    const chordData = Raphael.chord.find("ukulele", chord.root, type, 1);
+                    const chordData = Raphael.chord.find("ukulele", chordName, 1);
                     if (chordData) {
-                        new Raphael.chord.Chord(diagramContainer, chordData, `${chord.root} ${type}`);
+                        new Raphael.chord.Chord(diagramContainer, chordData, chordName);
+                    } else {
+                        diagramContainer.innerText = "N/A"; // Display placeholder if chord is not found
                     }
                 });
                 table.appendChild(row);
