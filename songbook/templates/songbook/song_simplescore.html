@@ -6,352 +6,162 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-     <!-- Bootstrap CSS -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
-      <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
-      <script src="{% static 'js/raphael.chord.js' %}"></script>
-      <script src="{% static 'js/sopranoUkulele.js' %}"></script>
-      
-      
-      
-      {% if title %}
-        <title>Songbook - {{ title }} </title>
-      {% else %}
-        <title>Songbook </title>
-      {% endif%}
-  </title>
-</head>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
+
+    {% if title %}
+      <title>Songbook - {{ title }} </title>
+    {% else %}
+      <title>Songbook</title>
+    {% endif %}
+  </head>
   <body>
-<style>
-    .lyrics-container {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    .lyrics-container h1, .lyrics-container h2 {
-        text-align: center;
-    }
-    .lyrics-container h3 {
-        margin-top: 20px;
-        font-size: 1.5em;
-    }
-    .lyrics-container .line {
-        display: inline-block;
-        margin: 5px 0;
-    }
-    .lyrics-container .chord {
-        font-weight: bold;
-        color: #007BFF;
-        padding:0;
-        margin:0;
-        line-height: 1;
-    }
-    .lyrics-container .lyric {
-        margin-left: 0px;
-    }
-    .lyrics-container .chorus {
-        text-align: center;
-        font-style: normal;
-    }
-    .lyrics-container .verse {
-        font-style: normal;
-    }
-    .lyrics-container .bridge {
-        font-style: italic;
-    }
-</style>
-
-<div class="lyrics-container">
-    <h1>{{ score.songTitle }}</h1>
-    <h2>{{ score.metadata.artist }}</h2>
-    <div id="song-content"></div>
-</div>
-<div id="chord-diagrams-container" style="margin: 20px;">
-    <script src="{% static 'js/sopranoUkulele.js' %}"></script> <!-- Definitions -->    
-</div>
-
-
-<script>
-    const songDict = {{ score.lyrics_with_chords|safe }};
-    const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
-const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
-
-function drawChordDiagram(paper, chordName, shape, xOffset, yOffset) {
-    const width = 120; // Diagram width
-    const height = 175; // Updated height to accommodate 5 frets
-    const fretHeight = 25; // Height per fret
-    const stringSpacing = 16; // Spacing between strings
-    const startX = xOffset + 35; // Adjusted horizontal position for centering
-    const startY = yOffset + 40;
-
-    // Draw a light border for debugging
-    paper.rect(xOffset, yOffset, width, height).attr({ stroke: "#cccccc", "stroke-width": 1, "stroke-dasharray": "--" });
-
-    // Draw the chord name, centered
-    paper.text(xOffset + width / 2, yOffset + 20, chordName)
-        .attr({ "font-size": 16, "font-weight": "bold", "text-anchor": "middle" });
-
-    // Determine the minimum fret to decide offset
-    const minFret = Math.min(...shape.frets.filter(fret => fret > 0), 999); // Lowest non-zero fret
-    const offset = minFret > 3 ? minFret - 1 : 0; // Offset if the minimum fret is above 3
-
-    // Draw the nut or fret number label
-    if (offset === 0) {
-        paper.path(`M${startX},${startY} L${startX + 3 * stringSpacing},${startY}`)
-            .attr({ stroke: "#000", "stroke-width": 4 });
-    } else {
-        // Add fret number to the left of the grid
-        paper.text(startX - 20, startY + fretHeight / 2, offset + 1).attr({ "font-size": 12, "text-anchor": "end" });
-    }
-
-    // Draw the grid (5 frets, 4 strings)
-    for (let i = 0; i <= 5; i++) {
-        paper.path(`M${startX},${startY + i * fretHeight} L${startX + 3 * stringSpacing},${startY + i * fretHeight}`)
-            .attr({ stroke: "#000" });
-    }
-    for (let j = 0; j <= 3; j++) {
-        paper.path(`M${startX + j * stringSpacing},${startY} L${startX + j * stringSpacing},${startY + 5 * fretHeight}`)
-            .attr({ stroke: "#000" });
-    }
-
-    // Draw open or muted string indicators
-    shape.frets.forEach((fret, index) => {
-        const stringPos = startX + index * stringSpacing; // Horizontal position (string)
-        if (fret === 0) {
-            paper.text(stringPos, startY - 8, "O").attr({ "font-size": 12, fill: "black" });
-        } else if (fret === -1) {
-            paper.text(stringPos, startY - 8, "X").attr({ "font-size": 12, fill: "black" });
-        }
-    });
-
-    // Draw finger positions
-    shape.frets.forEach((fret, index) => {
-        if (fret > 0) {
-            const adjustedFret = fret - offset; // Adjust for offset
-            const stringPos = startX + index * stringSpacing; // Horizontal position (string)
-            const fretPos = startY + 12 + (adjustedFret - 1) * fretHeight; // Vertical position
-
-            paper.circle(stringPos, fretPos, 6).attr({ fill: "black" });
-
-            const finger = shape.fingers[index];
-            if (finger > 0) {
-                paper.text(stringPos, fretPos, finger).attr({ "font-size": 10, fill: "white" });
-            }
-        }
-    });
-}
-
-
-
-
-
-// Function to draw all chord diagrams
-function drawChordDiagrams(chords, chordDefinitions) {
-    const container = document.getElementById('chord-diagrams-container');
-    container.innerHTML = ''; // Clear existing content
-
-    // Create a Raphael paper for the diagrams
-    const paper = Raphael(container, 800, 600);
-
-    // Draw each chord
-    chords.forEach((chord, index) => {
-        const shape = chordDefinitions[chord];
-        if (shape) {
-            const xOffset = (index % 6) * 140; // Arrange horizontally (6 per row)
-            const yOffset = Math.floor(index / 6) * 200; // Arrange vertically
-            drawChordDiagram(paper, chord, shape, xOffset, yOffset);
-        } else {
-            console.warn(`No definition found for chord: ${chord}`);
-        }
-    });
-}
-
-function transposeChord(chord, semitones) {
-    const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
-    const match = chord.match(chordRegex);
-
-    if (!match) {
-        return chord; // Return the original chord if it doesn't match the expected pattern
-    }
-
-    const baseChord = match[1];
-    const chordType = match[2] || '';
-
-    const newValue = (chordMap[baseChord] + semitones + 12) % 12;
-
-    return reverseChordMap[newValue] + chordType;
-}
-
-function renderSong(songDict, semitones) {
-    const songContainer = document.getElementById('song-content');
-    songContainer.innerHTML = '';
-    songDict.forEach(section => {
-        section.forEach(item => {
-            if (item.chord !== undefined) {
-                const transposedChord = item.chord ? transposeChord(item.chord, semitones) : '';
-                if (transposedChord) {
-                    songContainer.innerHTML += `<span class="line"><span class="chord">[${transposedChord}]</span> <span class="lyric">${item.lyric}</span></span>`;
-                } else {
-                    songContainer.innerHTML += `<span class="line"><span class="lyric">${item.lyric}</span></span>`;
-                }
-            } else if (item.format === 'LINEBREAK') {
-                songContainer.innerHTML += '<br>';
-            } else if (item.directive) {
-                if (item.directive === "{sov}") {
-                    songContainer.innerHTML += '<div class="verse"><h3>Verse</h3>';
-                } else if (item.directive === "{eov}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{soc}") {
-                    songContainer.innerHTML += '<div class="chorus"><h3>Chorus</h3>';
-                } else if (item.directive === "{eoc}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{sob}") {
-                    songContainer.innerHTML += '<div class="bridge"><h3>Bridge</h3>';
-                } else if (item.directive === "{eob}") {
-                    songContainer.innerHTML += '</div>';
-                }
-            }
-        });
-    });
-}
-
-
-
-
-
-
-
-
-
-
-// Example usage: Display unique chords in the console
-document.addEventListener('DOMContentLoaded', () => {
-    const uniqueChords = getUniqueChords(songDict);
-    console.log('Unique Chords:', uniqueChords);
-});
-
-function transposeSong(semitones) {
-    renderSong(songDict, parseInt(semitones));
-}
-
-// Initial render
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
-    renderSong(songDict, 0);
-});
-
-// Function to parse chord definition lines into an object
-function parseChordDefinitions(text) {
-    const chordDefinitions = {};
-    const regex = /{define:\s*(\S+)\s*frets\s*([\d\s]*)\s*fingers\s*([\d\s]*)}/g;
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-        const name = match[1];
-        const frets = match[2].trim().split(/\s+/).map(Number);
-        const fingers = match[3].trim().split(/\s+/).map(Number);
-        chordDefinitions[name] = { frets, fingers };
-    }
-    return chordDefinitions;
-}
-
-// Function to fetch and load the chord definition file
-async function loadChordDefinitions(url) {
-    try {
-        const response = await fetch(url);
-        const text = await response.text();
-        return parseChordDefinitions(text);
-    } catch (error) {
-        console.error('Error loading chord definitions:', error);
-        return {};
-    }
-}
-
-// Function to extract unique chords from songDict
-function getUniqueChords(songDict) {
-    const chords = new Set();
-    songDict.forEach(section => {
-        section.forEach(item => {
-            if (item.chord) {
-                chords.add(item.chord); // Add chord to the set
-            }
-        });
-    });
-    return Array.from(chords).sort(); // Convert Set to sorted array
-}
-
-// Function to render chord boxes with definitions
-function renderChordBoxesWithDefinitions(chords, chordDefinitions) {
-    const container = document.getElementById('chord-diagrams-container');
-    container.innerHTML = ''; // Clear existing content
-
-    chords.forEach(chord => {
-        // Create the chord box
-        const chordBox = document.createElement('div');
-        chordBox.className = 'chord-box';
-
-        // Add the chord name in an <h3> tag
-        const chordName = document.createElement('h3');
-        chordName.textContent = chord;
-        chordBox.appendChild(chordName);
-
-        // Add the chord definition if available
-        const definition = chordDefinitions[chord];
-        if (definition) {
-            const definitionText = document.createElement('p');
-            definitionText.textContent = `Frets: ${definition.frets.join(' ')} | Fingers: ${definition.fingers.join(' ')}`;
-            chordBox.appendChild(definitionText);
-        } else {
-            const noDefText = document.createElement('p');
-            noDefText.textContent = "No definition available.";
-            chordBox.appendChild(noDefText);
-        }
-
-        // Append the chord box to the container
-        container.appendChild(chordBox);
-    });
-}
-
-// Integrate unique chord extraction and rendering with definitions
-document.addEventListener('DOMContentLoaded', async () => {
-    // Use Django's static tag to get the absolute path
-    const filePath = "{% static 'js/sopranoUkulele.js' %}";
-
-    try {
-        // Fetch the file using the absolute path
-        const chordDefinitions = await loadChordDefinitions(filePath);
-
-        // Extract unique chords and render boxes with definitions
-        const uniqueChords = getUniqueChords(songDict); 
-        renderChordBoxesWithDefinitions(uniqueChords, chordDefinitions);
-        drawChordDiagrams(uniqueChords, chordDefinitions);
-
-    } catch (error) {
-        console.error('Error loading chord definitions:', error);
-    }
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</script>
-
-</main>
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-</body>
+    <style>
+      .lyrics-container {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+      }
+      .lyrics-container h1, .lyrics-container h2 {
+          text-align: center;
+      }
+      .lyrics-container h3 {
+          margin-top: 20px;
+          font-size: 1.5em;
+      }
+      .lyrics-container .line {
+          display: inline-block;
+          margin: 5px 0;
+      }
+      .lyrics-container .chord {
+          font-weight: bold;
+          color: #007BFF;
+          padding: 0;
+          margin: 0;
+          line-height: 1;
+      }
+      .lyrics-container .lyric {
+          margin-left: 0px;
+      }
+      .lyrics-container .chorus {
+          text-align: center;
+          font-style: normal;
+      }
+      .lyrics-container .verse {
+          font-style: normal;
+      }
+      .lyrics-container .bridge {
+          font-style: italic;
+      }
+    </style>
+
+    <div class="lyrics-container">
+      <h1>{{ score.songTitle }}</h1>
+      <h2>{{ score.metadata.artist }}</h2>
+      <div id="song-content"></div>
+      <div id="unique-chords" style="margin-top: 20px;">
+        <h3>Unique Chords:</h3>
+        <ul id="chord-list"></ul>
+      </div>
+    </div>
+
+    <script>
+      const songDict = {{ score.lyrics_with_chords|safe }};
+      const chordMap = {
+          'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 
+          'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 
+          'A#': 10, 'B': 11
+      };
+      const reverseChordMap = {
+          0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 
+          5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 
+          10: 'A#', 11: 'B'
+      };
+
+      function transposeChord(chord, semitones) {
+          const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
+          const match = chord.match(chordRegex);
+
+          if (!match) {
+              return chord; // Return the original chord if it doesn't match the expected pattern
+          }
+
+          const baseChord = match[1];
+          const chordType = match[2] || '';
+
+          const newValue = (chordMap[baseChord] + semitones + 12) % 12;
+
+          return reverseChordMap[newValue] + chordType;
+      }
+
+      function renderSong(songDict, semitones) {
+          const songContainer = document.getElementById('song-content');
+          songContainer.innerHTML = '';
+          songDict.forEach(section => {
+              section.forEach(item => {
+                  if (item.chord !== undefined) {
+                      const transposedChord = item.chord ? transposeChord(item.chord, semitones) : '';
+                      if (transposedChord) {
+                          songContainer.innerHTML += `<span class="line"><span class="chord">[${transposedChord}]</span> <span class="lyric">${item.lyric}</span></span>`;
+                      } else {
+                          songContainer.innerHTML += `<span class="line"><span class="lyric">${item.lyric}</span></span>`;
+                      }
+                  } else if (item.format === 'LINEBREAK') {
+                      songContainer.innerHTML += '<br>';
+                  } else if (item.directive) {
+                      if (item.directive === "{sov}") {
+                          songContainer.innerHTML += '<div class="verse"><h3>Verse</h3>';
+                      } else if (item.directive === "{eov}") {
+                          songContainer.innerHTML += '</div>';
+                      } else if (item.directive === "{soc}") {
+                          songContainer.innerHTML += '<div class="chorus"><h3>Chorus</h3>';
+                      } else if (item.directive === "{eoc}") {
+                          songContainer.innerHTML += '</div>';
+                      } else if (item.directive === "{sob}") {
+                          songContainer.innerHTML += '<div class="bridge"><h3>Bridge</h3>';
+                      } else if (item.directive === "{eob}") {
+                          songContainer.innerHTML += '</div>';
+                      }
+                  }
+              });
+          });
+      }
+
+      // Extract unique chords
+      function getUniqueChords(songDict) {
+          const chords = new Set();
+          songDict.forEach(section => {
+              section.forEach(item => {
+                  if (item.chord) {
+                      chords.add(item.chord);
+                  }
+              });
+          });
+          return Array.from(chords).sort();
+      }
+
+      // Render chord list on the page
+      function renderChordList(chords) {
+          const chordListContainer = document.getElementById('chord-list');
+          chordListContainer.innerHTML = ''; // Clear existing list
+          chords.forEach(chord => {
+              const listItem = document.createElement('li');
+              listItem.textContent = chord;
+              chordListContainer.appendChild(listItem);
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+          const uniqueChords = getUniqueChords(songDict);
+          console.log('Unique Chords:', uniqueChords); // Log to console
+          renderChordList(uniqueChords); // Render on the page
+          renderSong(songDict, 0); // Initial render without transposition
+      });
+
+      function transposeSong(semitones) {
+          renderSong(songDict, parseInt(semitones));
+      }
+    </script>
+
+  </body>
 </html>
