@@ -125,6 +125,51 @@ body {
 .d-none {
     display: none !important;
 }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
     </style>
 </head>
 <body>
@@ -295,14 +340,48 @@ function transposeSong(semitones) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
     renderSong(songDict, 0);
-});
-</script>
+    renderChords();
+    // Ensure the chord box is hidden by default
+    const chordContainer = document.getElementById('chord-container');
+    const toggleChordBox = document.getElementById('toggle-chord-box');
+    chordContainer.classList.add('d-none');
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Set the default position to "right"
+    // Add default position logic
     updateChordPosition('bottom');
+
+    if (toggleChordBox && chordContainer) {
+        // Set the initial state based on the toggle's position
+        if (toggleChordBox.checked) {
+            chordContainer.classList.remove('d-none'); // Show chord box
+            updateChordPosition('bottom'); // Default position
+        } else {
+            chordContainer.classList.add('d-none'); // Hide chord box
+        }
+
+        // Add event listener for toggle interaction
+        toggleChordBox.addEventListener('change', () => {
+            toggleChordBox.checked ? chordContainer.classList.remove('d-none') : chordContainer.classList.add('d-none');
+            if (toggleChordBox.checked) {
+                updateChordPosition('bottom'); // Ensure default position when shown
+            }
+        });
+    } else {
+        console.warn('Chord container or toggle not found.');
+    }
+
 });
+
+
+function toggleChordBox(isVisible) {
+    const chordContainer = document.getElementById('chord-container');
+    if (isVisible) {
+        chordContainer.classList.remove('d-none');
+        updateChordPosition('bottom'); // Ensure default position is set to bottom
+    } else {
+        chordContainer.classList.add('d-none');
+    }
+}
+
 
 function updateChordPosition(position) {
     // List of all placeholders
@@ -321,12 +400,22 @@ function updateChordPosition(position) {
 
     // Find the selected placeholder
     const selectedPlaceholder = document.getElementById(`${position}-chord-diagram-placeholder`);
-    selectedPlaceholder.classList.remove('d-none'); // Make it visible
+    if (selectedPlaceholder) {
+        selectedPlaceholder.classList.remove('d-none'); // Make it visible
+    } else {
+        console.warn(`Placeholder for position "${position}" not found.`);
+        return; // Exit if the placeholder doesn't exist
+    }
 
     // Append the chord container to the selected placeholder
     const chordContainer = document.getElementById('chord-container');
-    selectedPlaceholder.appendChild(chordContainer);
-    chordContainer.classList.remove('d-none'); // Ensure visibility
+    if (chordContainer) {
+        selectedPlaceholder.appendChild(chordContainer);
+        chordContainer.classList.remove('d-none'); // Ensure visibility
+    } else {
+        console.error("Chord container not found.");
+        return; // Exit if the chord container doesn't exist
+    }
 
     // Adjust layout for top and bottom positions
     if (position === 'top' || position === 'bottom') {
@@ -341,22 +430,24 @@ function updateChordPosition(position) {
         chordContainer.style.flexWrap = 'nowrap';
         chordContainer.style.justifyContent = 'flex-start'; // Align to top/left
     }
-        // Dynamically adjust lyrics-container
+
+    // Dynamically adjust lyrics-container
     adjustLyricsContainer(position);
 }
 
 function adjustLyricsContainer(position) {
     const lyricsContainer = document.getElementById('lyrics-container');
+    if (!lyricsContainer) {
+        console.warn('Lyrics container not found.');
+        return;
+    }
+
     if (position === 'left' || position === 'right') {
-        // Ensure lyrics-container doesn't expand unnecessarily
-        lyricsContainer.style.flexGrow = '1'; 
-        lyricsContainer.parentElement.classList.remove('col-12');
-        lyricsContainer.parentElement.classList.add('col-8');
+        // Shrink lyrics container for left/right positioning
+        lyricsContainer.style.flex = '0 0 70%'; // 70% width
     } else {
-        // Expand lyrics-container to full width
-        lyricsContainer.style.flexGrow = '2'; 
-        lyricsContainer.parentElement.classList.remove('col-8');
-        lyricsContainer.parentElement.classList.add('col-12');
+        // Expand lyrics container for top/bottom positioning
+        lyricsContainer.style.flex = '1 1 auto'; // Full width
     }
 }
 
@@ -411,10 +502,6 @@ async function renderChords() {
     }
 }
 
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderChords();
-        });
 
 </script>
 
