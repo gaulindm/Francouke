@@ -238,18 +238,13 @@ input:checked + .slider:before {
     
                 <!-- Bottom Chord Placeholder -->
                 <div id="bottom-chord-diagram-placeholder" class="col-12 d-none">
-                   
+                    <!-- Chord Container -->
+                    <div id="chord-container" class="d-none">
+                        <div id="bottom-chord-container" class="chordbox">
+                        <!-- Chords will be dynamically rendered here -->
+                        </div>
+                    </div>
                 </div>
-            </div>
-    
-            <!-- Chord Container -->
-            <div id="chord-container" class="d-none">
-                <div id="bottom-chord-container" class="chordbox">
-                    <!-- Chords will be dynamically rendered here -->
-                </div>
-
-
-
 
 
             </div>
@@ -350,20 +345,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updateChordPosition('bottom');
 
     if (toggleChordBox && chordContainer) {
-        // Set the initial state based on the toggle's position
-        if (toggleChordBox.checked) {
-            chordContainer.classList.remove('d-none'); // Show chord box
-            updateChordPosition('bottom'); // Default position
+        // Restore state from localStorage
+        const savedState = localStorage.getItem('chordBoxVisible') === 'true';
+        toggleChordBox.checked = savedState;
+
+        if (savedState) {
+            chordContainer.classList.remove('d-none');
+            updateChordPosition('bottom');
         } else {
-            chordContainer.classList.add('d-none'); // Hide chord box
+            chordContainer.classList.add('d-none');
         }
 
-        // Add event listener for toggle interaction
+        // Save state on toggle change
         toggleChordBox.addEventListener('change', () => {
-            toggleChordBox.checked ? chordContainer.classList.remove('d-none') : chordContainer.classList.add('d-none');
-            if (toggleChordBox.checked) {
-                updateChordPosition('bottom'); // Ensure default position when shown
-            }
+            const isVisible = toggleChordBox.checked;
+            localStorage.setItem('chordBoxVisible', isVisible);
+            isVisible ? chordContainer.classList.remove('d-none') : chordContainer.classList.add('d-none');
+            if (isVisible) updateChordPosition('bottom');
         });
     } else {
         console.warn('Chord container or toggle not found.');
