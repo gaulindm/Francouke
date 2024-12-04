@@ -2,7 +2,7 @@
     Raphael.chord = {
         data: null, // To store loaded chord data
     };
-
+    const instrument="ukulele"
     // Load chord data
     Raphael.chord.loadData = async function (url) {
         try {
