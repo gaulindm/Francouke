@@ -1,60 +1,41 @@
 (function (Raphael) {
     Raphael.chord = {
-        data: null, // To store loaded chord data
-    };
-    const instrument="ukulele"
-    // Load chord data
-    Raphael.chord.loadData = async function (url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+        data: null, // Stores the chord data
+        currentInstrument: "ukulele", // Default instrument
+        setInstrument: function (instrument) {
+            this.currentInstrument = instrument;
+        },
+        loadData: async function (filePath) {
+            try {
+                const response = await fetch(filePath);
+                this.data = await response.json();
+                console.log(`Chord data for ${this.currentInstrument} loaded successfully.`);
+            } catch (error) {
+                console.error(`Error loading chord data from ${filePath}:`, error);
             }
-            const jsonData = await response.json();
-
-            // Optional validation
-            if (!Array.isArray(jsonData)) {
-                throw new Error("Invalid chord data: Root JSON structure should be an array.");
+        },
+        find: function (chordName, variation) {
+            if (!this.data) {
+                console.error("Chord data not loaded. Please call loadData first.");
+                return undefined;
             }
-            jsonData.forEach(chord => {
-                if (!chord.name || !Array.isArray(chord.variations)) {
-                    throw new Error(`Invalid chord entry: ${JSON.stringify(chord)}`);
-                }
-            });
-
-            Raphael.chord.data = jsonData;
-            console.log("Chord data loaded successfully:", jsonData);
-        } catch (error) {
-            console.error("Failed to load chord data:", error);
-            Raphael.chord.data = null;
+    
+            const chord = this.data.find(c => c.name === chordName);
+            if (!chord) {
+                console.error(`Chord ${chordName} not found.`);
+                return undefined;
+            }
+    
+            variation = variation || 1; // Default to the first variation
+            if (variation > chord.variations.length) {
+                console.warn(`Variation ${variation} exceeds available variations. Using the last one.`);
+                variation = chord.variations.length;
+            }
+    
+            return chord.variations[variation - 1];
         }
     };
-
-    // Find a chord
-    Raphael.chord.find = function (instrument, chordName, variation) {
-        if (!Raphael.chord.data) {
-            console.error("Chord data not loaded. Please load data using loadData method.");
-            return undefined;
-        }
-
-        const chord = Raphael.chord.data.find(c => c.name === chordName);
-
-        if (!chord) {
-            console.error(`Chord ${chordName} not found.`);
-            return undefined;
-        }
-
-        if (!variation || variation < 1) {
-            variation = 1;
-        }
-
-        if (variation > chord.variations.length) {
-            console.warn(`Variation ${variation} exceeds available variations for ${chordName}. Defaulting to last variation.`);
-            variation = chord.variations.length;
-        }
-
-        return chord.variations[variation - 1];
-    };
+    
 
     // Chord constructor
     var Chord = function (elementOrPosition, data, labelOrVariant) {

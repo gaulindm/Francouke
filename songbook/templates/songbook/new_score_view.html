@@ -264,12 +264,79 @@ input:checked + .slider:before {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 <!-- Layout Initialization -->
 
+
+
+
 <script>
     const songDict = {{ score.lyrics_with_chords|safe }};
     const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
     const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
     const instrument = 'ukulele'; // Specify the instrument
     const uniqueChords = [...new Set(songDict.flatMap(section => section.map(item => item.chord).filter(Boolean)))]; // Extract unique chords
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const instrumentSelector = document.getElementById('instrument-selector');
+        const chordFiles = {
+            guitar: "{% static 'js/guitar_chords.json' %}",
+            ukulele: "{% static 'js/ukulele_chords.json' %}",
+            baritone_ukulele: "{% static 'js/baritoneUke_chords.json' %}",
+            banjo: "{% static 'js/banjo_chords.json' %}",
+            mandoline: "{% static 'js/mandolin_chords.json' %}"
+        };
+
+        // Load the initial instrument's data
+        loadInstrumentData(instrumentSelector.value);
+
+        // Handle instrument changes
+        instrumentSelector.addEventListener('change', (event) => {
+            const selectedInstrument = event.target.value;
+            loadInstrumentData(selectedInstrument);
+        });
+
+        function loadInstrumentData(instrument) {
+            const filePath = chordFiles[instrument];
+            if (!filePath) {
+                console.error("Invalid instrument selected.");
+                return;
+            }
+
+            Raphael.chord.setInstrument(instrument); // Update the instrument
+            Raphael.chord.loadData(filePath)
+                .then(() => {
+                    console.log(`${instrument} chord data loaded.`);
+                    renderChords();
+                })
+                .catch(error => console.error(`Error loading chord data for ${instrument}:`, error));
+        }
+
+        function renderChords() {
+            const container = document.getElementById('bottom-chord-container');
+            container.innerHTML = ''; // Clear existing chord diagrams
+
+            //const uniqueChords = ["C", "G", "Am", "F"]; // Example chord names
+            uniqueChords.forEach(chordName => {
+                const chordData = Raphael.chord.find(chordName, 1);
+                if (!chordData) {
+                    console.warn(`Chord ${chordName} not found for ${Raphael.chord.currentInstrument}`);
+                    return;
+                }
+
+                // Create a container for the chord diagram
+                const diagramContainer = document.createElement('div');
+                diagramContainer.className = 'chord-diagram';
+
+                // Render the chord using Raphael
+                const chord = new Raphael.chord.Chord(diagramContainer, chordData, chordName);
+                chord.element.setSize(80, 100); // Adjust the size as needed
+                container.appendChild(diagramContainer);
+            });
+        }
+    });
+
+
+
+
+
 
 function transposeChord(chord, semitones) {
     const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
@@ -368,6 +435,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+
+
+
+
 
 
 function toggleChordBox(isVisible) {
