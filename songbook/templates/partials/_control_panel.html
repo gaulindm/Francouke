@@ -5,7 +5,8 @@
         <li class="list-group-item list-group-item-heavy">Modify ChordPro<div>
           <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
           <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
-        </div></li>
+        </div>
+        </li>
         <li class="list-group-item list-group-item-heavy">Transpose    
           <select id="transpose-select" onchange="transposeSong(this.value)">
             <option value="0">Original Key</option>
