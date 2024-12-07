@@ -150,7 +150,7 @@ class SongCreateView(LoginRequiredMixin, CreateView):
 class SongUpdateView(LoginRequiredMixin, UpdateView):
     model = Song
     fields = ['songTitle', 'songChordPro', 'lyrics_with_chords', 'metadata']
-    success_url = reverse_lazy('newscore',kwargs={'pk'})  # Redirect after success
+    success_url = reverse_lazy('songbook-home')  # Redirect after success
 
     def form_valid(self, form):
         # Assign the contributor to the current user
@@ -176,9 +176,6 @@ class SongUpdateView(LoginRequiredMixin, UpdateView):
         if obj.contributor != self.request.user:
             raise PermissionDenied("You do not have permission to edit this song.")
         return obj
-    
-    #def get_absolute_url(self):
-    #    return reverse('newscore',kwargs={'pk':self.pk})
 
 
 

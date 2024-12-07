@@ -27,28 +27,69 @@
             <option value="7">+7 semitone</option>
         </select>
         </li>
-        <div class="control-panel">
-          <label for="instrument-selector">Select Instrument:</label>
-          <select id="instrument-selector" class="form-control">
-              <option value="guitar">Guitar</option>
-              <option value="ukulele" selected>Ukulele</option>
-              <option value="baritone_ukulele">Baritone Ukulele</option>
-              <option value="banjo">Banjo</option>
-              <option value="mandoline">Mandoline</option>
-          </select>
-      </div>
-      
+        <!-- Lyrics and Chords Appearance -->
         <li class="list-group-item list-group-item-heavy">
-          Chord Box Visibility:
+          <strong>Lyrics and Chords Appearance</strong>
+          <div class="control-panel mt-2">
+              <!-- Font Size -->
+              <label for="fontSize">Font Size:</label>
+              <select id="fontSize" onchange="updateStyle('fontSize', this.value)" class="form-control form-control-sm">
+                  <option value="14px">14px</option>
+                  <option value="16px">16px</option>
+                  <option value="18px">18px</option>
+                  <option value="20px">20px</option>
+              </select>
+
+              <!-- Text Color -->
+              <label for="textColor">Text Color:</label>
+              <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
+
+              <!-- Line Spacing -->
+              <label for="lineSpacing">Line Spacing:</label>
+              <select id="lineSpacing" onchange="updateStyle('lineHeight', this.value)" class="form-control form-control-sm">
+                  <option value="1.2">1.2</option>
+                  <option value="1.4">1.4</option>
+                  <option value="1.6">1.6</option>
+                  <option value="1.8">1.8</option>
+              </select>
+
+              <!-- Chord Color -->
+              <label for="chordColor">Chord Color:</label>
+              <input type="color" id="chordColor" onchange="updateChordStyle()" class="form-control form-control-sm">
+
+              <!-- Print Button -->
+              <button onclick="printDiv('printableScore')" class="btn btn-primary btn-sm mt-2">Print Score</button>
+          </div>
+      </li>
+
+      <!-- Instrument Selection -->
+      <li class="list-group-item list-group-item-heavy">
+          <strong>Instrument Selection</strong>
+          <div class="control-panel mt-2">
+              <label for="instrument-selector">Select Instrument:</label>
+              <select id="instrument-selector" class="form-control">
+                  <option value="guitar">Guitar</option>
+                  <option value="ukulele" selected>Ukulele</option>
+                  <option value="baritone_ukulele">Baritone Ukulele</option>
+                  <option value="banjo">Banjo</option>
+                  <option value="mandoline">Mandoline</option>
+              </select>
+          </div>
+      </li>
+
+      <!-- Chord Box Visibility -->
+      <li class="list-group-item list-group-item-heavy">
+          <strong>Chord Box Visibility</strong>
           <label class="switch">
-            <input type="checkbox" id="toggle-chord-box" onchange="toggleChordBox(this.checked)">
-            <span class="slider round"></span>
+              <input type="checkbox" id="toggle-chord-box" onchange="toggleChordBox(this.checked)">
+              <span class="slider round"></span>
           </label>
-        </li>
-        
-        <li class="list-group-item list-group-item-heavy">
-          Chord Position:
-          <form id="layout-form">
+      </li>
+
+      <!-- Chord Diagram Position -->
+      <li class="list-group-item list-group-item-heavy">
+          <strong>Chord Diagram Position</strong>
+          <form id="layout-form" class="mt-2">
               <label>
                   <input type="radio" name="diagram-position" value="left"> Left
               </label>
@@ -63,7 +104,8 @@
               </label>
           </form>
       </li>
-        <li class="list-group-item list-group-item-light">etc</li>
-      </ul>
-    </p>
-  </div>
+
+      <!-- Additional Options -->
+      <li class="list-group-item list-group-item-light">Additional Options</li>
+  </ul>
+</div>

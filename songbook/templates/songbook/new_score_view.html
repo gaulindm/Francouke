@@ -400,7 +400,10 @@ function printDiv(divId) {
     printWindow.print();
 }
 
-
+function updateFontSize(fontSize) {
+        // Apply the selected font size to the song-content div
+        document.getElementById('song-content').style.fontSize = fontSize;
+    }
 
 
 function transposeChord(chord, semitones) {
@@ -454,6 +457,8 @@ function renderSong(songDict, semitones) {
                 htmlContent += `<span class="line">${chordSpan} ${lyricSpan}</span>`;
             } else if (item.format === 'LINEBREAK') {
                 htmlContent += '<br>';
+            } else if (item.format === 'PARAGRAPHBREAK') {
+                htmlContent += '<br><br>'; // Extra break for paragraph separation
             }
         });
     });
@@ -465,6 +470,7 @@ function renderSong(songDict, semitones) {
 
     songContainer.innerHTML = htmlContent; // Set the complete HTML
 }
+
 
 
 function transposeSong(semitones) {
