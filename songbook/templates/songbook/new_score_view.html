@@ -122,6 +122,42 @@ body {
     transform-origin: center; /* Keep scaling centered */
 }
 
+/* Verse container styling */
+.verse {
+    margin-top: 20px; /* Space above the verse */
+    margin-bottom: 10px; /* Space below the verse */
+    text-align: left;
+    padding: 10px; /* Padding inside the verse container */
+    background-color: #e9f7e9; /* Light green background for verses */
+    border-left: 4px solid #28a745; /* Green border to mark verses */
+    border-radius: 5px; /* Rounded corners */
+}
+
+
+/* Chorus container styling */
+.chorus {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fdf8e3; /* Light yellow background for choruses */
+    border-left: 4px solid #ffc107; /* Yellow border */
+    border-radius: 5px;
+}
+
+
+/* Bridge container styling */
+.bridge {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f8e8f9; /* Light purple background for bridges */
+    border-left: 4px solid #6f42c1; /* Purple border */
+    border-radius: 5px;
+}
+
+
+
 .d-none {
     display: none !important;
 }
@@ -169,7 +205,19 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(14px);
 }
-
+/* Print-specific styles */
+@media print {
+            nav, .navigation, .footer, .sidebar, button, .buttons, a[href]:after {
+                display: none;
+            }
+            @page {
+                margin: 1in;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -206,6 +254,8 @@ input:checked + .slider:before {
         <div class="row">
             <div class="col-8 bg-light">
                 <!-- Page Area -->
+                <div id="printableScore" style="background-color:#f5f5f5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
+                    <h1>{{ song.songTitle }}</h1> 
                 <div class="row">
                     <div class="col-12">
                         <div id="header">
@@ -248,13 +298,17 @@ input:checked + .slider:before {
 
 
             </div>
-    
+            <!-- Print Button -->
+        <button onclick="printDiv('printableScore')" style="display: block; margin: 20px auto;">Print Score</button>
+
+        </div>
+            
             <!-- Control Panel -->
             <div class="col-4">
                 {% include "partials/_control_panel.html" %}
-                
             </div>
         </div>
+        
     </main>
     
 
@@ -333,7 +387,17 @@ input:checked + .slider:before {
         }
     });
 
-
+function printDiv(divId) {
+    var content = document.getElementById(divId).innerHTML;
+    var printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Print Score</title>');
+    printWindow.document.write('<style>body{font-family: Arial, sans-serif;} h1, h2{text-align: center;}</style>');
+    printWindow.document.write('</head><body >');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+}
 
 
 
@@ -376,15 +440,15 @@ function renderSong(songDict, semitones) {
                 songContainer.innerHTML += '<br>';
             } else if (item.directive) {
                 if (item.directive === "{sov}") {
-                    songContainer.innerHTML += '<div class="verse"><h3>Verse</h3>';
+                    songContainer.innerHTML += '<div class="verse">';
                 } else if (item.directive === "{eov}") {
                     songContainer.innerHTML += '</div>';
                 } else if (item.directive === "{soc}") {
-                    songContainer.innerHTML += '<div class="chorus"><h3>Chorus</h3>';
+                    songContainer.innerHTML += '<div class="chorus">';
                 } else if (item.directive === "{eoc}") {
                     songContainer.innerHTML += '</div>';
                 } else if (item.directive === "{sob}") {
-                    songContainer.innerHTML += '<div class="bridge"><h3>Bridge</h3>';
+                    songContainer.innerHTML += '<div class="bridge">';
                 } else if (item.directive === "{eob}") {
                     songContainer.innerHTML += '</div>';
                 }
