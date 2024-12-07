@@ -103,7 +103,7 @@ body {
 
 /* Center Text in Helper Divs */
 .row > div:not(.lyrics-container) {
-    text-align: center;
+    text-align: left;
 }
 
 /* Navbar Adjustments */
@@ -137,10 +137,11 @@ body {
 /* Chorus container styling */
 .chorus {
     margin-top: 20px;
+    text-align: center;
     margin-bottom: 10px;
     padding: 10px;
-    background-color: #fdf8e3; /* Light yellow background for choruses */
-    border-left: 4px solid #ffc107; /* Yellow border */
+    background-color:transparent; /* Light yellow background for choruses */
+    border-left: 4px solid #363635; /* Yellow border */
     border-radius: 5px;
 }
 
@@ -423,39 +424,48 @@ function transposeChord(chord, semitones) {
 
 
 
-
 function renderSong(songDict, semitones) {
     const songContainer = document.getElementById('song-content');
-    songContainer.innerHTML = '';
+    let htmlContent = ''; // Start with an empty string
+
+    let inChorus = false; // Track whether we're inside a chorus section
+
     songDict.forEach(section => {
         section.forEach(item => {
-            if (item.chord !== undefined) {
+            if (item.directive) {
+                switch (item.directive) {
+                    case "{soc}":
+                        if (!inChorus) {
+                            htmlContent += `<div class="chorus">`;
+                            inChorus = true;
+                        }
+                        break;
+                    case "{eoc}":
+                        if (inChorus) {
+                            htmlContent += `</div>`;
+                            inChorus = false;
+                        }
+                        break;
+                }
+            } else if (item.chord !== undefined) {
                 const transposedChord = item.chord ? transposeChord(item.chord, semitones) : '';
-                if (transposedChord) {
-                    songContainer.innerHTML += `<span class="line"><span class="chord">[${transposedChord}]</span> <span class="lyric">${item.lyric}</span></span>`;
-                } else {
-                    songContainer.innerHTML += `<span class="line"><span class="lyric">${item.lyric}</span></span>`;
-                }
+                const chordSpan = transposedChord ? `<span class="chord">[${transposedChord}]</span>` : '';
+                const lyricSpan = item.lyric ? `<span class="lyric">${item.lyric}</span>` : '';
+                htmlContent += `<span class="line">${chordSpan} ${lyricSpan}</span>`;
             } else if (item.format === 'LINEBREAK') {
-                songContainer.innerHTML += '<br>';
-            } else if (item.directive) {
-                if (item.directive === "{sov}") {
-                    songContainer.innerHTML += '<div class="verse">';
-                } else if (item.directive === "{eov}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{soc}") {
-                    songContainer.innerHTML += '<div class="chorus">';
-                } else if (item.directive === "{eoc}") {
-                    songContainer.innerHTML += '</div>';
-                } else if (item.directive === "{sob}") {
-                    songContainer.innerHTML += '<div class="bridge">';
-                } else if (item.directive === "{eob}") {
-                    songContainer.innerHTML += '</div>';
-                }
+                htmlContent += '<br>';
             }
         });
     });
+
+    // Ensure any unclosed section is properly closed
+    if (inChorus) {
+        htmlContent += `</div>`;
+    }
+
+    songContainer.innerHTML = htmlContent; // Set the complete HTML
 }
+
 
 function transposeSong(semitones) {
     renderSong(songDict, parseInt(semitones));
