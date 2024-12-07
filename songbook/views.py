@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin,  UserPassesTestMixin
 from django.contrib.auth.models import User
 from monAccordeur.models import Chord
@@ -75,18 +75,6 @@ def song_with_chords_view(request, song_id, new_key, instrument='ukulele'):
     return render(request, 'songbook/song_with_chords.html', context)
 
 
-
-
-
-
-def transpose_song_view(request, song_id, new_key):
-    song = get_object_or_404(Song, id=song_id)
-    parsed_data = song.lyrics_with_chords  # Assuming this is already parsed and stored
-    original_key = song.metadata.get('key') or detect_key(parsed_data)
-    steps = calculate_steps(original_key, new_key)
-    transposed_lyrics = transpose_lyrics(parsed_data, steps)
-    return render(request, 'songbook/song_simplescore.html', {'score': song, 'transposed_lyrics': transposed_lyrics})
-
 def home(request):
     context = {
         'songs':Song.objects.all()
@@ -159,27 +147,38 @@ class SongCreateView(LoginRequiredMixin, CreateView):
         form.instance.contributor = self.request.user
         return super().form_valid(form)
 
-class SongUpdateView (LoginRequiredMixin, UpdateView):
+class SongUpdateView(LoginRequiredMixin, UpdateView):
     model = Song
-    fields = ['songTitle', 'songChordPro','lyrics_with_chords','metadata']
+    fields = ['songTitle', 'songChordPro', 'lyrics_with_chords', 'metadata']
+    success_url = reverse_lazy('newscore',kwargs={'pk'})  # Redirect after success
 
     def form_valid(self, form):
-        # Set the contributor to the current user
+        # Assign the contributor to the current user
         form.instance.contributor = self.request.user
         
         # Parse the songChordPro field
         raw_lyrics = form.cleaned_data['songChordPro']
-        parsed_lyrics = parse_song_data(raw_lyrics)
+        try:
+            # Attempt to parse the songChordPro data
+            parsed_lyrics = parse_song_data(raw_lyrics)
+        except Exception as e:
+            # Handle errors in parsing gracefully
+            form.add_error('songChordPro', f"Error parsing song data: {e}")
+            return self.form_invalid(form)
         
-        # Update the lyrics_with_chords field with the parsed data
+        # Update the lyrics_with_chords field with parsed data
         form.instance.lyrics_with_chords = parsed_lyrics
-        
         return super().form_valid(form)
-        
-    def test_func(self):
-        song = self.get_object()
-        return self.request.user == song.contributor
 
+    def get_object(self, queryset=None):
+        # Ensure only the contributor can update the song
+        obj = super().get_object(queryset)
+        if obj.contributor != self.request.user:
+            raise PermissionDenied("You do not have permission to edit this song.")
+        return obj
+    
+    #def get_absolute_url(self):
+    #    return reverse('newscore',kwargs={'pk':self.pk})
 
 
 
