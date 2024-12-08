@@ -2,8 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin,  UserPassesTestMixin
 from django.contrib.auth.models import User
-from monAccordeur.models import Chord
-from monAccordeur.svg_generator import generate_chord_svg
 from django.views.generic import (
     ListView, 
     DetailView,
