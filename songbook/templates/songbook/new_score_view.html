@@ -400,10 +400,25 @@ function printDiv(divId) {
     printWindow.print();
 }
 
-function updateFontSize(fontSize) {
-        // Apply the selected font size to the song-content div
-        document.getElementById('song-content').style.fontSize = fontSize;
+// Function to update general styles for the score content
+function updateStyle(styleName, value) {
+    const songContent = document.getElementById('song-content');
+    if (styleName === 'lineHeight') {
+        songContent.style.lineHeight = value; // Adjust line spacing
+    } else {
+        songContent.style[styleName] = value; // Handle general styles like fontSize or color
     }
+}
+// Function to update chord color and weight
+function updateChordStyle() {
+    const chordColor = document.getElementById('chordColor').value;
+    const chordWeight = document.getElementById('chordWeight').value;
+    const chords = document.querySelectorAll('#song-content .chord');
+    chords.forEach(chord => {
+        chord.style.color = chordColor; // Apply chord color
+        chord.style.fontWeight = chordWeight; // Apply chord weight
+    });
+}
 
 
 function transposeChord(chord, semitones) {
