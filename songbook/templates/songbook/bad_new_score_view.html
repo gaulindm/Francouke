@@ -1,0 +1,352 @@
+{% load static %}
+<!--New_score_view.html--
+This file will not use templates for now.
+It has been documented that templates are harder to manage with javascript-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songbook</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
+
+    <style>
+    .lyrics-container {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .lyrics-container h1, .lyrics-container h2 {
+        text-align: center;
+    }
+    .lyrics-container h3 {
+        margin-top: 20px;
+        font-size: 1.5em;
+    }
+    .lyrics-container .line {
+        display: inline-block;
+        margin: 5px 0;
+    }
+    .lyrics-container .chord {
+        font-weight: bold;
+        color: #007BFF;
+        padding:0;
+        margin:0;
+        line-height: 1;
+    }
+    .lyrics-container .lyric {
+        margin-left: 0px;
+    }
+    .lyrics-container .chorus {
+        text-align: center;
+        font-style: normal;
+    }
+    .lyrics-container .verse {
+        font-style: normal;
+    }
+    .lyrics-container .bridge {
+        font-style: italic;
+    }
+          /* Layout for chord container placement */
+          .chord-container-left { 
+            float: left; 
+            width: 20%; 
+        }
+
+        .chord-container-right { 
+            float: right; 
+            width: 20%; 
+        }
+
+        .chord-container-top, .chord-container-bottom { 
+            display: flex; 
+            justify-content: center; 
+            width: 100%; 
+        }
+
+        .chord-container-top { 
+            margin-bottom: 20px; 
+        }
+
+        .chord-container-bottom { 
+            margin-top: 20px; 
+        }
+
+    .chord { 
+        margin: 10px; 
+        font-family: Arial, sans-serif; 
+        text-align: center; 
+    }
+    #song-content {
+            margin: 0 auto;
+            width: 60%;
+            clear: both;
+        }
+
+        /* Ensure proper spacing in all layouts */
+        .row {
+            margin-top: 20px;
+        }
+</style>
+{% if title %}
+<title>Songbook - {{ title }} </title>
+{% else %}
+<title>Songbook </title>
+{% endif%}
+</title>
+</head>
+<body><header class="site-header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-success fixed-top">
+    <div class="container">
+      <a class="navbar-brand mr-4" href="{% url 'songbook-home' %}">Le chansonnier FrancoUke</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="navbar-nav mr-auto">
+
+          <a class="nav-item nav-link" href="{% url 'songbook-about' %}">A propos</a>
+        </div>
+        <!-- Navbar Right Side -->
+        
+        <div class="navbar-nav">
+        {% if user.is_authenticated %}
+        <a class="nav-item nav-link" href="{% url 'song-create' %}">Nouvelle Chanson</a>
+
+          <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+          <a class="nav-item nav-link" href="{% url 'register' %}">S'inscrire</a>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main role="main" class="container">
+
+
+
+
+
+<div class="container">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1>{{ score.songTitle }}</h1>
+            <h2>{{ score.metadata.artist }}</h2>
+        </div>
+    </div>
+
+       <!-- Controls -->
+       <div class="row">
+        <div class="col-8 text-center">
+            <label for="chord-position-select">Select Chord Position:</label>
+            <select id="chord-position-select">
+                <option value="left">Left</option>
+                <option value="right" selected>Right</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Chord Container -->
+    <div id="chord-container-wrapper" class="chord-container-right">
+        <div id="chord-container">
+            <h3>Chord Diagrams</h3>
+            <div class="chord">
+                <h4>C</h4>
+                <pre>
+e|-----|
+B|--1--|
+G|--0--|
+D|--2--|
+A|--3--|
+E|-----|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>F</h4>
+                <pre>
+e|--1--|
+B|--1--|
+G|--2--|
+D|--3--|
+A|--3--|
+E|--1--|
+                </pre>
+            </div>
+            <div class="chord">
+                <h4>G</h4>
+                <pre>
+e|--3--|
+B|--0--|
+G|--0--|
+D|--0--|
+A|--2--|
+E|--3--|
+                </pre>
+            </div>
+
+            <!-- Add other chords as necessary -->
+        </div>
+    </div>
+
+    <!-- Main Content (Lyrics) -->
+    <div id="song-content" class="col-8">
+        <!-- Lyrics will be rendered here -->
+    </div>
+
+</div>
+
+</head>
+<body><header class="site-header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-success fixed-top">
+    <div class="container">
+      <a class="navbar-brand mr-4" href="{% url 'songbook-home' %}">Le chansonnier FrancoUke</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="navbar-nav mr-auto">
+
+          <a class="nav-item nav-link" href="{% url 'songbook-about' %}">A propos</a>
+        </div>
+        <!-- Navbar Right Side -->
+        
+        <div class="navbar-nav">
+        {% if user.is_authenticated %}
+        <a class="nav-item nav-link" href="{% url 'song-create' %}">Nouvelle Chanson</a>
+
+          <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+          <a class="nav-item nav-link" href="{% url 'register' %}">S'inscrire</a>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main role="main" class="container">     
+
+
+<script>
+    const songDict = {{ score.lyrics_with_chords|safe }};
+    const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
+const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
+
+function transposeChord(chord, semitones) {
+    const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
+    const match = chord.match(chordRegex);
+
+    if (!match) {
+        return chord; // Return the original chord if it doesn't match the expected pattern
+    }
+
+    const baseChord = match[1];
+    const chordType = match[2] || '';
+
+    const newValue = (chordMap[baseChord] + semitones + 12) % 12;
+
+    return reverseChordMap[newValue] + chordType;
+}
+
+function renderSong(songDict, semitones) {
+    const songContainer = document.getElementById('song-content');
+    songContainer.innerHTML = '';
+    songDict.forEach(section => {
+        section.forEach(item => {
+            if (item.chord !== undefined) {
+                const transposedChord = item.chord ? transposeChord(item.chord, semitones) : '';
+                if (transposedChord) {
+                    songContainer.innerHTML += `<span class="line"><span class="chord">[${transposedChord}]</span> <span class="lyric">${item.lyric}</span></span>`;
+                } else {
+                    songContainer.innerHTML += `<span class="line"><span class="lyric">${item.lyric}</span></span>`;
+                }
+            } else if (item.format === 'LINEBREAK') {
+                songContainer.innerHTML += '<br>';
+            } else if (item.directive) {
+                if (item.directive === "{sov}") {
+                    songContainer.innerHTML += '<div class="verse"><h3>Verse</h3>';
+                } else if (item.directive === "{eov}") {
+                    songContainer.innerHTML += '</div>';
+                } else if (item.directive === "{soc}") {
+                    songContainer.innerHTML += '<div class="chorus"><h3>Chorus</h3>';
+                } else if (item.directive === "{eoc}") {
+                    songContainer.innerHTML += '</div>';
+                } else if (item.directive === "{sob}") {
+                    songContainer.innerHTML += '<div class="bridge"><h3>Bridge</h3>';
+                } else if (item.directive === "{eob}") {
+                    songContainer.innerHTML += '</div>';
+                }
+            }
+        });
+    });
+}
+
+function transposeSong(semitones) {
+    renderSong(songDict, parseInt(semitones));
+}
+
+// Initial render
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed'); // Debugging: Check if DOMContentLoaded event is fired
+    renderSong(songDict, 0);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+        const chordWrapper = document.getElementById('chord-container-wrapper');
+        const positionSelect = document.getElementById('chord-position-select');
+        const songContent = document.getElementById('song-content');
+
+        positionSelect.addEventListener('change', (event) => {
+            const selectedPosition = event.target.value;
+
+            // Reset classes
+            chordWrapper.className = ''; 
+            songContent.style.margin = '0 auto'; // Reset margins for top/bottom layout
+
+            // Update based on selection
+            switch (selectedPosition) {
+                case 'left':
+                    chordWrapper.className = 'chord-container-left';
+                    songContent.className = 'col-8 offset-2'; // Push content to the right
+                    break;
+                case 'right':
+                    chordWrapper.className = 'chord-container-right';
+                    songContent.className = 'col-8';
+                    break;
+                case 'top':
+                    chordWrapper.className = 'chord-container-top';
+                    songContent.className = 'col-8'; // Center content
+                    break;
+                case 'bottom':
+                    chordWrapper.className = 'chord-container-bottom';
+                    songContent.className = 'col-8'; // Center content
+                    break;
+            }
+        });
+    });
+
+
+
+
+
+
+</script>
+
+        <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  </body>
+  </html>

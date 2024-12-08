@@ -74,6 +74,7 @@ class Song(models.Model):
             "album": re.search(r'{album:\s*(.+?)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "year": re.search(r'{year:\s*(\d{4})}', self.songChordPro, re.IGNORECASE),
             "key": re.search(r'{key:\s*(.+?)}', self.songChordPro, re.IGNORECASE),
+            "youtube": re.search(r'{youtube:\s*(https?://[^\s\}]+)}', self.songChordPro, re.IGNORECASE),  # New tag
         }
         
         # Extract each tag's value, or use None if not found

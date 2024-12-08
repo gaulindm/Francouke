@@ -1,5 +1,5 @@
 
-{% extends "songbook/base_sb.html" %}
+{% extends "songbook/base.html" %}
   {% block content %}
 
   <table class="table table-striped">
@@ -13,35 +13,39 @@
     <tbody>
       {% for item in song_data %}
       <tr>
+
           <td>
-              <a href="{% url 'score' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
-          </td>
+          
+            <a href="{% url 'newscore' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
+        </td>
           <td>{{ item.song.metadata.artist|default:"Unknown Artist" }}</td>
-          <td>{{ item.song.metadata.key|default:"Unkown" }} - ({{ item.chords|default:"N/A" }})</td>
+          <td>{{ item.song.metadata.key|default:"Unknown" }} - ({{ item.chords|default:"N/A" }})
+      </td>
       </tr>
   {% endfor %}
     </tbody>
 </table>
 
-    {% if is_paginated %}
-
-      {% if page_obj.has_previous %}
-        <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      {% endif %}
-
-      {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
-        {% endif %}
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
-        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-      {% endif %}
-
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a class="btn btn-outline-info mb-4" href="?page=1" aria-label="First page">First</a>
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous page">Previous</a>
     {% endif %}
-    {% endblock content %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4" href="?page={{ num }}" aria-current="page">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}" aria-label="Next page">Next</a>
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last page">Last</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock content %}

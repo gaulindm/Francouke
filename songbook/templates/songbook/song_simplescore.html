@@ -1,63 +1,72 @@
-{% extends "songbook/base_cp.html" %}
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'songbook/main.css' %}">
 
-<style>
-    .lyrics-container {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    .lyrics-container h1, .lyrics-container h2 {
-        text-align: center;
-    }
-    .lyrics-container h3 {
-        margin-top: 20px;
-        font-size: 1.5em;
-    }
-    .lyrics-container .line {
-        display: inline-block;
-        margin: 5px 0;
-    }
-    .lyrics-container .chord {
-        font-weight: bold;
-        color: #007BFF;
-        padding:0;
-        margin:0;
-        line-height: 1;
-    }
-    .lyrics-container .lyric {
-        margin-left: 0px;
-    }
-    .lyrics-container .chorus {
-        text-align: center;
-        font-style: normal;
-    }
-    .lyrics-container .verse {
-        font-style: normal;
-    }
-    .lyrics-container .bridge {
-        font-style: italic;
-    }
-</style>
+    {% if title %}
+      <title>Songbook - {{ title }} </title>
+    {% else %}
+      <title>Songbook</title>
+    {% endif %}
+This is not the layout file
+</head>
+<body>
+    <style>
+        .lyrics-container {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .lyrics-container h1, .lyrics-container h2 {
+            text-align: center;
+        }
+        .lyrics-container h3 {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+        .lyrics-container .line {
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .lyrics-container .chord {
+            font-weight: bold;
+            color: #007BFF;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+        .lyrics-container .lyric {
+            margin-left: 0px;
+        }
+        .lyrics-container .chorus {
+            text-align: center;
+            font-style: normal;
+        }
+        .lyrics-container .verse {
+            font-style: normal;
+        }
+        .lyrics-container .bridge {
+            font-style: italic;
+        }
+        .chord-diagram {
+            width: 80px;
+            height: 100px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+    </style>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="lyrics-container">
-            <h1>{{ score.songTitle }}</h1>
-            <h2>{{ score.metadata.artist }}</h2>
-            <div id="song-content"></div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <h4>Chord Diagrams</h4>
-        {% for chord in chords %}
-            <div class="chord-diagram">
+<div class="lyrics-container">
+    <h1>{{ score.songTitle }}</h1>
+    <h2>{{ score.metadata.artist }}</h2>
+    <div id="song-content"></div>
 
-            </div>
-        {% endfor %}
-    </div>
 </div>
-
-
 <script>
     const songDict = {{ score.lyrics_with_chords|safe }};
     const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
