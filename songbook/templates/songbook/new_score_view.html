@@ -268,15 +268,15 @@ input:checked + .slider:before {
         <div class="row">
             <div class="col-8 bg-light">
                 <!-- Page Area -->
-                <div id="printableScore" style="background-color:#f5f5f5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
+                <div id="printableScore" style="background-color:#FFF; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
                     <h1>{{ song.songTitle }}</h1> 
                 <div class="row">
                     <div class="col-12">
-                        <div class="container-fluid mt-3">
+                        <div id="song_header" class="container-fluid mt-3">
                             <div class="row">
-                              <div class="col-sm-2 p-0">{{ score.metadata.timeSignature }}</div>
-                              <div id = "songTitle" class="col-sm-8 p-0">{{ score.songTitle }}</div>
-                              <div class="col-sm-2 p-0">First vocal note:{{ score.metadata.1stnote }}</div>
+                              <div class="col-sm-3 p-0">{{ score.metadata.timeSignature }}</div>
+                              <div id = "songTitle" class="col-sm-6 p-0">{{ score.songTitle }}</div>
+                              <div class="col-sm-3 p-0">First vocal note:{{ score.metadata.1stnote }}</div>
                             </div>
                             <div class="row">
                               <div class="col-sm-3  p-0">Tempo:{{ score.metadata.tempo }} bmp</div>
@@ -298,17 +298,17 @@ input:checked + .slider:before {
                 <!-- Lyrics and Chords Section -->
                 <div id="lyrics-and-chords" class="row">
                     <!-- Left Chord Placeholder -->
-                    <div id="left-chord-diagram-placeholder" class="col-4 d-none"></div>
+                    <div id="left-chord-diagram-placeholder" class="col-2 d-none"></div>
     
                     <!-- Lyrics Container -->
-                    <div class="col-8">
+                    <div class="col-10">
                         <div id="lyrics-container" class="lyrics-container">
                             <div id="song-content"></div>
                         </div>
                     </div>
     
                     <!-- Right Chord Placeholder -->
-                    <div id="right-chord-diagram-placeholder" class="col-4"></div>
+                    <div id="right-chord-diagram-placeholder" class="col-2"></div>
                 </div>
     
                 <!-- Bottom Chord Placeholder -->
@@ -423,17 +423,83 @@ input:checked + .slider:before {
 
     });
 
-function printDiv(divId) {
-    var content = document.getElementById(divId).innerHTML;
-    var printWindow = window.open('', '', 'height=600,width=800');
+    function printDiv(divId) {
+    // Get the main content of the printable section
+    const contentElement = document.getElementById(divId);
+
+    // Create a new window for printing
+    const printWindow = window.open('', '', 'height=600,width=800');
     printWindow.document.write('<html><head><title>Print Score</title>');
-    printWindow.document.write('<style>body{font-family: Arial, sans-serif;} h1, h2{text-align: center;}</style>');
-    printWindow.document.write('</head><body >');
-    printWindow.document.write(content);
+
+    // Add styles for printing
+    printWindow.document.write(`
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+
+            /* Song Header Styling */
+            #song_header {
+                display: table;
+                width: 100%;
+                margin-bottom: 20px;
+                border-collapse: collapse;
+            }
+            #song_header .row {
+                display: table-row;
+            }
+            #song_header .col-sm-3, #song_header .col-sm-6 {
+                display: table-cell;
+                padding: 5px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+                text-align: center;
+            }
+            #song_header .col-sm-3 { width: 25%; }
+            #song_header .col-sm-6 { width: 50%; }
+
+            /* Verses */
+            .verse {
+                margin: 20px 0;
+                padding: 10px;
+                background-color: #e9f7e9;
+                border-left: 4px solid #28a745;
+                border-radius: 5px;
+            }
+
+            /* Choruses */
+            .chorus {
+                margin: 20px 0;
+                padding: 10px;
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+                border-radius: 5px;
+            }
+
+            /* Print-Specific Adjustments */
+            @media print {
+                #song_header, .verse, .chorus {
+                    page-break-inside: avoid;
+                }
+            }
+        </style>
+    `);
+
+    printWindow.document.write('</head><body>');
+
+    // Add the entire printable content
+    printWindow.document.write(contentElement.outerHTML);
+
     printWindow.document.write('</body></html>');
     printWindow.document.close();
+
+    // Trigger the print dialog
     printWindow.print();
 }
+
+
+
+
+
+
 
 // Function to update general styles for the score content
 function updateStyle(styleName, value) {
@@ -511,6 +577,7 @@ function renderSong(songDict, semitones) {
                 htmlContent += '<br><br>'; // Extra break for paragraph separation
             }
         });
+        
     });
 
     // Ensure any unclosed section is properly closed
