@@ -71,9 +71,13 @@ class Song(models.Model):
             "title": re.search(r'{(?:title|t):\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "comment": re.search(r'{(?:comment|c):\s*(.+?)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "artist": re.search(r'{artist:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
+            "recording": re.search(r'{recording:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "album": re.search(r'{album:\s*(.+?)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "year": re.search(r'{year:\s*(\d{4})}', self.songChordPro, re.IGNORECASE),
             "key": re.search(r'{key:\s*(.+?)}', self.songChordPro, re.IGNORECASE),
+            "1stnote": re.search(r'{1stnote:\s*(.+?)}', self.songChordPro, re.IGNORECASE),
+            "tempo": re.search(r'{tempo:\s*(.+?)}', self.songChordPro, re.IGNORECASE),
+            "timeSignature": re.search(r'{timeSignature:\s*(.+?)}', self.songChordPro, re.IGNORECASE),           
             "youtube": re.search(r'{youtube:\s*(https?://[^\s\}]+)}', self.songChordPro, re.IGNORECASE),  # New tag
         }
         
@@ -83,7 +87,7 @@ class Song(models.Model):
         # Set title separately as it is also stored in songTitle
         title = metadata.pop("title", "Untitled Song")
 
-        return title, metadata
+        return title, metadata      
 
     def __str__(self):
         return self.songTitle or "Untitled Song"

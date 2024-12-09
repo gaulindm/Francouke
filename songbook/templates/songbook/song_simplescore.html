@@ -62,7 +62,20 @@ This is not the layout file
     </style>
 
 <div class="lyrics-container">
-    <h1>{{ score.songTitle }}</h1>
+    <div class="container-fluid mt-3">
+        <div class="row">
+          <div class="col-sm-2 p-3 bg-primary text-white">Time Sign</div>
+          <div class="col-sm-8 p-3 bg-dark text-white">{{ score.songTitle }}</div>
+          <div class="col-sm-2 p-3 bg-primary text-white">1st note</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3 p-3 bg-primary text-white">Tempo</div>
+          <div class="col-sm-6 p-3 bg-dark text-white">{{ score.metadata.artist }}</div>
+          <div class="col-sm-3 p-3 bg-primary text-white">future</div>
+        </div>
+      </div>
+      
+    <h1></h1>
     <h2>{{ score.metadata.artist }}</h2>
     <div id="song-content"></div>
 

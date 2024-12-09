@@ -157,7 +157,20 @@ body {
     border-radius: 5px;
 }
 
+#artist {
+    text-align:center;
+}
 
+
+#songTitle {
+    text-align: center;
+    font-weight: bold;
+}
+
+
+#recording {
+    text-align: center;
+}
 
 .d-none {
     display: none !important;
@@ -259,11 +272,22 @@ input:checked + .slider:before {
                     <h1>{{ song.songTitle }}</h1> 
                 <div class="row">
                     <div class="col-12">
-                        <div id="header">
-                            <h1>{{ score.songTitle }}</h1>
-                            <h2>{{ score.metadata.artist }}</h2>
+                        <div class="container-fluid mt-3">
+                            <div class="row">
+                              <div class="col-sm-2 p-0">{{ score.metadata.timeSignature }}</div>
+                              <div id = "songTitle" class="col-sm-8 p-0">{{ score.songTitle }}</div>
+                              <div class="col-sm-2 p-0">First vocal note:{{ score.metadata.1stnote }}</div>
+                            </div>
+                            <div class="row">
+                              <div class="col-sm-3  p-0">Tempo:{{ score.metadata.tempo }} bmp</div>
+                              <div id="artist" class="col-sm-6  p-0">{{ score.metadata.artist }}</div>
+                              <div class="col-sm-3 p-0"></div>
+                            </div>
+                            <div class="row">
+                                <div id="recording" class="col-sm-12 p-0">D'apres l'album {{ score.metadata.album }} en {{ score.metadata.key }} ({{ score.metadata.year }}) </div>
+                            </div>
+                          </div>
                         </div>
-                    </div>
                 </div>
     
                 <!-- Top Chord Placeholder -->
