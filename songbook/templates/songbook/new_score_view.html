@@ -219,6 +219,18 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(14px);
 }
+
+/* Modal-specific content styling */
+#modal-song-header { margin-bottom: 20px; }
+#modal-song-content, #modal-chord-diagram-placeholder { margin-bottom: 20px; }
+
+/* Ensure chord diagrams appear consistently */
+#modal-chord-diagram-placeholder {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 /* Print-specific styles */
 @media print {
             nav, .navigation, .footer, .sidebar, button, .buttons, a[href]:after {
@@ -263,6 +275,10 @@ input:checked + .slider:before {
           </div>
         </nav>
       </header>
+
+      <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#printPreviewModal">
+        Open Print Preview
+    </button>
 
       <main role="main" class="container">
         <div class="row">
@@ -334,6 +350,35 @@ input:checked + .slider:before {
             </div>
         </div>
         
+<!-- Modal for Print Preview -->
+<div class="modal fade" id="printPreviewModal" tabindex="-1" aria-labelledby="printPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="printPreviewModalLabel">Print Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Content for the modal -->
+                <div id="modal-print-content">
+                    <!-- Placeholder for song header -->
+                    <div id="modal-song-header"></div>
+
+                    <!-- Placeholder for song content -->
+                    <div id="modal-song-content"></div>
+
+                    <!-- Placeholder for chord diagrams -->
+                    <div id="modal-chord-diagram-placeholder"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printDiv('modal-print-content')">Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     </main>
     
 
@@ -360,7 +405,15 @@ input:checked + .slider:before {
     renderChords(); // Re-render chord diagrams
 });
 
-
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('printPreviewModal');
+        modal.addEventListener('show.bs.modal', function () {
+            // Dynamically copy content into the modal
+            document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
+            document.getElementById('modal-song-content').innerHTML = document.getElementById('song-content').innerHTML;
+            document.getElementById('modal-chord-diagram-placeholder').innerHTML = document.getElementById('right-chord-diagram-placeholder').innerHTML;
+        });
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         const instrumentSelector = document.getElementById('instrument-selector');
@@ -424,75 +477,25 @@ input:checked + .slider:before {
     });
 
     function printDiv(divId) {
-    // Get the main content of the printable section
-    const contentElement = document.getElementById(divId);
+    const content = document.getElementById(divId).innerHTML;
 
-    // Create a new window for printing
     const printWindow = window.open('', '', 'height=600,width=800');
     printWindow.document.write('<html><head><title>Print Score</title>');
-
-    // Add styles for printing
+    printWindow.document.write('<style>');
     printWindow.document.write(`
-        <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-
-            /* Song Header Styling */
-            #song_header {
-                display: table;
-                width: 100%;
-                margin-bottom: 20px;
-                border-collapse: collapse;
-            }
-            #song_header .row {
-                display: table-row;
-            }
-            #song_header .col-sm-3, #song_header .col-sm-6, #song_header .col-sm-12 {
-                display: table-cell;
-                padding: 5px;
-                border: 1px solid #ddd;
-                background-color: #f9f9f9;
-                text-align: center;
-            }
-            #song_header .col-sm-3 { width: 25%; }
-            #song_header .col-sm-6 { width: 50%; }
-            #song_header .col-sm-12 { width: 100%; }
-
-            /* Verses */
-            .verse {
-                margin: 20px 0;
-                padding: 10px;
-                background-color: #e9f7e9;
-                border-left: 4px solid #28a745;
-                border-radius: 5px;
-            }
-
-            /* Choruses */
-            .chorus {
-                margin: 20px 0;
-                padding: 10px;
-                background-color: #fff3cd;
-                border-left: 4px solid #ffc107;
-                border-radius: 5px;
-            }
-
-            /* Print-Specific Adjustments */
-            @media print {
-                #song_header, .verse, .chorus {
-                    page-break-inside: avoid;
-                }
-            }
-        </style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #song_header { width: 100%; border-collapse: collapse; }
+        #song_header td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .verse, .chorus { margin: 20px 0; padding: 10px; }
+        .verse { background-color: #e9f7e9; border-left: 4px solid #28a745; }
+        .chorus { background-color: #fff3cd; border-left: 4px solid #ffc107; }
+        .chord-diagram { margin: 5px; width: 100px; height: 120px; border: 1px solid #ccc; }
+        @media print { #song_header, .verse, .chorus { page-break-inside: avoid; } }
     `);
-
-    printWindow.document.write('</head><body>');
-
-    // Add the entire printable content
-    printWindow.document.write(contentElement.outerHTML);
-
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(content);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
-
-    // Trigger the print dialog
     printWindow.print();
 }
 
