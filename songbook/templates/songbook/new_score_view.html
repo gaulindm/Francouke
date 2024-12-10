@@ -23,13 +23,28 @@ body {
 
 #header {
     text-align: center;
-    padding: 10px;
-    background-color: #f3f3f3;
-    border: 1px solid #ccc;
+    padding: 2px;
+    background-color: #fff;
+    margin-bottom: 5px;
+}
+
+/* General Table Styling */
+#song_header {
+    width: 100%;
+    border-collapse: collapse;
     margin-bottom: 10px;
 }
 
+#song_header td {
+    padding: 1px;
+    text-align: center;
+    border: 0px solid #ddd;
+    background-color: #fff;
+}
 
+#song_header td[colspan="3"] {
+    text-align: center; /* Align the album details to the left */
+}
 
 
 
@@ -221,7 +236,7 @@ input:checked + .slider:before {
 }
 
 /* Modal-specific content styling */
-#modal-song-header { margin-bottom: 20px; }
+#modal-song-header { margin-bottom: 10px; }
 #modal-song-content, #modal-chord-diagram-placeholder { margin-bottom: 20px; }
 
 /* Ensure chord diagrams appear consistently */
@@ -241,6 +256,13 @@ input:checked + .slider:before {
             }
             .page-break {
                 page-break-before: always;
+            }
+            #song_header {
+            page-break-inside: avoid; /* Prevent splitting the header across pages */
+            }
+
+            #song_header td {
+            border: 1px solid #000; /* Darker border for clarity in print */
             }
         }
         
@@ -285,26 +307,24 @@ input:checked + .slider:before {
             <div class="col-8 bg-light">
                 <!-- Page Area -->
                 <div id="printableScore" style="background-color:#FFF; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
-                    <h1>{{ song.songTitle }}</h1> 
-                <div class="row">
-                    <div class="col-12">
-                        <div id="song_header" class="container-fluid mt-3">
-                            <div class="row">
-                              <div class="col-sm-3 p-0">{{ score.metadata.timeSignature }}</div>
-                              <div id = "songTitle" class="col-sm-6 p-0">{{ score.songTitle }}</div>
-                              <div class="col-sm-3 p-0">First vocal note:{{ score.metadata.1stnote }}</div>
-                            </div>
-                            <div class="row">
-                              <div class="col-sm-3  p-0">Tempo:{{ score.metadata.tempo }} bmp</div>
-                              <div id="artist" class="col-sm-6  p-0">{{ score.metadata.artist }}</div>
-                              <div class="col-sm-3 p-0"></div>
-                            </div>
-                            <div class="row">
-                                <div id="recording" class="col-sm-12 p-0">D'apres l'album {{ score.metadata.album }} en {{ score.metadata.key }} ({{ score.metadata.year }}) </div>
-                            </div>
-                          </div>
-                        </div>
-                </div>
+                    <table id="song_header" class="table table-borderless">
+                        <tbody>
+                            <tr style="height:fit-content;">
+                                <td class="col-sm-3">{{ score.metadata.timeSignature }}</td>
+                                <td class="col-sm-6" style="text-align: center; font-weight: bolder;">{{ score.songTitle }}</td>
+                                <td class="col-sm-3" style="text-align: right;">First vocal note: {{ score.metadata.1stnote }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-sm-3">Tempo: {{ score.metadata.tempo }} bpm</td>
+                                <td class="col-sm-6">{{ score.metadata.artist }}</td>
+                                <td class="col-sm-3"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" id="recording">D'après l'album {{ score.metadata.album }} en {{ score.metadata.key }} ({{ score.metadata.year }})</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                
     
                 <!-- Top Chord Placeholder -->
                 <div id="top-chord-diagram-placeholder" class="col-12 d-none">
@@ -485,7 +505,7 @@ input:checked + .slider:before {
     printWindow.document.write(`
         body { font-family: Arial, sans-serif; margin: 20px; }
         #song_header { width: 100%; border-collapse: collapse; }
-        #song_header td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        #song_header td { border: 0px solid #ddd; padding: 1px; text-align: center; }
         .verse, .chorus { margin: 20px 0; padding: 10px; }
         .verse { background-color: #e9f7e9; border-left: 4px solid #28a745; }
         .chorus { background-color: #fff3cd; border-left: 4px solid #ffc107; }
