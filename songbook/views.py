@@ -19,18 +19,6 @@ from django.http import HttpResponse
 
 
 
-class ChordDiagramsView(View):
-    template_name = 'songbook/chord_diagrams_view.html'
-
-    def get(self, request, chords, *args, **kwargs):
-        # Split the comma-separated chords passed in the path
-        chords_list = chords.split(',')
-        context = {'chords': chords_list}
-        return render(request, self.template_name, context)
-
-#def score_view(request, song_id):
-#    song = get_object_or_404(Song, id=song_id)  # Fetch the song based on the id
-#    return render(request, 'score.html', {'score': song})  
 
 def home(request):
     context = {
@@ -40,7 +28,7 @@ def home(request):
 
 class SongListView (ListView):
     model = Song
-    template_name = 'songbook/home.html'
+    template_name = 'songbook/song_list.html'
     context_object_name = 'songs'
     ordering = ['songTitle']
     paginate_by = 15
@@ -79,15 +67,15 @@ class UserSongListView (ListView):
         return Song.objects.filter(contributor=user).order_by('songTitle')
 
 #This is the view that works well in first column of home.html
-class ScoreView(DetailView):
-    model = Song
-    template_name = 'songbook/song_simplescore.html' 
-    context_object_name = 'score'
+#class ScoreView(DetailView):
+#    model = Song
+#    template_name = 'songbook/song_simplescore.html' 
+#    context_object_name = 'score'
 
 #This is second column of home.html
-class NewScoreView(DetailView):
+class ScoreView(DetailView):
     model = Song
-    template_name = 'songbook/new_score_view.html'  # Temporary template for experiments 
+    template_name = 'songbook/song_simplescore.html'  # Temporary template for experiments 
     context_object_name = 'score'
 
     def get_context_data(self, **kwargs):
