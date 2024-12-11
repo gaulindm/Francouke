@@ -2,29 +2,33 @@
 {% extends "songbook/base.html" %}
   {% block content %}
 
-  <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Partition</th>
-            <th>Interprète</th>
-            <th>Tonalité et (accords jouées)</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for item in song_data %}
-      <tr>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <th>Partition</th>
+                <th>Interprète</th>
+                <th class="text-center">Tonalité et (accords jouées)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in song_data %}
+            <tr>
+                <td>
+                    <a href="{% url 'score' item.song.id %}" class="song-link" title="{{ item.song.songTitle }}" aria-label="View score for {{ item.song.songTitle }}">
+                        {{ item.song.songTitle }}
+                    </a>
+                </td>
+                <td>{{ item.song.metadata.artist|default_if_none:"Unknown Artist" }}</td>
+                <td class="text-center">
+                    {{ item.song.metadata.key|default_if_none:"Unknown" }} - ({{ item.chords|default_if_none:"N/A" }})
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-          <td>
-          
-            <a href="{% url 'score' item.song.id %}" class="song-link">{{ item.song.songTitle }}</a>
-        </td>
-          <td>{{ item.song.metadata.artist|default:"Unknown Artist" }}</td>
-          <td>{{ item.song.metadata.key|default:"Unknown" }} - ({{ item.chords|default:"N/A" }})
-      </td>
-      </tr>
-  {% endfor %}
-    </tbody>
-</table>
 
 {% if is_paginated %}
 <div class="pagination">

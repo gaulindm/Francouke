@@ -26,28 +26,23 @@ def home(request):
     }
     return render(request, 'songbook/home.html',context)
 
-class SongListView (ListView):
+class SongListView(ListView):
     model = Song
     template_name = 'songbook/song_list.html'
     context_object_name = 'songs'
     ordering = ['songTitle']
-    paginate_by = 15
-
-    def get_queryset(self):
-        # Sort by title and return
-        return Song.objects.all()
-
+    paginate_by = 25
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         song_data = []
 
         for song in context['songs']:
-            parsed_data = song.lyrics_with_chords  # Assuming this is already parsed and stored
-            chords = extract_chords(parsed_data,unique=True)
+            parsed_data = song.lyrics_with_chords or ""
+            chords = extract_chords(parsed_data, unique=True) if parsed_data else []
             song_data.append({
                 'song': song,
-                'chords': ', '.join(chords)  # Join chords into a string for display
+                'chords': ', '.join(chords)
             })
 
         context['song_data'] = song_data
@@ -66,11 +61,6 @@ class UserSongListView (ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Song.objects.filter(contributor=user).order_by('songTitle')
 
-#This is the view that works well in first column of home.html
-#class ScoreView(DetailView):
-#    model = Song
-#    template_name = 'songbook/song_simplescore.html' 
-#    context_object_name = 'score'
 
 #This is second column of home.html
 class ScoreView(DetailView):
