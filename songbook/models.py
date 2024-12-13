@@ -27,19 +27,6 @@ class Chord(models.Model):
     def __str__(self):
         return f"{self.name} ({self.instrument.name})"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
     songChordPro = models.TextField()  # Original

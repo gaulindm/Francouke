@@ -117,12 +117,16 @@ function updateChordPosition(position) {
 
     // Adjust layout for top and bottom positions
     if (position === 'top' || position === 'bottom') {
+        chordContainer.classList.add('horizontal');
+        chordContainer.classList.remove('vertical');
         chordContainer.style.display = 'flex';
         chordContainer.style.flexDirection = 'row'; // Horizontal layout
         chordContainer.style.flexWrap = 'wrap'; // Allow wrapping
         chordContainer.style.justifyContent = 'center'; // Center-align
     } else {
         // Reset layout for left and right positions
+        chordContainer.classList.add('vertical');
+        chordContainer.classList.remove('horizontal');
         chordContainer.style.display = 'flex';
         chordContainer.style.flexDirection = 'column'; // Vertical layout
         chordContainer.style.flexWrap = 'nowrap';

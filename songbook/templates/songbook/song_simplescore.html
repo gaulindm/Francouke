@@ -12,8 +12,11 @@
 <script src="{% static 'js/raphael.adaptivechord.js' %}"></script>
 <script src="{% static 'js/song_simplescore.js' %}"></script>
     
-    
-    <title>{{ song.songTitle}}</title>
+{% if title %}
+<title>Songbook - {{ score.songtitle }} </title>
+{% else %}
+<title>Songbook </title>
+{% endif%}
 
 </head>
 <body>
@@ -30,15 +33,31 @@
             <div class="col-8 bg-light">
                 <!-- Page Area -->
                 <div id="printableScore" style="background-color:#FFF; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
-                    <table id="song_header" table table-borderless style="padding: 1;">
+                    <table id="song_header" table table-borderless style="width: 100%; margin: 0 auto; padding: 1;">
                         <tbody>
                             <tr style="height:fit-content;">
-                                <td class="col-sm-3">{{ score.metadata.timeSignature }}</td>
-                                <td class="col-sm-6" style="text-align: center; font-weight: bolder;">{{ score.songTitle }}</td>
-                                <td class="col-sm-3" style="text-align: right;">First vocal note: {{ score.metadata.1stnote }}</td>
+                                <td class="col-3">
+                                    {% if score.metadata.timeSignature %}
+                                        {{ score.metadata.timeSignature }}
+                                    {% endif %}
+                                </td>
+                                <td class="col-6" style="text-align: center; font-weight: bolder;">{{ score.songTitle }}</td>
+                                
+                                <td class="col-3" style="text-align: right;">
+                                    {% if score.metadata.1stnote %}
+                                        First vocal note: {{ score.metadata.1stnote }}
+                                    {% endif %}
+                                </td>
+
                             </tr>
                             <tr>
-                                <td class="col-sm-3">Tempo: {{ score.metadata.tempo }} bpm</td>
+                                <td class="col-sm-3">
+                                    
+                                    {% if score.metadata.tempo %}
+                                        {{ score.metadata.tempo }} bpm
+                                {% endif %}
+                                    
+                                    </td>
                                 <td class="col-sm-6" style="text-align: center; font-weight: bolder;">{{ score.metadata.artist }}</td>
                                 <td class="col-sm-3"></td>
                             </tr>
