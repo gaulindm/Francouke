@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Chord Diagrams</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
-    <script src="raphael.chord.js"></script> <!-- Ensure this points to your script -->
+    <script src="{% static 'js/raphael.adaptivechord.js' %}"></script>
     <style>
         body {
             font-family: Arial, sans-serif;

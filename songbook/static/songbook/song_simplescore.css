@@ -117,7 +117,7 @@ body {
     display: inline-block;
     margin: 5px;
     text-align: center;
-    transform: scale(0.7); /* Scale down to 80% of original size */
+    transform: scale(0.8); /* Scale down to 80% of original size SCALING DOES NOT WORK*/
     transform-origin: center; /* Keep scaling centered */
 }
 

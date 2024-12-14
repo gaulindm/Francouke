@@ -43,8 +43,8 @@
 
     Raphael.chord.Chord = function (elementOrPosition, data, labelOrVariant) {
         const element = typeof elementOrPosition === 'string' || elementOrPosition instanceof HTMLElement
-            ? Raphael(elementOrPosition, 100, 120)
-            : Raphael(elementOrPosition.x, elementOrPosition.y, 100, 120);
+            ? Raphael(elementOrPosition, 80, 90)
+            : Raphael(elementOrPosition.x, elementOrPosition.y, 80, 90);
     
         element.setViewBox(0, 0, 100, 120); // Ensure proper sizing for the SVG viewport
     
@@ -85,7 +85,7 @@
         // Add optional label
         if (labelOrVariant) {
             element.text(50, 8, labelOrVariant).attr({
-                'font-size': 14,
+                'font-size': 20,
                 'font-weight': 'bold',
                 'text-anchor': 'middle',
             });

@@ -7,6 +7,7 @@
         <thead>
             <tr>
                 <th>Partition</th>
+
                 <th>Interprète</th>
                 <th class="text-center">Tonalité et (accords jouées)</th>
             </tr>
@@ -19,6 +20,7 @@
                         {{ item.song.songTitle }}
                     </a>
                 </td>
+
                 <td>{{ item.song.metadata.artist|default_if_none:"Unknown Artist" }}</td>
                 <td class="text-center">
                     {{ item.song.metadata.key|default_if_none:"Unknown" }} - ({{ item.chords|default_if_none:"N/A" }})
