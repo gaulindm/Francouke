@@ -144,6 +144,6 @@ body {
 }
 
 .chord {
-  color: var(--chord-color, #007bff); /* Default chord color, customizable */
-  font-weight: bold;
+  color: var(--font-color); /* Default chord color, customizable */
+  font-weight: normal;
 }
