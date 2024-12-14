@@ -117,23 +117,39 @@
 <div class="modal fade" id="printPreviewModal" tabindex="-1" aria-labelledby="printPreviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <!-- Modal Header -->
             <div class="modal-header">
                 <h5 class="modal-title" id="printPreviewModalLabel">Print Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <!-- Modal Body -->
             <div class="modal-body">
-                <!-- Content for the modal -->
-                <div id="modal-print-content">
-                    <!-- Placeholder for song header -->
-                    <div id="modal-song-header"></div>
+                <!-- Modal Song Header -->
+                <div id="modal-song-header"></div>
 
-                    <!-- Placeholder for song content -->
-                    <div id="modal-song-content"></div>
+                <!-- Top Chord Placeholder -->
+                <div id="modal-top-chord-placeholder" class="chord-placeholder horizontal d-none"></div>
 
-                    <!-- Placeholder for chord diagrams -->
-                    <div id="modal-chord-diagram-placeholder"></div>
+                <!-- Lyrics and Left/Right Chords -->
+                <div class="row">
+                    <!-- Left Chord Placeholder -->
+                    <div id="modal-left-chord-placeholder" class="chord-placeholder vertical d-none col-2"></div>
+
+                    <!-- Lyrics Container -->
+                    <div class="col-8">
+                        <div id="modal-lyrics-container"></div>
+                    </div>
+
+                    <!-- Right Chord Placeholder -->
+                    <div id="modal-right-chord-placeholder" class="chord-placeholder vertical d-none col-2"></div>
                 </div>
+
+                <!-- Bottom Chord Placeholder -->
+                <div id="modal-bottom-chord-placeholder" class="chord-placeholder horizontal d-none"></div>
             </div>
+
+            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="printDiv('modal-print-content')">Print</button>
@@ -168,15 +184,61 @@
     renderChords(); // Re-render chord diagrams
 });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('printPreviewModal');
-        modal.addEventListener('show.bs.modal', function () {
-            // Dynamically copy content into the modal
-            document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
-            document.getElementById('modal-song-content').innerHTML = document.getElementById('song-content').innerHTML;
-            document.getElementById('modal-chord-diagram-placeholder').innerHTML = document.getElementById('right-chord-diagram-placeholder').innerHTML;
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('printPreviewModal');
+
+    modal.addEventListener('show.bs.modal', function () {
+        // Populate the modal song header and lyrics
+        document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
+        document.getElementById('modal-lyrics-container').innerHTML = document.getElementById('song-content').innerHTML;
+
+        // Define modal placeholders
+        const modalPlaceholders = {
+            top: document.getElementById('modal-top-chord-placeholder'),
+            bottom: document.getElementById('modal-bottom-chord-placeholder'),
+            left: document.getElementById('modal-left-chord-placeholder'),
+            right: document.getElementById('modal-right-chord-placeholder'),
+        };
+
+        // Define main view placeholders
+        const mainPlaceholders = {
+            top: document.getElementById('top-chord-diagram-placeholder'),
+            bottom: document.getElementById('bottom-chord-diagram-placeholder'),
+            left: document.getElementById('left-chord-diagram-placeholder'),
+            right: document.getElementById('right-chord-diagram-placeholder'),
+        };
+
+        // Clear all modal placeholders
+        Object.values(modalPlaceholders).forEach(placeholder => {
+            placeholder.innerHTML = ''; // Clear content
+            placeholder.classList.add('d-none'); // Hide by default
         });
+
+        // Populate modal placeholders from the main view
+        Object.keys(mainPlaceholders).forEach(position => {
+            const mainPlaceholder = mainPlaceholders[position];
+            const modalPlaceholder = modalPlaceholders[position];
+
+            if (mainPlaceholder && mainPlaceholder.innerHTML.trim()) {
+                // Copy content to the corresponding modal placeholder
+                modalPlaceholder.innerHTML = mainPlaceholder.innerHTML;
+                modalPlaceholder.classList.remove('d-none'); // Show the placeholder
+
+                // Apply layout-specific classes
+                if (position === 'top' || position === 'bottom') {
+                    modalPlaceholder.classList.add('horizontal');
+                    modalPlaceholder.classList.remove('vertical');
+                } else {
+                    modalPlaceholder.classList.add('vertical');
+                    modalPlaceholder.classList.remove('horizontal');
+                }
+            }
+        });
+
+        console.log('Modal placeholders populated successfully.');
     });
+});
+
 
     document.addEventListener('DOMContentLoaded', () => {
         const instrumentSelector = document.getElementById('instrument-selector');
@@ -213,11 +275,11 @@
                 .catch(error => console.error(`Error loading chord data for ${instrument}:`, error));
         }
 
-        function renderChords() {
-    const container = document.getElementById('bottom-chord-container');
-    container.innerHTML = ''; // Clear existing chord diagrams
+    function renderChords() {
+        const container = document.getElementById('bottom-chord-container');
+        container.innerHTML = ''; // Clear existing chord diagrams
 
-    uniqueChords.forEach((chordName) => {
+        uniqueChords.forEach((chordName) => {
         const chordData = Raphael.chord.find(chordName, 1);
         if (!chordData) {
             console.warn(`Chord ${chordName} not found for ${Raphael.chord.currentInstrument}`);
@@ -240,9 +302,25 @@
     });
 
     function printDiv(divId) {
-    const content = document.getElementById(divId).innerHTML;
+    const contentElement = document.getElementById(divId);
 
+    // Check if the element exists
+    if (!contentElement) {
+        console.error(`Element with ID "${divId}" not found.`);
+        return;
+    }
+
+    // Get the content to print
+    const content = contentElement.innerHTML;
+
+    // Create a new window for printing
     const printWindow = window.open('', '', 'height=600,width=800');
+    if (!printWindow) {
+        console.error('Unable to open print window.');
+        return;
+    }
+
+    // Write content into the print window
     printWindow.document.write('<html><head><title>Print Score</title>');
     printWindow.document.write('<style>');
     printWindow.document.write(`
@@ -259,8 +337,12 @@
     printWindow.document.write(content);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
+
+    // Trigger print
     printWindow.print();
 }
+
+
 function updateStyle(styleName, value) {
     console.log(`updateStyle called with styleName: ${styleName}, value: ${value}`);
 

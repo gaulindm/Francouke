@@ -223,12 +223,39 @@ input:checked + .slider:before {
 #modal-song-header { margin-bottom: 10px; }
 #modal-song-content, #modal-chord-diagram-placeholder { margin-bottom: 20px; }
 
-/* Ensure chord diagrams appear consistently */
-#modal-chord-diagram-placeholder {
+#modal-chord-diagram-placeholder .chord-placeholder {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
 }
+
+#modal-chord-diagram-placeholder .horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#modal-chord-diagram-placeholder .vertical {
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#modal-chord-diagram-placeholder .chord-diagram {
+    width: 80px;
+    height: 100px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    background-color: #fff;
+}
+
+
+
+
 
 /* Print-specific styles */
 @media print {
