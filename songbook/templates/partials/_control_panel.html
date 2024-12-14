@@ -54,17 +54,18 @@
                 </div>
             
             
-            <div class="me-3">
-                <label for="textColor" class="form-label">Text Color:</label>
-                <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
-            </div>
-      
-            <!-- Chord Color -->
-            <div class="me-3">
-                <label for="chordColor" class="form-label">Chord Color:</label>
-                <input type="color" id="chordColor" onchange="updateStyle()" class="form-control form-control-sm">
-            </div>
-        
+           <!-- Text Color -->
+<div class="me-3">
+    <label for="textColor" class="form-label">Text Color:</label>
+    <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
+</div>
+
+<!-- Chord Color -->
+<div class="me-3">
+    <label for="chordColor" class="form-label">Chord Color:</label>
+    <input type="color" id="chordColor" onchange="updateStyle('chordColor', this.value)" class="form-control form-control-sm">
+</div>
+
 
                   <!-- Chord Font Weight -->
             <div>
@@ -76,8 +77,7 @@
                     <option value="bolder">Bolder</option>
                 </select>
             </div>
-              <!-- Print Button -->
-              <button onclick="printDiv('printableScore')" class="btn btn-primary btn-sm mt-2">Print Score</button>
+            
           </div>
       </li>
 

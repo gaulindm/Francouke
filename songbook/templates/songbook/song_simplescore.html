@@ -83,6 +83,7 @@
                         <div id="lyrics-container" class="lyrics-container">
                             <div id="song-content"></div>
                         </div>
+                        
                     </div>
     
                     <!-- Right Chord Placeholder -->
@@ -260,22 +261,43 @@
     printWindow.document.close();
     printWindow.print();
 }
-
 function updateStyle(styleName, value) {
     console.log(`updateStyle called with styleName: ${styleName}, value: ${value}`);
+
+    // Ensure the parameters are not undefined
+    if (!styleName || value === undefined) {
+        console.error('Invalid parameters passed to updateStyle.');
+        return;
+    }
+
     const songContent = document.getElementById('song-content');
+    if (!songContent) {
+        console.error('song-content element not found.');
+        return;
+    }
+
     const chords = document.querySelectorAll('#song-content .chord');
 
-    if (styleName === 'lineHeight') {
-        songContent.style.lineHeight = value;
-    } else if (styleName === 'fontSize' || styleName === 'color') {
-        songContent.style[styleName] = value;
-    } else if (styleName === 'chordColor') {
-        chords.forEach(chord => chord.style.color = value);
-    } else if (styleName === 'chordWeight') {
-        chords.forEach(chord => chord.style.fontWeight = value);
+    switch (styleName) {
+        case 'lineHeight':
+            songContent.style.lineHeight = value;
+            break;
+        case 'fontSize':
+        case 'color':
+            songContent.style[styleName] = value;
+            break;
+        case 'chordColor':
+            chords.forEach(chord => chord.style.color = value);
+            break;
+        case 'chordWeight':
+            chords.forEach(chord => chord.style.fontWeight = value);
+            break;
+        default:
+            console.error(`Unsupported styleName: ${styleName}`);
+            break;
     }
 }
+
 
 
 
