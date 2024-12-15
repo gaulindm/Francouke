@@ -113,9 +113,8 @@ body {
 .chord-diagram {
     width: 80px;
     height: 100px;
-    border: 1px solid #ccc;
     display: inline-block;
-    margin: 5px;
+    margin: 4px;
     text-align: center;
     transform: scale(.7); /* Scale down to 80% of original size SCALING DOES NOT WORK*/
     transform-origin: center; /* Keep scaling centered */
@@ -227,7 +226,6 @@ input:checked + .slider:before {
     display: flex;
     gap: 10px;
     padding: 5px;
-    border: 1px solid #ccc;
     background-color: #f9f9f9;
 }
 
@@ -245,11 +243,10 @@ input:checked + .slider:before {
 #modal-chord-diagram-placeholder .chord-diagram {
     width: 80px;
     height: 100px;
-    border: 1px solid #ccc;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 5px;
+    margin: 2px;
     background-color: #fff;
 }
 
