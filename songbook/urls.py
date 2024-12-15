@@ -17,6 +17,7 @@ urlpatterns = [
     path('song/<int:pk>/update/', SongUpdateView.as_view(), name='song-update'),
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),
+    path('generate_pdf/<int:song_id>/', views.generate_pdf, name='generate_pdf'),
     
 
 ]

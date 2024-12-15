@@ -1,0 +1,150 @@
+body {
+    background: #fafafa;
+    color: #333333;
+    margin-top: 5rem;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #444444;
+  }
+  
+  ul {
+    margin: 0;
+  }
+  
+  .bg-steel {
+    background-color: #5f788a;
+  }
+  
+  .site-header .navbar-nav .nav-link {
+    color: #cbd5db;
+  }
+  
+  .site-header .navbar-nav .nav-link:hover {
+    color: #ffffff;
+  }
+  
+  .site-header .navbar-nav .nav-link.active {
+    font-weight: 500;
+  }
+  
+  .content-section {
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  
+  .article-title {
+    color: #444444;
+  }
+  
+  a.article-title:hover {
+    color: #428bca;
+    text-decoration: none;
+  }
+  
+  .article-content {
+    white-space: pre-line;
+  }
+  
+  .article-img {
+    height: 65px;
+    width: 65px;
+    margin-right: 16px;
+  }
+  
+  .article-metadata {
+    padding-bottom: 1px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e3e3e3
+  }
+  
+  .article-metadata a:hover {
+    color: #333;
+    text-decoration: none;
+  }
+  
+  .article-svg {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+  }
+  
+  .table-condensed td,
+  .table-condensed th {
+      padding: 5px; /* Adjust padding for compact rows */
+      line-height: 1.2; /* Tighten the line spacing */
+      font-size: 0.9rem; /* Optionally reduce font size */
+  }
+
+
+  .account-img {
+    height: 125px;
+    width: 125px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .account-heading {
+    font-size: 2.5rem;
+  }
+
+
+
+  /* Format 1 */
+.media.format-1 .article-title {
+  font-size: 1.2em;
+  color: #333;
+}
+
+.media.format-1 .article-content {
+  font-style: italic;
+}
+
+/* Format 2 */
+.media.format-2 .article-title {
+  font-size: 1.5em;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.media.format-2 .article-content {
+  font-weight: bold;
+}
+#viewOptions {
+  margin-bottom: 20px;
+}
+
+#fontSize, #textColor, #lineSpacing, #chordColor, #chordWeight {
+  margin-right: 10px;
+}
+
+#score {
+  background-color: #fff;
+  padding: 10px;
+  max-width: 800px;
+  margin: 10px auto;
+}
+
+.lyrics-container {
+  line-height: 1.0; /* Adjust this value as needed */
+}
+.lyrics-container p {
+  margin: 1em 0; /* Adjust the margin for paragraph breaks */
+}
+
+.lyrics {
+  --font-color: #000; /* Default color */
+}
+
+.lyric {
+  color: var(--font-color); /* Apply the font color variable */
+}
+
+.chord {
+  font-weight:bolder;
+  color: var(--font-color, #ff3300); /* Default chord color, customizable */
+
+}
