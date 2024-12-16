@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chordContainer.classList.add('d-none');
 
     // Add default position logic
-    updateChordPosition('bottom');
+    updateChordPHPosition('bottom');
 
     if (toggleChordBox && chordContainer) {
         // Restore state from localStorage
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (savedState) {
             chordContainer.classList.remove('d-none');
-            updateChordPosition('bottom');
+            updateChordPHPosition('bottom');
         } else {
             chordContainer.classList.add('d-none');
         }
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isVisible = toggleChordBox.checked;
             localStorage.setItem('chordBoxVisible', isVisible);
             isVisible ? chordContainer.classList.remove('d-none') : chordContainer.classList.add('d-none');
-            if (isVisible) updateChordPosition('bottom');
+            if (isVisible) updateChordPHPosition('bottom');
         });
     } else {
         console.warn('Chord container or toggle not found.');
@@ -498,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event listener for the control panel
 document.getElementById('layout-form').addEventListener('change', () => {
     const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
-    updateChordPosition(selectedPosition);
+    updateChordPHPosition(selectedPosition);
 });
 
 
