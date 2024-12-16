@@ -81,6 +81,105 @@ async function renderChords() {
     console.log("All chords rendered successfully!");
 }
 
+function printDiv(divId) {
+    const contentElement = document.getElementById(divId);
+
+    if (!contentElement) {
+        console.error(`Element with ID "${divId}" not found.`);
+        return;
+    }
+
+    // Clone the content to manipulate it safely
+    const clonedContent = contentElement.cloneNode(true);
+
+    // Check visibility of the bottom chords inline
+    const bottomPlaceholder = clonedContent.querySelector("#bottom-chord-diagram-placeholder");
+    const isBottomVisible = bottomPlaceholder && 
+        window.getComputedStyle(bottomPlaceholder).display !== "none" && 
+        bottomPlaceholder.offsetWidth > 0 && 
+        bottomPlaceholder.offsetHeight > 0;
+
+    if (!isBottomVisible) {
+        console.log("Bottom chord placeholder is hidden and will not be included in the print view.");
+        if (bottomPlaceholder) bottomPlaceholder.remove(); // Remove if hidden
+    } else {
+        console.log("Bottom chord placeholder is visible and will be included in the print view.");
+        if (bottomPlaceholder) {
+            const chordContainer = bottomPlaceholder.querySelector("#bottom-chord-container");
+            if (chordContainer) {
+                // Apply styles to position chords at the bottom page margin
+                bottomPlaceholder.style.position = "fixed";
+                bottomPlaceholder.style.bottom = "20px"; // Space from the bottom edge
+                bottomPlaceholder.style.left = "0";
+                bottomPlaceholder.style.width = "100%";
+                bottomPlaceholder.style.backgroundColor = "white"; // Ensure visibility on colored backgrounds
+
+                chordContainer.style.display = "flex";
+                chordContainer.style.flexDirection = "row";
+                chordContainer.style.justifyContent = "center";
+                chordContainer.style.alignItems = "center";
+                chordContainer.style.gap = "10px";
+                chordContainer.style.flexWrap = "wrap"; // Wrap if too many chords
+            }
+        }
+    }
+
+    // Open a new print window
+    const printWindow = window.open("", "", "height=600,width=800");
+    if (!printWindow) {
+        console.error("Unable to open print window.");
+        return;
+    }
+
+    // Write content into the print window
+    printWindow.document.write("<html><head><title>Print Score</title>");
+    printWindow.document.write("<style>");
+    printWindow.document.write(`
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #song_header { width: 100%; border-collapse: collapse; }
+        #song_header td { padding: 5px; text-align: center; }
+        .verse, .chorus { margin: 20px 0; padding: 10px; }
+        .verse { background-color: #e9f7e9; border-left: 4px solid #28a745; }
+        .chorus { background-color: #fff3cd; border-left: 4px solid #ffc107; }
+        #bottom-chord-container { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        #bottom-chord-diagram-placeholder { position: fixed; bottom: 20px; left: 0; width: 100%; background-color: white; }
+        .chord-diagram { margin: 5px; width: 100px; height: 120px; border: 1px solid #ccc; }
+        @media print { 
+            .verse, .chorus { page-break-inside: avoid; }
+            #bottom-chord-diagram-placeholder { position: fixed; bottom: 20px; left: 0; width: 100%; }
+        }
+    `);
+    printWindow.document.write("</style></head><body>");
+    printWindow.document.write(clonedContent.innerHTML);
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+
+    // Trigger print
+    printWindow.print();
+}
+
+function transposeChord(chord, semitones) {
+    const chordRegex = /^([A-G][#b]?)(m|M|maj|min|dim|aug|sus|add|7|9|11|13)?$/;
+    const match = chord.match(chordRegex);
+
+    if (!match) {
+        return chord; // Return the original chord if it doesn't match the expected pattern
+    }
+
+    const baseChord = match[1];
+    const chordType = match[2] || '';
+
+    const newValue = (chordMap[baseChord] + semitones + 12) % 12;
+
+    return reverseChordMap[newValue] + chordType;
+}
+
+
+function transposeSong(semitones) {
+    renderSong(songDict, parseInt(semitones));
+}
+
+
 function updateChordPHPosition(position) {
     // List of all placeholders
     const placeholders = [
