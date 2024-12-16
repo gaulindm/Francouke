@@ -195,6 +195,60 @@
     renderChords(); // Re-render chord diagrams
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('printPreviewModal');
+
+    modal.addEventListener('show.bs.modal', function () {
+        // Populate the modal song header and lyrics
+        document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
+        document.getElementById('modal-lyrics-container').innerHTML = document.getElementById('song-content').innerHTML;
+
+        // Define modal placeholders
+        const modalPlaceholders = {
+            top: document.getElementById('modal-top-chord-placeholder'),
+            bottom: document.getElementById('modal-bottom-chord-placeholder'),
+            left: document.getElementById('modal-left-chord-placeholder'),
+            right: document.getElementById('modal-right-chord-placeholder'),
+        };
+
+        // Define main view placeholders
+        const mainPlaceholders = {
+            top: document.getElementById('top-chord-diagram-placeholder'),
+            bottom: document.getElementById('bottom-chord-diagram-placeholder'),
+            left: document.getElementById('left-chord-diagram-placeholder'),
+            right: document.getElementById('right-chord-diagram-placeholder'),
+        };
+
+        // Clear all modal placeholders
+        Object.values(modalPlaceholders).forEach(placeholder => {
+            placeholder.innerHTML = ''; // Clear content
+            placeholder.classList.add('d-none'); // Hide by default
+        });
+
+        // Populate modal placeholders from the main view
+        Object.keys(mainPlaceholders).forEach(position => {
+            const mainPlaceholder = mainPlaceholders[position];
+            const modalPlaceholder = modalPlaceholders[position];
+
+            if (mainPlaceholder && mainPlaceholder.innerHTML.trim()) {
+                // Copy content to the corresponding modal placeholder
+                modalPlaceholder.innerHTML = mainPlaceholder.innerHTML;
+                modalPlaceholder.classList.remove('d-none'); // Show the placeholder
+
+                // Apply layout-specific classes
+                if (position === 'top' || position === 'bottom') {
+                    modalPlaceholder.classList.add('horizontal');
+                    modalPlaceholder.classList.remove('vertical');
+                } else {
+                    modalPlaceholder.classList.add('vertical');
+                    modalPlaceholder.classList.remove('horizontal');
+                }
+            }
+        });
+
+        console.log('Modal placeholders populated successfully.');
+    });
+});
 
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -413,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chordContainer.classList.add('d-none');
 
     // Add default position logic
-    updateChordPHPosition('bottom');
+    updateChordPosition('bottom');
 
     if (toggleChordBox && chordContainer) {
         // Restore state from localStorage
@@ -422,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (savedState) {
             chordContainer.classList.remove('d-none');
-            updateChordPHPosition('bottom');
+            updateChordPosition('bottom');
         } else {
             chordContainer.classList.add('d-none');
         }
@@ -432,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isVisible = toggleChordBox.checked;
             localStorage.setItem('chordBoxVisible', isVisible);
             isVisible ? chordContainer.classList.remove('d-none') : chordContainer.classList.add('d-none');
-            if (isVisible) updateChordPHPosition('bottom');
+            if (isVisible) updateChordPosition('bottom');
         });
     } else {
         console.warn('Chord container or toggle not found.');
@@ -444,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event listener for the control panel
 document.getElementById('layout-form').addEventListener('change', () => {
     const selectedPosition = document.querySelector('input[name="diagram-position"]:checked').value;
-    updateChordPHPosition(selectedPosition);
+    updateChordPosition(selectedPosition);
 });
 
 

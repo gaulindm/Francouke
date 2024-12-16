@@ -47,7 +47,7 @@ function toggleChordBox(isVisible) {
     const chordContainer = document.getElementById('chord-container');
     if (isVisible) {
         chordContainer.classList.remove('d-none');
-        updateChordPHPosition('bottom'); // Ensure default position is set to bottom
+        updateChordPosition('bottom'); // Ensure default position is set to bottom
     } else {
         chordContainer.classList.add('d-none');
     }
@@ -81,7 +81,7 @@ async function renderChords() {
     console.log("All chords rendered successfully!");
 }
 
-function updateChordPHPosition(position) {
+function updateChordPosition(position) {
     // List of all placeholders
     const placeholders = [
         'top-chord-diagram-placeholder',

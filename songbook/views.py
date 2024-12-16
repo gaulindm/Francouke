@@ -1,4 +1,5 @@
-
+import os
+import pdfkit
 from django.template.loader import render_to_string
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -20,7 +21,28 @@ from unidecode import unidecode
 from django.http import HttpResponse
 
 
+def generate_pdf(request, song_id):
+    song = get_object_or_404(Song, id=song_id)  # Ensure you fetch the song object
+    context = {
+        'score': song,
+        'object': song,  # Add `object` to the context
+    }
+    html_content = render_to_string('songbook/song_simplescore.html', context)
 
+    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')  # Update path as necessary
+    pdf = pdfkit.from_string(html_content, False, configuration=config, options={
+    'page-size': 'A4',
+    'encoding': "UTF-8",
+    'enable-local-file-access': True,
+    'debug-javascript': True,
+    'log-level': 'debug',  # Enable detailed logging
+})
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="score.pdf"'
+    return response
+
+   
 
 
 def home(request):
