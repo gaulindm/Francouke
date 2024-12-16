@@ -179,7 +179,6 @@ function transposeSong(semitones) {
     renderSong(songDict, parseInt(semitones));
 }
 
-
 function updateChordPHPosition(position) {
     // List of all placeholders
     const placeholders = [
@@ -192,8 +191,24 @@ function updateChordPHPosition(position) {
     // Hide all placeholders
     placeholders.forEach(placeholderId => {
         const placeholder = document.getElementById(placeholderId);
-        placeholder.classList.add('d-none');
+        if (placeholder) {
+            placeholder.classList.add('d-none');
+        }
     });
+
+    // Handle "None" option
+    if (position === 'none') {
+        // Hide the chord container if it exists
+        const chordContainer = document.getElementById('chord-container');
+        if (chordContainer) {
+            chordContainer.classList.add('d-none');
+        } else {
+            console.error("Chord container not found.");
+        }
+        // Adjust lyrics-container for no chords
+        adjustLyricsContainer(position);
+        return; // Exit early since no further action is needed
+    }
 
     // Find the selected placeholder
     const selectedPlaceholder = document.getElementById(`${position}-chord-diagram-placeholder`);
@@ -235,6 +250,9 @@ function updateChordPHPosition(position) {
     // Dynamically adjust lyrics-container
     adjustLyricsContainer(position);
 }
+
+
+
 
 function adjustLyricsContainer(position) {
     const lyricsContainer = document.getElementById('lyrics-container');
