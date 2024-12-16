@@ -1,7 +1,7 @@
 {% load static %}
 <div class="content-section">
     <h3>Control Panel</h3>
-    <p class='text-muted'>You can put any information here you'd like.
+    <p class='text-muted'>
       <ul class="list-group">
         <li class="list-group-item list-group-item-heavy">Modify ChordPro<div>
           <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
@@ -30,7 +30,7 @@
         <!-- Lyrics and Chords Appearance -->
         <li class="list-group-item list-group-item-heavy">
             <strong>Lyrics and Chords Appearance</strong>
-            <div class="control-panel mt-2 d-flex flex-wrap align-items-center">
+            <div class="control-panel mt-12 d-flex flex-wrap align-items-center">
                 <!-- Font Size -->
                 <div class="me-3">
                     <label for="fontSize" class="form-label">Font Size:</label>
@@ -55,31 +55,28 @@
                         <option value="1.8">1.8</option>
                     </select>
                 </div>
-            
-            
-           <!-- Text Color -->
-<div class="me-3">
-    <label for="textColor" class="form-label">Text Color:</label>
-    <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
-</div>
-
-<!-- Chord Color -->
-<div class="me-3">
-    <label for="chordColor" class="form-label">Chord Color:</label>
-    <input type="color" id="chordColor" onchange="updateStyle('chordColor', this.value)" class="form-control form-control-sm">
-</div>
+                <!-- Text Color -->
+                <div class="me-8">
+                    <label for="textColor" class="form-label">Text Color:</label>
+                    <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
+                </div>
+                <!-- Chord Color -->
+                <div class="me-8">
+                    <label for="chordColor" class="form-label">Chord Color:</label>
+                    <input type="color" id="chordColor" onchange="updateStyle('chordColor', this.value)" class="form-control form-control-sm">
+                </div>
 
 
                   <!-- Chord Font Weight -->
-            <div>
-                <label for="chordWeight" class="form-label">Chord Font Weight:</label>
-                <select id="chordWeight" onchange="updateStyle('chordWeight', this.value)" class="form-control form-control-sm">
-                    <option value="normal">Normal</option>
-                    <option value="bold">Bold</option>
-                    <option value="lighter">Lighter</option>
-                    <option value="bolder">Bolder</option>
-                </select>
-            </div>
+                <div class="me-8">
+                    <label for="chordWeight" class="form-label">Chord Font Weight:</label>
+                    <select id="chordWeight" onchange="updateStyle('chordWeight', this.value)" class="form-control form-control-sm">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="lighter">Lighter</option>
+                        <option value="bolder">Bolder</option>
+                    </select>
+                </div>
             
           </div>
       </li>
@@ -130,9 +127,20 @@
               </label>
           </form>
       </li>
+      <li class="list-group-item list-group-item-heavy">
+        <strong>Chord Placement</strong>
+        <div class="control-panel mt-2">
+            <label for="chord-placement">Select Placement:</label>
+            <select id="chord-placement" class="form-control" onchange="updateChordPlacement(this.value)">
+                <option value="inline" selected>Inline (Default)</option>
+                <option value="above">Above Lyrics</option>
+                <option value="above_with_diagram">Above Lyrics with Mini Chord Diagram</option>
+                <option value="above_with_diagram">Lyrics only - no chords</option>
 
-      <!-- Additional Options -->
-      <li class="list-group-item list-group-item-light">Additional Options</li>
+            </select>
+        </div>
+    </li>
+    <iframe src="https://www.youtube.com/embed/xm7pCeutod4?si=cUjr6n2Cp6t5FGgn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </ul>
 </div>
 </div>
