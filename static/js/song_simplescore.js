@@ -251,3 +251,58 @@ function adjustLyricsContainer(position) {
         lyricsContainer.style.flex = '1 1 auto'; // Full width
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('printPreviewModal');
+
+    modal.addEventListener('show.bs.modal', function () {
+        // Populate the modal song header and lyrics
+        document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
+        document.getElementById('modal-lyrics-container').innerHTML = document.getElementById('song-content').innerHTML;
+
+        // Define modal placeholders
+        const modalPlaceholders = {
+            top: document.getElementById('modal-top-chord-placeholder'),
+            bottom: document.getElementById('modal-bottom-chord-placeholder'),
+            left: document.getElementById('modal-left-chord-placeholder'),
+            right: document.getElementById('modal-right-chord-placeholder'),
+        };
+
+        // Define main view placeholders
+        const mainPlaceholders = {
+            top: document.getElementById('top-chord-diagram-placeholder'),
+            bottom: document.getElementById('bottom-chord-diagram-placeholder'),
+            left: document.getElementById('left-chord-diagram-placeholder'),
+            right: document.getElementById('right-chord-diagram-placeholder'),
+        };
+
+        // Clear all modal placeholders
+        Object.values(modalPlaceholders).forEach(placeholder => {
+            placeholder.innerHTML = ''; // Clear content
+            placeholder.classList.add('d-none'); // Hide by default
+        });
+
+        // Populate modal placeholders from the main view
+        Object.keys(mainPlaceholders).forEach(position => {
+            const mainPlaceholder = mainPlaceholders[position];
+            const modalPlaceholder = modalPlaceholders[position];
+
+            if (mainPlaceholder && mainPlaceholder.innerHTML.trim()) {
+                // Copy content to the corresponding modal placeholder
+                modalPlaceholder.innerHTML = mainPlaceholder.innerHTML;
+                modalPlaceholder.classList.remove('d-none'); // Show the placeholder
+
+                // Apply layout-specific classes
+                if (position === 'top' || position === 'bottom') {
+                    modalPlaceholder.classList.add('horizontal');
+                    modalPlaceholder.classList.remove('vertical');
+                } else {
+                    modalPlaceholder.classList.add('vertical');
+                    modalPlaceholder.classList.remove('horizontal');
+                }
+            }
+        });
+
+        console.log('Modal placeholders populated successfully.');
+    });
+});
