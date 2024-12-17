@@ -224,6 +224,76 @@ input:checked + .slider:before {
     margin-bottom: 4px;
 }
 
+/* Inline Placement: Remove extra space between chords and lyrics */
+.chords-inline .line {
+    display: inline-flex; /* Align chords and lyrics tightly */
+    flex-wrap: wrap; /* Allow wrapping if content exceeds container width */
+    align-items: baseline; /* Align chords with lyrics */
+    gap: 2px; /* Small spacing between elements */
+}
+
+.chords-inline .chord {
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2px; /* Slight spacing between chords */
+}
+
+.chords-inline .lyric {
+    display: inline-block;
+    margin-right: 0; /* Avoid extra space */
+    white-space: nowrap; /* Prevent breaking of lyrics */
+}
+
+/* Above Placement: Ensure proper alignment of chords and lyrics */
+.chords-above .line {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align chords to the left */
+    margin-bottom: 5px;
+}
+
+.chords-above .chord {
+    font-weight: bold;
+    margin-bottom: 2px; /* Space below chords */
+}
+
+.chords-above .lyric {
+    margin-top: 0; /* Ensure no extra spacing */
+}
+
+/* General Chord Styling */
+.chord {
+    display: inline-block;
+    margin-right: 5px; /* Spacing for inline chords */
+    font-weight: bold;
+}
+
+.lyric {
+    display: inline-block;
+    margin-right: 2px; /* Minimal spacing */
+}
+
+
+
+
+/* Default chord styling for inline placement */
+.chord-inline {
+    display: inline; /* Inline to ensure text flow continuity */
+    vertical-align: super; /* Superscript styling for the chord */
+    font-size: 0.75em; /* Smaller chord size */
+    font-weight: bold;
+    color: #007BFF; /* Optional: Chord color */
+    line-height: 1; /* Ensures tight spacing */
+    margin: 0; /* Remove extra margins */
+    padding: 0; /* Remove padding artifacts */
+}
+
+/* Hide chords in "lyrics-only" mode */
+.lyrics-only .chord-inline {
+    display: none;
+}
+
+
 .lyrics-below {
     text-align: left;
     margin-top: 0;

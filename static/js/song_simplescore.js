@@ -144,7 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+function updateChordPlacement(placement) {
+    const lyricsContainer = document.getElementById('lyrics-container');
+    
+    // Reset all classes first
+    lyricsContainer.classList.remove(
+        'chords-inline',
+        'chords-above',
+        'chords-above-with-diagram',
+        'lyrics-only'
+    );
 
+    // Apply class based on placement value
+    switch (placement) {
+        case 'lyrics_only':
+            lyricsContainer.classList.add('lyrics-only');
+            break;
+        case 'inline':
+            lyricsContainer.classList.add('chords-inline');
+            break;
+        case 'above':
+            lyricsContainer.classList.add('chords-above');
+            break;
+        case 'above_with_diagram':
+            lyricsContainer.classList.add('chords-above-with-diagram');
+            break;
+        default:
+            console.warn('Invalid placement value:', placement);
+    }
+}
 
 
 function renderInline(songDict, semitones) {
