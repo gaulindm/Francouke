@@ -1,3 +1,8 @@
+const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
+const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
+const instrument = 'ukulele'; // Specify the instrument
+
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
 
@@ -5,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chordContainer = document.getElementById('bottom-chord-container');
     const toggleChordBoxElement = document.getElementById('toggle-chord-box');
     const isLeftyToggle = document.getElementById('isLeftyToggle'); // Lefty mode toggle
+
 
     if (typeof songDict === 'undefined' || !Array.isArray(songDict)) {
         console.error("songDict is not defined or invalid.");
@@ -136,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("renderInline function is not defined.");
     }
 });
+
+
+
+
 
 function renderInline(songDict, semitones) {
     const songContainer = document.getElementById('song-content');
