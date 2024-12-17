@@ -1,4 +1,4 @@
-function renderSong(songDict, semitones) {
+function renderInline(songDict, semitones) {
     const songContainer = document.getElementById('song-content');
     let htmlContent = ''; // Start with an empty string
 
@@ -176,7 +176,7 @@ function transposeChord(chord, semitones) {
 
 
 function transposeSong(semitones) {
-    renderSong(songDict, parseInt(semitones));
+    renderInline(songDict, parseInt(semitones));
 }
 
 function updateChordPHPosition(position) {

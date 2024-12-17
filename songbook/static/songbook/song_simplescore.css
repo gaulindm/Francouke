@@ -218,6 +218,36 @@ input:checked + .slider:before {
   transform: translateX(14px);
 }
 
+.chords-above {
+    text-align: left; /* Or center, based on preference */
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.lyrics-below {
+    text-align: left;
+    margin-top: 0;
+}
+
+.chord {
+    display: inline-block;
+    margin-right: 8px; /* Spacing between chords */
+}
+
+.lyric {
+    display: inline-block;
+    margin-right: 2px; /* Adjust as needed */
+}
+
+@media print {
+    .chords-above, .lyrics-below {
+        font-size: 14px; /* Optimize print size */
+    }
+}
+
+
+
+
 /* Modal-specific content styling */
 #modal-song-header { margin-bottom: 10px; }
 #modal-song-content, #modal-chord-diagram-placeholder { margin-bottom: 20px; }
