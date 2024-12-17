@@ -1,3 +1,142 @@
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM fully loaded and parsed.");
+
+    const instrumentSelector = document.getElementById('instrument-selector');
+    const chordContainer = document.getElementById('bottom-chord-container');
+    const toggleChordBoxElement = document.getElementById('toggle-chord-box');
+    const isLeftyToggle = document.getElementById('isLeftyToggle'); // Lefty mode toggle
+
+    if (typeof songDict === 'undefined' || !Array.isArray(songDict)) {
+        console.error("songDict is not defined or invalid.");
+        return;
+    }
+
+    // Extract unique chords from songDict
+    const uniqueChords = [...new Set(songDict.flatMap(section => 
+        section.map(item => item.chord).filter(Boolean)))];
+
+    console.log("Unique chords extracted:", uniqueChords);
+
+    // Instrument chord data files
+    const chordFiles = {
+        guitar: "/static/js/guitar_chords.json",
+        ukulele: "/static/js/ukulele_chords.json",
+        baritone_ukulele: "/static/js/baritoneUke_chords.json",
+        banjo: "/static/js/banjo_chords.json",
+        mandoline: "/static/js/mandolin_chords.json"
+    };
+
+    // Function to load chord data for the selected instrument
+    function loadInstrumentData(instrument) {
+        const filePath = chordFiles[instrument];
+        if (!filePath) {
+            console.error("Invalid instrument selected:", instrument);
+            return;
+        }
+
+        console.log(`Loading chord data for instrument: ${instrument}`);
+        Raphael.chord.setInstrument(instrument); // Set the instrument in Raphael
+
+        Raphael.chord.loadData(filePath)
+            .then(() => {
+                console.log(`${instrument} chord data loaded successfully.`);
+                renderChords();
+            })
+            .catch(error => console.error(`Error loading chord data for ${instrument}:`, error));
+    }
+
+    // Function to render chord diagrams
+    async function renderChords() {
+        if (!chordContainer) {
+            console.error("Chord container not found.");
+            return;
+        }
+
+        console.log("Rendering chords into the container.");
+        chordContainer.innerHTML = ''; // Clear existing content
+
+        for (const chordName of uniqueChords) {
+            console.log(`Processing chord: ${chordName}`);
+            const chordData = await Raphael.chord.find(chordName, 1);
+
+            if (!chordData) {
+                console.warn(`Chord not found: ${chordName}`);
+                continue;
+            }
+
+            // Create diagram container
+            const diagramContainer = document.createElement('div');
+            diagramContainer.className = 'chord-diagram';
+            chordContainer.appendChild(diagramContainer);
+
+            // Render the chord diagram using Raphael
+            const chord = new Raphael.chord.Chord(diagramContainer, chordData, chordName);
+            chord.element.setViewBox(0, 0, 100, 120);
+        }
+
+        console.log("All chords rendered successfully!");
+    }
+
+    // Lefty mode toggle
+    if (isLeftyToggle) {
+        isLeftyToggle.addEventListener('change', (event) => {
+            const isLefty = event.target.checked;
+            console.log("Lefty toggle switched:", isLefty);
+
+            // Update Raphael lefty state
+            Raphael.chord.toggleLeftyMode(isLefty);
+
+            // Re-render chords to apply lefty layout
+            renderChords();
+        });
+    } else {
+        console.warn("isLeftyToggle element not found.");
+    }
+
+    // Chord box visibility toggle
+    function toggleChordBox(isVisible) {
+        const chordBox = document.getElementById('chord-container');
+        if (isVisible) {
+            chordBox.classList.remove('d-none');
+            updateChordPHPosition('bottom'); // Default to bottom
+        } else {
+            chordBox.classList.add('d-none');
+        }
+    }
+
+    // Initialize chord visibility toggle
+    if (toggleChordBoxElement) {
+        const savedState = localStorage.getItem('chordBoxVisible') === 'true';
+        toggleChordBoxElement.checked = savedState;
+        toggleChordBox(savedState);
+
+        toggleChordBoxElement.addEventListener('change', () => {
+            const isVisible = toggleChordBoxElement.checked;
+            localStorage.setItem('chordBoxVisible', isVisible);
+            toggleChordBox(isVisible);
+        });
+    }
+
+    // Event listener for instrument selection
+    if (instrumentSelector) {
+        instrumentSelector.addEventListener('change', (event) => {
+            const selectedInstrument = event.target.value;
+            loadInstrumentData(selectedInstrument);
+        });
+
+        // Load initial instrument data
+        loadInstrumentData(instrumentSelector.value);
+    }
+
+    // Render inline song view by default
+    if (typeof renderInline === 'function') {
+        console.log("Rendering inline song view.");
+        renderInline(songDict, 0); // Default semitone shift is 0
+    } else {
+        console.error("renderInline function is not defined.");
+    }
+});
+
 function renderInline(songDict, semitones) {
     const songContainer = document.getElementById('song-content');
     let htmlContent = ''; // Start with an empty string
@@ -43,6 +182,50 @@ function renderInline(songDict, semitones) {
     songContainer.innerHTML = htmlContent; // Set the complete HTML
 }
 
+function loadInstrumentData(instrument) {
+    const chordFiles = {
+        guitar: "{% static 'js/guitar_chords.json' %}",
+        ukulele: "{% static 'js/ukulele_chords.json' %}",
+        baritone_ukulele: "{% static 'js/baritoneUke_chords.json' %}",
+        banjo: "{% static 'js/banjo_chords.json' %}",
+        mandoline: "{% static 'js/mandolin_chords.json' %}"
+    };
+
+    const filePath = chordFiles[instrument];
+    if (!filePath) {
+        console.error("Invalid instrument selected.");
+        return;
+    }
+
+    Raphael.chord.setInstrument(instrument);
+    Raphael.chord.loadData(filePath)
+        .then(() => {
+            console.log(`${instrument} chord data loaded.`);
+            renderChords();
+        })
+        .catch(error => console.error(`Error loading chord data for ${instrument}:`, error));
+}
+
+function renderChords() {
+    const container = document.getElementById('bottom-chord-container');
+    container.innerHTML = ''; // Clear existing diagrams
+
+    uniqueChords.forEach((chordName) => {
+        const chordData = Raphael.chord.find(chordName, 1);
+        if (!chordData) {
+            console.warn(`Chord ${chordName} not found.`);
+            return;
+        }
+
+        const diagramContainer = document.createElement('div');
+        diagramContainer.className = 'chord-diagram';
+        container.appendChild(diagramContainer);
+
+        const chord = new Raphael.chord.Chord(diagramContainer, chordData, chordName);
+        chord.element.setViewBox(0, 0, 100, 120);
+    });
+}
+
 
 
 function toggleChordBox(isVisible) {
@@ -55,33 +238,28 @@ function toggleChordBox(isVisible) {
     }
 }
 
-async function renderChords() {
+function renderChords() {
+    console.log("Rendering chords:", uniqueChords); // Debugging
     const container = document.getElementById('bottom-chord-container');
+    container.innerHTML = ''; // Clear existing diagrams
 
-    // Clear existing diagrams
-    container.innerHTML = '';
-    console.log("Clearing chord container and rendering new diagrams...");
-
-    for (const chordName of uniqueChords) {
-        console.log(`Processing chord: ${chordName}`);
-        const chordData = await Raphael.chord.find(chordName, 1); // Ensure async handling of find()
-
+    uniqueChords.forEach((chordName) => {
+        const chordData = Raphael.chord.find(chordName, 1);
         if (!chordData) {
-            console.warn(`Chord not found: ${chordName}`);
-            continue;
+            console.warn(`Chord ${chordName} not found.`);
+            return;
         }
 
-        // Create a container for the chord diagram
+        // Create and render the chord diagram
         const diagramContainer = document.createElement('div');
         diagramContainer.className = 'chord-diagram';
-
-        // Render the chord
-        const chord = new Raphael.chord.Chord(diagramContainer, chordData, chordName);
         container.appendChild(diagramContainer);
-    }
 
-    console.log("All chords rendered successfully!");
+        const chord = new Raphael.chord.Chord(diagramContainer, chordData, chordName);
+        chord.element.setViewBox(0, 0, 100, 120);
+    });
 }
+
 
 
 function updateStyle(styleName, value) {
@@ -314,7 +492,10 @@ function adjustLyricsContainer(position) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('printPreviewModal');
-
+    const instrumentSelector = document.getElementById('instrument-selector');
+    if (instrumentSelector) {
+        loadInstrumentData(instrumentSelector.value); // Load default instrument
+    }
     modal.addEventListener('show.bs.modal', function () {
         // Populate the modal song header and lyrics
         document.getElementById('modal-song-header').innerHTML = document.getElementById('song_header').outerHTML;
