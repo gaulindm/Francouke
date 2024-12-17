@@ -43,6 +43,8 @@ function renderInline(songDict, semitones) {
     songContainer.innerHTML = htmlContent; // Set the complete HTML
 }
 
+
+
 function toggleChordBox(isVisible) {
     const chordContainer = document.getElementById('chord-container');
     if (isVisible) {
@@ -80,6 +82,46 @@ async function renderChords() {
 
     console.log("All chords rendered successfully!");
 }
+
+
+function updateStyle(styleName, value) {
+    console.log(`updateStyle called with styleName: ${styleName}, value: ${value}`);
+
+    // Ensure the parameters are not undefined
+    if (!styleName || value === undefined) {
+        console.error('Invalid parameters passed to updateStyle.');
+        return;
+    }
+
+    const songContent = document.getElementById('song-content');
+    if (!songContent) {
+        console.error('song-content element not found.');
+        return;
+    }
+
+    const chords = document.querySelectorAll('#song-content .chord');
+
+    switch (styleName) {
+        case 'lineHeight':
+            songContent.style.lineHeight = value;
+            break;
+        case 'fontSize':
+        case 'color':
+            songContent.style[styleName] = value;
+            break;
+        case 'chordColor':
+            chords.forEach(chord => chord.style.color = value);
+            break;
+        case 'chordWeight':
+            chords.forEach(chord => chord.style.fontWeight = value);
+            break;
+        default:
+            console.error(`Unsupported styleName: ${styleName}`);
+            break;
+    }
+}
+
+
 
 function printDiv(divId) {
     const contentElement = document.getElementById(divId);
