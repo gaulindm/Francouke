@@ -18,7 +18,10 @@ from .parsers import parse_song_data
 from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
 from django.http import HttpResponse
-
+from django.db.models import Q  # Import Q for complex queries
+from django.views.generic import ListView
+from .models import Song  # Adjust based on your models
+#from .utils import extract_chords  # Assuming extract_chords is defined in utils.py
 
 
 
@@ -31,6 +34,8 @@ def home(request):
     }
     return render(request, 'songbook/home.html',context)
 
+
+
 class SongListView(ListView):
     model = Song
     template_name = 'songbook/song_list.html'
@@ -38,19 +43,45 @@ class SongListView(ListView):
     ordering = ['songTitle']
     paginate_by = 25
 
+    def get_queryset(self):
+        """
+        Override to filter the song queryset based on search query.
+        """
+        queryset = super().get_queryset()  # Start with all songs
+        search_query = self.request.GET.get('q', '')  # Get search query from request
+
+        if search_query:  # Apply filters if there's a search query
+            queryset = queryset.filter(
+                Q(songTitle__icontains=search_query) |
+                Q(metadata__artist__icontains=search_query) |
+                Q(metadata__composer__icontains=search_query) |  # Include composer
+                Q(metadata__lyricist__icontains=search_query)   # Include lyricist
+
+            )
+
+        return queryset
+
     def get_context_data(self, **kwargs):
+        """
+        Add filtered song data and chords to the template context.
+        """
         context = super().get_context_data(**kwargs)
+        search_query = self.request.GET.get('q', '')  # Retain search query in context
         song_data = []
 
+        # Build song data with chords
         for song in context['songs']:
             parsed_data = song.lyrics_with_chords or ""
             chords = extract_chords(parsed_data, unique=True) if parsed_data else []
+            tags = [tag.name for tag in song.tags.all()]  # Get tags for each song
             song_data.append({
                 'song': song,
-                'chords': ', '.join(chords)
+                'chords': ', '.join(chords),
+                'tags': ', '.join(tags)  # Add tags as a comma-separated string
             })
 
         context['song_data'] = song_data
+        context['search_query'] = search_query  # Pass the search query to the template
         return context
 
 

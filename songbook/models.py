@@ -7,25 +7,8 @@ import re
 import json
 from .parsers import parse_song_data  # Import the parse_song_data function
 from .transposer import detect_key
+from taggit.managers import TaggableManager
 
-
-class Instrument(models.Model):
-    name = models.CharField(max_length=100)
-    tuning = models.JSONField()
-    alternate_names = models.JSONField()
-    chord_definitions = models.JSONField()
-    transpose = models.IntegerField(null=True, blank=True)  # Add this line for optional transpose
-
-    def __str__(self):
-        return self.name
-
-class Chord(models.Model):
-    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
-    name = models.CharField(max_length=10)
-    positions = models.JSONField()
-
-    def __str__(self):
-        return f"{self.name} ({self.instrument.name})"
 
 class Song(models.Model):
     songTitle = models.CharField(max_length=100, blank=True, null=True)
@@ -34,6 +17,7 @@ class Song(models.Model):
     metadata = models.JSONField(blank=True, null=True)  # Stores metadata as JSON
     date_posted = models.DateField(default=timezone.now)
     contributor = models.ForeignKey(User, on_delete=models.CASCADE)
+    tags = TaggableManager(blank=True) 
     
     def save(self, *args, **kwargs):
         # Only parse title if songTitle is not manually set
@@ -58,6 +42,8 @@ class Song(models.Model):
             "title": re.search(r'{(?:title|t):\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "comment": re.search(r'{(?:comment|c):\s*(.+?)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "artist": re.search(r'{artist:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
+            "composer": re.search(r'{composer:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
+            "lyricist": re.search(r'{lyricist:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "recording": re.search(r'{recording:\s*([^\}]+)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "album": re.search(r'{album:\s*(.+?)}', self.songChordPro, re.IGNORECASE | re.UNICODE),
             "year": re.search(r'{year:\s*(\d{4})}', self.songChordPro, re.IGNORECASE),
