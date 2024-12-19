@@ -26,6 +26,8 @@ distro @ file:///croot/distro_1714488253808/work
 Django==5.1.2
 django-bootstrap4==24.4
 django-crispy-forms==2.3
+django-taggit==6.1.0
+drawsvg==2.4.0
 fabio==2024.9.0
 filelock==3.16.1
 fonttools==4.54.1
@@ -43,6 +45,7 @@ matplotlib==3.9.2
 menuinst @ file:///croot/menuinst_1723567589013/work
 numpy==2.1.2
 packaging @ file:///croot/packaging_1720101850331/work
+pdfkit==1.0.0
 Pillow==10.0.0
 platformdirs @ file:///work/perseverance-python-buildout/croot/platformdirs_1701732573265/work
 pluggy @ file:///work/perseverance-python-buildout/croot/pluggy_1698805497733/work
