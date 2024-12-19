@@ -21,7 +21,7 @@ from django.http import HttpResponse
 from django.db.models import Q  # Import Q for complex queries
 from django.views.generic import ListView
 from .models import Song  # Adjust based on your models
-#from .utils import extract_chords  # Assuming extract_chords is defined in utils.py
+from taggit.models import Tag
 
 
 
@@ -45,31 +45,36 @@ class SongListView(ListView):
 
     def get_queryset(self):
         """
-        Override to filter the song queryset based on search query.
+        Override to filter the song queryset based on search query and tag.
         """
-        queryset = super().get_queryset()  # Start with all songs
-        search_query = self.request.GET.get('q', '')  # Get search query from request
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('q', '')  # Search query
+        selected_tag = self.request.GET.get('tag', '')  # Selected tag
 
-        if search_query:  # Apply filters if there's a search query
+        # Apply filters
+        if search_query:
             queryset = queryset.filter(
                 Q(songTitle__icontains=search_query) |
                 Q(metadata__artist__icontains=search_query) |
-                Q(metadata__composer__icontains=search_query) |  # Include composer
-                Q(metadata__lyricist__icontains=search_query)   # Include lyricist
-
+                Q(metadata__composer__icontains=search_query) |
+                Q(metadata__lyricist__icontains=search_query)
             )
+
+        if selected_tag:  # Filter by tag if a tag is selected
+            queryset = queryset.filter(tags__name=selected_tag)
 
         return queryset
 
     def get_context_data(self, **kwargs):
         """
-        Add filtered song data and chords to the template context.
+        Add filtered song data, chords, and tags to the template context.
         """
         context = super().get_context_data(**kwargs)
-        search_query = self.request.GET.get('q', '')  # Retain search query in context
+        search_query = self.request.GET.get('q', '')
+        selected_tag = self.request.GET.get('tag', '')  # Selected tag
         song_data = []
 
-        # Build song data with chords
+        # Build song data with chords and tags
         for song in context['songs']:
             parsed_data = song.lyrics_with_chords or ""
             chords = extract_chords(parsed_data, unique=True) if parsed_data else []
@@ -77,12 +82,18 @@ class SongListView(ListView):
             song_data.append({
                 'song': song,
                 'chords': ', '.join(chords),
-                'tags': ', '.join(tags)  # Add tags as a comma-separated string
+                'tags': ', '.join(tags),
             })
 
+        # Fetch all unique tags and add them to the context
+        all_tags = Tag.objects.all().values_list('name', flat=True).distinct()
+
         context['song_data'] = song_data
-        context['search_query'] = search_query  # Pass the search query to the template
+        context['search_query'] = search_query
+        context['selected_tag'] = selected_tag  # Pass the selected tag
+        context['all_tags'] = all_tags  # Add all tags to context
         return context
+
 
 
     

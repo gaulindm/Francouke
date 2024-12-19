@@ -1,14 +1,34 @@
 {% extends "songbook/base.html" %}
   {% block content %}
 
-<!-- Search/Filter Form -->
+<!-- Search/Filter Form with Tags -->
 <form method="get" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Search by title, artist, lyricist or composer"
-               value="{{ search_query }}">
-        <button class="btn btn-primary" type="submit">Search</button>
+    <div class="row align-items-center">
+        <!-- Search Bar -->
+        <div class="col-md-3">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" 
+                       placeholder="Search by title, artist, lyricist or composer"
+                       value="{{ search_query }}">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+        <!-- Tags Section -->
+        <div class="col-md-9">
+            <strong>Tags: </strong>
+            {% for tag in all_tags %}
+                <a href="?tag={{ tag }}" class="btn btn-outline-secondary btn-sm">
+                    {{ tag }}
+                </a>
+            {% endfor %}
+            {% if selected_tag %}
+                <a href="{% url 'song_list' %}" class="btn btn-danger btn-sm">Clear Filter</a>
+            {% endif %}
+        </div>
     </div>
 </form>
+
+
 
 <!-- Song List Table -->
   <div class="table-responsive">
