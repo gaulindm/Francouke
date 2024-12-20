@@ -22,9 +22,46 @@ from django.db.models import Q  # Import Q for complex queries
 from django.views.generic import ListView
 from .models import Song  # Adjust based on your models
 from taggit.models import Tag
+from .models import Song
+from .utils.pdf_generator import generate_song_pdf  # Import the utility function
+
+def generate_single_song_pdf(request, song_id):
+    # Fetch the song by ID
+    song = get_object_or_404(Song, id=song_id)
+
+    # Create the HTTP response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{song.songTitle}.pdf"'
+
+    # Use the utility function to generate the PDF
+    generate_song_pdf(response, song)
+
+    return response
 
 
 
+def generate_styled_song_pdf(request):
+    # Define song data
+    title = "Imagine"
+    artist = "John Lennon"
+
+    # Create the HTTP response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{title}.pdf"'
+
+    # Set up PDF document
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+
+    # Add song details
+    elements = []
+    elements.append(Paragraph(f"Song Title: <b>{title}</b>", styles['Heading1']))
+    elements.append(Paragraph(f"Artist: <b>{artist}</b>", styles['Heading2']))
+    elements.append(Spacer(1, 12))  # Add spacing
+
+    # Build the PDF
+    doc.build(elements)
+    return response
    
 
 

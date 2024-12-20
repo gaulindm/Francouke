@@ -1,4 +1,5 @@
 from django.urls import path
+from songbook import views
 from .views import (
     SongListView, 
     SongCreateView,
@@ -18,6 +19,6 @@ urlpatterns = [
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),
     path('', SongListView.as_view(), name='song_list'),  # Define a name for this pattern
-
-
+    path('generate-styled-song-pdf/', views.generate_styled_song_pdf, name='generate_styled_song_pdf'),
+    path('generate-song-pdf/<int:song_id>/', views.generate_single_song_pdf, name='generate_single_song_pdf'),
 ]

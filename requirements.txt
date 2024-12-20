@@ -8,6 +8,7 @@ cairocffi==1.7.1
 CairoSVG==2.7.1
 certifi @ file:///croot/certifi_1720453481653/work/certifi
 cffi @ file:///croot/cffi_1714483155441/work
+chardet==5.2.0
 charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
 conda @ file:///croot/conda_1722004606466/work
 conda-content-trust @ file:///croot/conda-content-trust_1714483159009/work
@@ -33,6 +34,7 @@ filelock==3.16.1
 fonttools==4.54.1
 frozendict @ file:///croot/frozendict_1713194832637/work
 greenlet==3.1.1
+gunicorn==23.0.0
 h5py==3.12.1
 hdf5plugin==5.0.0
 idna @ file:///croot/idna_1714398848350/work
@@ -62,6 +64,7 @@ PyQt6_sip==13.8.0
 PySocks @ file:///work/perseverance-python-buildout/croot/pysocks_1698845478203/work
 python-dateutil==2.9.0.post0
 PyYAML==6.0.1
+reportlab==4.2.5
 requests @ file:///croot/requests_1721410876868/work
 ruamel.yaml @ file:///work/perseverance-python-buildout/croot/ruamel.yaml_1698863605521/work
 scipy==1.14.1
