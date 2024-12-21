@@ -30,33 +30,45 @@ def generate_song_pdf(response, song):
     )
     elements = []
 
+    # Custom style for centered text
+    centered_style = ParagraphStyle(
+        name="CenteredStyle",
+        parent=styles['Normal'],
+        alignment=1,  # 1 = Center
+    )
+
     # --- Song Header ---
     metadata = song.metadata or {}
+    
     header_data = [
         [
             Paragraph(f"Time Signature: {metadata.get('timeSignature', 'Unknown')}", styles['Normal']),
-            Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", styles['Heading1']),
-            Paragraph(f"First Note: {metadata.get('1stnote', 'N/A')}", styles['Normal']),
+            Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", centered_style),  # Centered song title
+            Paragraph(f"First Vocal Note: {metadata.get('1stnote', 'N/A')}", styles['Normal']),
         ],
         [
             Paragraph(f"Tempo: {metadata.get('tempo', 'Unknown')}", styles['Normal']),
-            Paragraph(f"Composer: {metadata.get('composer', 'Unknown')}<br/>Lyricist: {metadata.get('lyricist', 'Unknown')}", styles['Normal']),
+            Paragraph(f"Songwriter: {metadata.get('songwriter', 'Unknown')}", centered_style),  # Centered songwriter
             "",
         ],
         [
-            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} in {metadata.get('year', 'Unknown')}", styles['Italic']),
+            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} in {metadata.get('year', 'Unknown')}", centered_style),  # Centered artist
             "",
             "",
         ],
     ]
+
     header_table = Table(header_data, colWidths=[150, 300, 150])
     header_table.setStyle(TableStyle([
         ('SPAN', (0, 2), (-1, 2)),  # Merge the last row
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
+        ('ALIGN', (0, 2), (0, 2), 'RIGHT'),  # Right aligned
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Align all cells to center (double-check alignment)
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
     ]))
+
+
     elements.append(header_table)
     elements.append(Spacer(1, 12))  # Add space below the header
 
