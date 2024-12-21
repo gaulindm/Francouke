@@ -20,15 +20,15 @@ def generate_song_pdf(response, song):
     reduced_line_style = ParagraphStyle(
         name="ReducedLineStyle",
         parent=styles['BodyText'],
-        leading=4,  # Tighten line spacing
-        spaceAfter=1,  # Small space after paragraphs
+        leading=8,  # Optimal line spacing for readability
+        spaceAfter=0,  # Remove default space after paragraphs
     )
 
     # Prepare the document with adjusted margins
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        topMargin=4,
+        topMargin=24,  # Reasonable top margin for better layout
         bottomMargin=36,
         leftMargin=36,
         rightMargin=36,
@@ -69,9 +69,10 @@ def generate_song_pdf(response, song):
     )
     header_table.setStyle(TableStyle([
         ('SPAN', (0, 2), (-1, 2)),  # Merge all cells in the third row
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (1, 0), (1, 0), 'CENTER'),
-        ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+        ('ALIGN', (0, 0), (0, 0), 'CENTER'),  # Center Time Signature
+        ('ALIGN', (1, 0), (1, 0), 'CENTER'),  # Center Title
+        ('ALIGN', (2, 0), (2, 0), 'CENTER'),  # Center First Note
+        ('ALIGN', (1, 1), (1, 1), 'CENTER'),  # Center Composer/Lyricist
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
         ('LINEBELOW', (0, 0), (-1, 0), 1, colors.lightgrey),
@@ -91,7 +92,7 @@ def generate_song_pdf(response, song):
                     if current_line:
                         elements.append(Paragraph(" ".join(current_line), reduced_line_style))
                         current_line = []
-                    elements.append(Spacer(1, 36))  # Spacer for paragraph break
+                    elements.append(Spacer(1, 24))  # Custom space for paragraph breaks
                 continue
             elif "chord" in entry and "lyric" in entry:
                 chord = entry["chord"]
