@@ -1,111 +1,100 @@
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-
 def generate_song_pdf(response, song):
     """
-    Generates a PDF for a single song and writes it to the given HTTP response.
-
-    Args:
-        response: HttpResponse object for writing the PDF content.
-        song: Song object containing the song data.
-
-    Returns:
-        None
+    Generate a PDF for a song, ensuring that chord-lyric pairs are displayed on the same line.
     """
-    styles = getSampleStyleSheet()
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
 
-    # Custom paragraph style for reduced line spacing
-    reduced_line_style = ParagraphStyle(
-        name="ReducedLineStyle",
+    styles = getSampleStyleSheet()
+    directive_style = ParagraphStyle(
+        name="DirectiveStyle",
+        parent=styles['Italic'],
+        leading=2,
+        spaceAfter=2,
+        textColor=colors.grey,
+    )
+    lyric_style = ParagraphStyle(
+        name="LyricStyle",
         parent=styles['BodyText'],
-        leading=8,  # Optimal line spacing for readability
-        spaceAfter=0,  # Remove default space after paragraphs
+        leading=4,
+        spaceAfter=6,
     )
 
-    # Prepare the document with adjusted margins
+    # Document setup
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        topMargin=24,  # Reasonable top margin for better layout
+        topMargin=24,
         bottomMargin=36,
         leftMargin=36,
         rightMargin=36,
     )
     elements = []
 
-    # Extract metadata for the song header
-    title = song.songTitle
-    artist = song.metadata.get('artist', 'Unknown Artist')
-    time_signature = song.metadata.get('timeSignature', 'Unknown')
-    tempo = song.metadata.get('tempo', 'Unknown')
-    composer = song.metadata.get('composer', 'Unknown Composer')
-    lyricist = song.metadata.get('lyricist', 'Unknown Lyricist')
-    year = song.metadata.get('year', 'Unknown Year')
-    first_note = song.metadata.get('1stnote', 'N/A')  # Retrieve 1st note directly from metadata
-
-    # Song Header Table Data
+    # --- Song Header ---
+    metadata = song.metadata or {}  # Handle case where metadata is None
     header_data = [
         [
-            Paragraph(f"Time Signature: {time_signature}", styles['Normal']),
-            Paragraph(f"<b>{title}</b>", styles['Heading1']),
-            Paragraph(f"First Note: {first_note}", styles['Normal']),
+            Paragraph(f"Time Signature: {metadata.get('timeSignature', 'Unknown')}", styles['Normal']),
+            Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", styles['Heading1']),
+            Paragraph(f"First Note: {metadata.get('1stnote', 'N/A')}", styles['Normal']),
         ],
         [
-            Paragraph(f"Tempo: {tempo}", styles['Normal']),
-            Paragraph(f"Composer: {composer}<br />Lyricist: {lyricist}", styles['Normal']),
+            Paragraph(f"Tempo: {metadata.get('tempo', 'Unknown')}", styles['Normal']),
+            Paragraph(f"Composer: {metadata.get('composer', 'Unknown')}<br/>Lyricist: {metadata.get('lyricist', 'Unknown')}", styles['Normal']),
             "",
         ],
         [
-            Paragraph(f"As recorded by {artist} in {year}", styles['Italic']),
+            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} in {metadata.get('year', 'Unknown')}", styles['Italic']),
+            "",
+            "",
         ],
     ]
-
-    # Create Table with Song Header Data
-    header_table = Table(
-        header_data,
-        colWidths=[150, 300, 150]
-    )
+    header_table = Table(header_data, colWidths=[150, 300, 150])
     header_table.setStyle(TableStyle([
-        ('SPAN', (0, 2), (-1, 2)),  # Merge all cells in the third row
-        ('ALIGN', (0, 0), (0, 0), 'CENTER'),  # Center Time Signature
-        ('ALIGN', (1, 0), (1, 0), 'CENTER'),  # Center Title
-        ('ALIGN', (2, 0), (2, 0), 'CENTER'),  # Center First Note
-        ('ALIGN', (1, 1), (1, 1), 'CENTER'),  # Center Composer/Lyricist
+        ('SPAN', (0, 2), (-1, 2)),  # Merge the last row
+        ('ALIGN', (1, 0), (1, 0), 'CENTER'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
-        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
     ]))
-
-    # Add the header table to the top
     elements.append(header_table)
-    elements.append(Spacer(1, 24))  # Add space after the header
+    elements.append(Spacer(1, 12))  # Add space below the header
 
-    # Process lyrics and chords
-    lyrics_json = song.lyrics_with_chords
-    for section in lyrics_json:
-        current_line = []
-        for entry in section:
-            if "directive" in entry:
-                if entry["directive"] == "PARAGRAPHBREAK":
-                    if current_line:
-                        elements.append(Paragraph(" ".join(current_line), reduced_line_style))
-                        current_line = []
-                    elements.append(Spacer(1, 24))  # Custom space for paragraph breaks
+    # --- Song Content ---
+    lyrics_with_chords = song.lyrics_with_chords or []  # Handle case where lyrics_with_chords is None
+    for group in lyrics_with_chords:
+        line_buffer = []  # Temporary buffer for chord-lyric pairs in the same line
+        for item in group:
+            if "directive" in item:
+                # Skip directives in the song content
                 continue
-            elif "chord" in entry and "lyric" in entry:
-                chord = entry["chord"]
-                lyric = entry["lyric"]
-                formatted_piece = f"<b>[{chord}]</b> {lyric}" if chord else lyric
-                current_line.append(formatted_piece)
-            elif "format" in entry and entry["format"] == "LINEBREAK":
-                if current_line:
-                    elements.append(Paragraph(" ".join(current_line), reduced_line_style))
-                    current_line = []
+            elif "lyric" in item:
+                # Add chord-lyric pair to the line buffer
+                chord = item.get("chord", "")
+                lyric = item["lyric"]
+                if chord:
+                    line_buffer.append(f"<b>[{chord}]</b> {lyric}")
+                else:
+                    line_buffer.append(lyric)
+            elif "format" in item:
+                if item["format"] == "LINEBREAK":
+                    # Add the current line as a single paragraph
+                    if line_buffer:
+                        elements.append(Paragraph(" ".join(line_buffer), lyric_style))
+                        line_buffer = []  # Clear the buffer for the next line
+                elif item["format"] == "PARAGRAPHBREAK":
+                    # Add the current line and create a paragraph break
+                    if line_buffer:
+                        elements.append(Paragraph(" ".join(line_buffer), lyric_style))
+                        line_buffer = []
+                    elements.append(Spacer(1, 12))  # Add a larger paragraph break
 
-        if current_line:
-            elements.append(Paragraph(" ".join(current_line), reduced_line_style))
+        # Add any remaining content in the line buffer
+        if line_buffer:
+            elements.append(Paragraph(" ".join(line_buffer), lyric_style))
 
-    # Build the PDF
+    # Build the document
     doc.build(elements)
