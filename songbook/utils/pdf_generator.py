@@ -1,78 +1,137 @@
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
+from reportlab.graphics.shapes import Drawing, Line
+from reportlab.graphics import renderPDF
+from reportlab.platypus import Flowable, Table, TableStyle, Spacer
+from django.conf import settings
+import json
+import os
+
+def load_chords():
+    chord_file = os.path.join(settings.BASE_DIR, "static", "js", "ukulele_chords.json")
+    print(f"Resolved chord file path: {chord_file}")  # Debugging statement
+    try:
+        with open(chord_file, "r") as file:
+            chords = json.load(file)
+        return chords
+    except FileNotFoundError:
+        print(f"Error: File not found at {chord_file}")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON format in {chord_file}: {e}")
+        return []
+
+
+
+def print_chord_definition(chords, chord_name):
+    """
+    Print the definition for a specific chord by name.
+    """
+    for chord in chords:
+        if chord["name"] == chord_name:
+            print(f"Chord '{chord_name}' definition: {chord}")
+            return chord
+    print(f"Chord '{chord_name}' not found in definitions.")
+    return None
+
+
+
+class UkuleleDiagram(Flowable):
+    """
+    A Flowable to render a ukulele chord diagram.
+    """
+    def __init__(self):
+        Flowable.__init__(self)
+
+    def draw(self):
+        # Diagram dimensions
+        scale = 0.75
+        string_spacing = 15 * scale
+        fret_spacing = 15 * scale
+        num_frets = 4
+        num_strings = 4
+
+        # Draw vertical strings
+        for i in range(num_strings):
+            x = i * string_spacing
+            self.canv.line(x, 0, x, fret_spacing * num_frets)
+
+        # Draw horizontal frets
+        for i in range(num_frets + 1):
+            y = i * fret_spacing
+            self.canv.line(0, y, string_spacing * (num_strings - 1), y)
+
+def add_chord_diagrams(elements):
+    """
+    Add a row of four ukulele chord diagrams to the bottom of the PDF,
+    scaled down to 75%.
+    """
+    # Create a table to align diagrams horizontally
+    diagram_row = [UkuleleDiagram() for _ in range(4)]
+    diagram_table = Table([diagram_row], colWidths=[60] * 4)  # Adjust width as needed
+
+    # Style the table
+    diagram_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),
+    ]))
+
+    # Add space to ensure the diagrams are near the bottom
+    elements.append(Spacer(1, 24))  # Adjust as necessary
+    elements.append(diagram_table)            
 
 
 def generate_song_pdf(response, song):
     """
-    Generate a PDF for a song using tables for the header and content,
-    with one table row per paragraph (determined by PARAGRAPHBREAK).
+    Generate a PDF for a song, including blank ukulele diagrams.
     """
+
+
+
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+
+
+    chords = load_chords()
     styles = getSampleStyleSheet()
 
-
-    # Define a custom base style for the whole page
+    # Define base styles (unchanged from your code)
     base_style = ParagraphStyle(
         name="BaseStyle",
-        parent=styles['BodyText'],  # Use BodyText as the base
-        fontSize=14,  # Set desired font size
-        leading=14,  # Set line spacing
+        parent=styles['BodyText'],
+        fontSize=14,
+        leading=14,
     )
-
-    # Update existing styles to inherit from base_style
     heading_style = ParagraphStyle(name="Heading", parent=base_style, fontSize=16, spaceAfter=12)
     lyric_style = ParagraphStyle(name="LyricStyle", parent=base_style, fontSize=12)
     centered_style = ParagraphStyle(name="CenteredStyle", parent=base_style, alignment=1)
-
-
-
-
-    # Custom paragraph style for lyrics and chords
-    lyric_style = ParagraphStyle(
-        name="LyricStyle",
-        parent=styles['BodyText'],
-        leading=14,
-        fontSize=12,
-        spaceAfter=6,
-    )
 
     # Document setup
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
         topMargin=24,
-        bottomMargin=36,
+        bottomMargin=72,  # Reserve space for diagrams
         leftMargin=36,
         rightMargin=36,
     )
     elements = []
 
-    # Custom style for centered text
-    centered_style = ParagraphStyle(
-        name="CenteredStyle",
-        parent=styles['Normal'],
-        fontSize=12,
-        borderPadding=2,
-        alignment=1,  # 1 = Center
-    )
-
-    # --- Song Header ---
+    # --- Header Section ---
     metadata = song.metadata or {}
-    
     header_data = [
         [
             Paragraph(f"Time Signature: {metadata.get('timeSignature', 'Unknown')}", styles['Normal']),
-            Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", centered_style),  # Centered song title
+            Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", centered_style),
             Paragraph(f"First Vocal Note: {metadata.get('1stnote', 'N/A')}", styles['Normal']),
         ],
         [
             Paragraph(f"Tempo: {metadata.get('tempo', 'Unknown')}", styles['Normal']),
-            Paragraph(f"Songwriter: {metadata.get('songwriter', 'Unknown')}", centered_style),  # Centered songwriter
+            Paragraph(f"Songwriter: {metadata.get('songwriter', 'Unknown')}", centered_style),
             "",
         ],
         [
-            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} on {metadata.get('album', 'Unknown album')} in {metadata.get('year', 'Unknown')}", centered_style),  # Centered artist
+            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} on {metadata.get('album', 'Unknown album')} in {metadata.get('year', 'Unknown')}", centered_style),
             "",
             "",
         ],
@@ -80,64 +139,53 @@ def generate_song_pdf(response, song):
 
     header_table = Table(header_data, colWidths=[150, 300, 150])
     header_table.setStyle(TableStyle([
-        ('TOPPADDING', (0, 0), (-1, -1), -1),  # Add padding above each cell
-        ('BOTTOMPADDING', (0, 0), (-1, -1), -1),  # Add padding below each cell
-        ('SPAN', (0, 2), (-1, 2)),  # Merge the last row
-        ('ALIGN', (0, 2), (0, 2), 'RIGHT'),  # Right aligned
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Align all cells to center (double-check alignment)
+        ('TOPPADDING', (0, 0), (-1, -1), -1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), -1),
+        ('SPAN', (0, 2), (-1, 2)),
+        ('ALIGN', (0, 2), (0, 2), 'RIGHT'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-       # ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
-       # ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
     ]))
-
-
     elements.append(header_table)
-    elements.append(Spacer(1, 12))  # Add space below the header
+    elements.append(Spacer(1, 12))
 
-    # Update the Song Content Section
+    # --- Content Section ---
+    # (Same as your current implementation)
     lyrics_with_chords = song.lyrics_with_chords or []
-    content_table_data = []  # Table data for the Song Content
-
-    # Custom centered style for lines following {soc}
+    content_table_data = []
     centered_lyric_style = ParagraphStyle(
         name="CenteredLyricStyle",
-        parent=styles['BodyText'],  # Base style
-        alignment=1,  # Center align
+        parent=styles['BodyText'],
+        alignment=1,
         leading=14,
         fontSize=12,
         spaceAfter=6,
     )
 
-    paragraph_buffer = []  # Collect lines for the current paragraph
-    is_soc_active = False  # Track whether we are in a {soc} section
+    paragraph_buffer = []
+    is_soc_active = False
 
     for group in lyrics_with_chords:
         for item in group:
             if "directive" in item:
                 if item["directive"] == "{soc}":
-                    # Mark that we are in a Start of Chorus section
                     is_soc_active = True
                     continue
                 elif item["directive"] == "{eoc}":
-                    # End of Chorus; reset the SOC state
                     is_soc_active = False
                     continue
-                # Skip other directives
                 continue
             elif "format" in item:
                 if item["format"] == "LINEBREAK":
-                    # Add a spacer within the current paragraph
                     paragraph_buffer.append("<br/>")
                 elif item["format"] == "PARAGRAPHBREAK":
-                    # Flush the current paragraph as a new table row
                     if paragraph_buffer:
                         paragraph_text = " ".join(paragraph_buffer)
                         if is_soc_active:
-                            # Center rows for the chorus
                             content_table_data.append([Paragraph(paragraph_text, centered_lyric_style)])
                         else:
                             content_table_data.append([Paragraph(paragraph_text, lyric_style)])
-                        paragraph_buffer = []  # Clear the buffer
+                        paragraph_buffer = []
             elif "lyric" in item:
                 chord = item.get("chord", "")
                 lyric = item["lyric"]
@@ -146,31 +194,36 @@ def generate_song_pdf(response, song):
                 else:
                     paragraph_buffer.append(lyric)
 
-        # Flush the paragraph at the end of each group
         if paragraph_buffer:
             paragraph_text = " ".join(paragraph_buffer)
             if is_soc_active:
-                # Center rows for the chorus
                 content_table_data.append([Paragraph(paragraph_text, centered_lyric_style)])
             else:
                 content_table_data.append([Paragraph(paragraph_text, lyric_style)])
             paragraph_buffer = []
 
-    # Create the Song Content table
-    content_table = Table(content_table_data, colWidths=[500])  # Single column for content
-    content_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ]))
-
+    content_table = Table(content_table_data, colWidths=[500])
     elements.append(content_table)
 
+      # --- Chord Diagram Section ---
+    elements.append(Spacer(1, 24))
 
 
+    # Create a table to align diagrams horizontally
+    diagram_row = [UkuleleDiagram() for _ in range(4)]
+    diagram_table = Table([diagram_row], colWidths=[60] * 4)  # Adjust width as needed
 
-    # Build the document
+    # Style the table
+    diagram_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+
+    # Add the diagram table to the PDF
+ 
+    add_chord_diagrams(elements)
+
+    # Build the PDF
     doc.build(elements)
+
+    

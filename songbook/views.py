@@ -23,7 +23,27 @@ from django.views.generic import ListView
 from .models import Song  # Adjust based on your models
 from taggit.models import Tag
 from .models import Song
-from .utils.pdf_generator import generate_song_pdf  # Import the utility function
+from songbook.utils.pdf_generator import generate_song_pdf  # Import the utility function
+from django.http import JsonResponse
+from songbook.utils.pdf_generator import load_chords
+
+
+
+
+def get_chord_definition(request, chord_name):
+    """
+    Django view to fetch the definition of a specific chord.
+    """
+    chords = load_chords()
+    for chord in chords:
+        if chord["name"].lower() == chord_name.lower():
+            return JsonResponse({"success": True, "chord": chord})
+    return JsonResponse({"success": False, "error": f"Chord '{chord_name}' not found."})
+
+
+
+
+
 
 def generate_single_song_pdf(request, song_id):
     # Fetch the song by ID
