@@ -11,11 +11,29 @@ def generate_song_pdf(response, song):
     """
     styles = getSampleStyleSheet()
 
+
+    # Define a custom base style for the whole page
+    base_style = ParagraphStyle(
+        name="BaseStyle",
+        parent=styles['BodyText'],  # Use BodyText as the base
+        fontSize=14,  # Set desired font size
+        leading=14,  # Set line spacing
+    )
+
+    # Update existing styles to inherit from base_style
+    heading_style = ParagraphStyle(name="Heading", parent=base_style, fontSize=16, spaceAfter=12)
+    lyric_style = ParagraphStyle(name="LyricStyle", parent=base_style, fontSize=12)
+    centered_style = ParagraphStyle(name="CenteredStyle", parent=base_style, alignment=1)
+
+
+
+
     # Custom paragraph style for lyrics and chords
     lyric_style = ParagraphStyle(
         name="LyricStyle",
         parent=styles['BodyText'],
         leading=14,
+        fontSize=12,
         spaceAfter=6,
     )
 
@@ -34,6 +52,8 @@ def generate_song_pdf(response, song):
     centered_style = ParagraphStyle(
         name="CenteredStyle",
         parent=styles['Normal'],
+        fontSize=12,
+        borderPadding=2,
         alignment=1,  # 1 = Center
     )
 
@@ -64,23 +84,45 @@ def generate_song_pdf(response, song):
         ('ALIGN', (0, 2), (0, 2), 'RIGHT'),  # Right aligned
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Align all cells to center (double-check alignment)
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+       # ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
+       # ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
     ]))
 
 
     elements.append(header_table)
     elements.append(Spacer(1, 12))  # Add space below the header
 
-    # --- Song Content ---
+    # Update the Song Content Section
     lyrics_with_chords = song.lyrics_with_chords or []
     content_table_data = []  # Table data for the Song Content
 
+    # Custom centered style for lines following {soc}
+    centered_lyric_style = ParagraphStyle(
+        name="CenteredLyricStyle",
+        parent=styles['BodyText'],  # Base style
+        alignment=1,  # Center align
+        leading=14,
+        fontSize=12,
+        spaceAfter=6,
+    )
+
     paragraph_buffer = []  # Collect lines for the current paragraph
+    is_soc_active = False  # Track whether we are in a {soc} section
 
     for group in lyrics_with_chords:
         for item in group:
-            if "format" in item:
+            if "directive" in item:
+                if item["directive"] == "{soc}":
+                    # Mark that we are in a Start of Chorus section
+                    is_soc_active = True
+                    continue
+                elif item["directive"] == "{eoc}":
+                    # End of Chorus; reset the SOC state
+                    is_soc_active = False
+                    continue
+                # Skip other directives
+                continue
+            elif "format" in item:
                 if item["format"] == "LINEBREAK":
                     # Add a spacer within the current paragraph
                     paragraph_buffer.append("<br/>")
@@ -88,7 +130,11 @@ def generate_song_pdf(response, song):
                     # Flush the current paragraph as a new table row
                     if paragraph_buffer:
                         paragraph_text = " ".join(paragraph_buffer)
-                        content_table_data.append([Paragraph(paragraph_text, lyric_style)])
+                        if is_soc_active:
+                            # Center rows for the chorus
+                            content_table_data.append([Paragraph(paragraph_text, centered_lyric_style)])
+                        else:
+                            content_table_data.append([Paragraph(paragraph_text, lyric_style)])
                         paragraph_buffer = []  # Clear the buffer
             elif "lyric" in item:
                 chord = item.get("chord", "")
@@ -101,7 +147,11 @@ def generate_song_pdf(response, song):
         # Flush the paragraph at the end of each group
         if paragraph_buffer:
             paragraph_text = " ".join(paragraph_buffer)
-            content_table_data.append([Paragraph(paragraph_text, lyric_style)])
+            if is_soc_active:
+                # Center rows for the chorus
+                content_table_data.append([Paragraph(paragraph_text, centered_lyric_style)])
+            else:
+                content_table_data.append([Paragraph(paragraph_text, lyric_style)])
             paragraph_buffer = []
 
     # Create the Song Content table
@@ -116,6 +166,9 @@ def generate_song_pdf(response, song):
     ]))
 
     elements.append(content_table)
+
+
+
 
     # Build the document
     doc.build(elements)
