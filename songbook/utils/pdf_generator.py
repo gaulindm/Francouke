@@ -32,41 +32,74 @@ def print_chord_definition(chords, chord_name):
     print(f"Chord '{chord_name}' not found in definitions.")
     return None
 
-
+from reportlab.platypus import Flowable
+from reportlab.lib import colors
 
 class UkuleleDiagram(Flowable):
     """
-    A Flowable to render a ukulele chord diagram.
+    A Flowable to render a ukulele chord diagram based on a specific variation.
     """
-    def __init__(self):
-        Flowable.__init__(self)
+    def __init__(self, chord_name, variation, scale=0.75):
+        super().__init__()
+        self.chord_name = chord_name
+        self.variation = variation  # e.g., [0, 0, 0, 3]
+        self.scale = scale
 
     def draw(self):
-        # Diagram dimensions
-        scale = 0.75
-        string_spacing = 15 * scale
-        fret_spacing = 15 * scale
+        string_spacing = 15 * self.scale
+        fret_spacing = 15 * self.scale
         num_frets = 4
         num_strings = 4
 
-        # Draw vertical strings
+        # Draw strings
         for i in range(num_strings):
             x = i * string_spacing
             self.canv.line(x, 0, x, fret_spacing * num_frets)
 
-        # Draw horizontal frets
+        # Draw frets
         for i in range(num_frets + 1):
             y = i * fret_spacing
             self.canv.line(0, y, string_spacing * (num_strings - 1), y)
 
-def add_chord_diagrams(elements):
+        # Draw chord name
+        self.canv.setFont("Helvetica-Bold", 10)
+        self.canv.drawCentredString(
+            (num_strings - 1) * string_spacing / 2,
+            fret_spacing * (num_frets + 0.5),
+            self.chord_name
+        )
+
+        # Draw fingers for the variation
+        self.canv.setFillColor(colors.black)
+        for string_idx, fret in enumerate(self.variation):
+            if fret > 0:  # Ignore open strings
+                x = string_idx * string_spacing
+                y = fret * fret_spacing
+                self.canv.circle(x, y, 4 * self.scale, fill=1)
+
+        # Draw open strings
+        self.canv.setFillColor(colors.white)
+        self.canv.setStrokeColor(colors.black)
+        for string_idx, fret in enumerate(self.variation):
+            if fret == 0:  # Open string
+                x = string_idx * string_spacing
+                y = fret_spacing * num_frets + 5
+                self.canv.circle(x, y, 4 * self.scale, fill=1)
+
+
+
+
+def add_chord_diagrams(elements, chords):
     """
-    Add a row of four ukulele chord diagrams to the bottom of the PDF,
-    scaled down to 75%.
+    Add ukulele chord diagrams to the PDF using JSON chord data.
     """
-    # Create a table to align diagrams horizontally
-    diagram_row = [UkuleleDiagram() for _ in range(4)]
-    diagram_table = Table([diagram_row], colWidths=[60] * 4)  # Adjust width as needed
+    chord_diagrams = []
+    for chord in chords[:4]:  # Limit to 4 diagrams per row
+        chord_name = chord["name"]
+        variation = chord["variations"][0]  # Select the first variation
+        chord_diagrams.append(UkuleleDiagram(chord_name, variation))
+
+    diagram_table = Table([chord_diagrams], colWidths=[60] * len(chord_diagrams))
 
     # Style the table
     diagram_table.setStyle(TableStyle([
@@ -74,9 +107,9 @@ def add_chord_diagrams(elements):
         ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),
     ]))
 
-    # Add space to ensure the diagrams are near the bottom
     elements.append(Spacer(1, 24))  # Adjust as necessary
-    elements.append(diagram_table)            
+    elements.append(diagram_table)
+       
 
 
 def generate_song_pdf(response, song):
@@ -93,7 +126,14 @@ def generate_song_pdf(response, song):
 
 
     chords = load_chords()
+    relevant_chords = [chord for chord in chords if chord["name"] in song.get_used_chords()]
+
     styles = getSampleStyleSheet()
+    doc = SimpleDocTemplate(response)
+
+    elements = []
+
+
 
     # Define base styles (unchanged from your code)
     base_style = ParagraphStyle(

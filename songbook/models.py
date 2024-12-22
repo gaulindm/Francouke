@@ -66,3 +66,16 @@ class Song(models.Model):
     
     def get_absolute_url(self):
         return reverse('score', kwargs={'pk': self.pk})
+    
+    def get_used_chords(self):
+        """
+        Extract chord names from the song's lyrics.
+        Assumes chords are enclosed in square brackets, e.g., [C], [G].
+        Joins the list of lyrics_with_chords into a single string for processing.
+        """
+        if isinstance(self.lyrics_with_chords, list):
+            lyrics_text = '\n'.join(self.lyrics_with_chords)  # Combine list into a single string
+        else:
+            lyrics_text = str(self.lyrics_with_chords)  # Fallback for unexpected types
+
+        return list(set(re.findall(r'\[([A-G][#b]?(maj|min|dim|aug|sus|6|7|9)?)\]', lyrics_text)))
