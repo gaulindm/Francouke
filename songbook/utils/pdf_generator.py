@@ -72,7 +72,7 @@ def generate_song_pdf(response, song):
             "",
         ],
         [
-            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} in {metadata.get('year', 'Unknown')}", centered_style),  # Centered artist
+            Paragraph(f"As recorded by {metadata.get('artist', 'Unknown Artist')} on {metadata.get('album', 'Unknown album')} in {metadata.get('year', 'Unknown')}", centered_style),  # Centered artist
             "",
             "",
         ],
@@ -80,6 +80,8 @@ def generate_song_pdf(response, song):
 
     header_table = Table(header_data, colWidths=[150, 300, 150])
     header_table.setStyle(TableStyle([
+        ('TOPPADDING', (0, 0), (-1, -1), -1),  # Add padding above each cell
+        ('BOTTOMPADDING', (0, 0), (-1, -1), -1),  # Add padding below each cell
         ('SPAN', (0, 2), (-1, 2)),  # Merge the last row
         ('ALIGN', (0, 2), (0, 2), 'RIGHT'),  # Right aligned
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Align all cells to center (double-check alignment)
