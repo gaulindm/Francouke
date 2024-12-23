@@ -4,6 +4,43 @@ from reportlab.platypus import Flowable, Table, TableStyle, Spacer
 from django.conf import settings
 import json
 import os
+import re
+
+import re
+
+def extract_used_chords(lyrics_with_chords):
+    """
+    Extract chord names from the lyrics_with_chords JSON structure.
+    Handles nested lists and dictionaries containing 'chord' keys.
+    """
+    chords = set()  # Use a set to avoid duplicates
+
+    def traverse_structure(data):
+        """
+        Traverse through the JSON structure to find and collect chords.
+        """
+        if isinstance(data, dict):
+            # Check if this dictionary contains a 'chord' key
+            if "chord" in data and data["chord"]:
+                chords.add(data["chord"])  # Add the chord to the set
+            # Recursively check other values in the dictionary
+            for value in data.values():
+                traverse_structure(value)
+        elif isinstance(data, list):
+            # Traverse each item in the list
+            for item in data:
+                traverse_structure(item)
+
+    # Start traversing the provided JSON structure
+    traverse_structure(lyrics_with_chords)
+
+    # Debug: Print collected chords
+    print("Extracted chords:", chords)
+
+    # Return the chords as a sorted list
+    return sorted(chords)
+
+
 
 def load_chords():
     chord_file = os.path.join(settings.BASE_DIR, "static", "js", "ukulele_chords.json")
@@ -102,7 +139,7 @@ def add_chord_diagrams(elements, relevant_chords):
 
     diagram_row = [
         UkuleleDiagram(chord["name"], chord["variations"][0])  # Use the first variation
-        for chord in relevant_chords[:4]  # Limit to 4 diagrams per row
+        for chord in relevant_chords[:6]
     ]
     diagram_table = Table([diagram_row], colWidths=[60] * len(diagram_row))
 
@@ -131,22 +168,24 @@ def generate_song_pdf(response, song):
 
 
     chords = load_chords()
-    #print("Loaded chords:", chords)  # Debugging loaded chords
+    print("Loaded chords:", chords[:5])  # Debugging loaded chords
 
-    #used_chords = song.get_used_chords()
-    used_chords = ["C", "G", "Am"]
+    used_chords = extract_used_chords(song.lyrics_with_chords)
+    #used_chords = ["F", "D", "C6"]
     print("Used chords:", used_chords)  # Debugging used chords
 
-    #relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+    relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
 
-    relevant_chords = [
-    {"name": "C", "variations": [[0, 0, 0, 3], [5, 4, 3, 3]]},
-    {"name": "G", "variations": [[0, 2, 3, 2], [3, 2, 3, 2]]},
-    {"name": "Am", "variations": [[2, 0, 0, 0], [5, 4, 5, 5]]}
-]
+    #relevant_chords = [
+    #{"name": "C", "variations": [[0, 0, 0, 3], [5, 4, 3, 3]]},
+    #{"name": "G", "variations": [[0, 2, 3, 2], [3, 2, 3, 2]]},
+    #{"name": "Am", "variations": [[2, 0, 0, 0], [5, 4, 5, 5]]}
+#]
 
     
     print("Relevant chords:", relevant_chords)  # Debugging relevant chords
+
+ 
 
     styles = getSampleStyleSheet()
     doc = SimpleDocTemplate(response)
@@ -291,6 +330,6 @@ def generate_song_pdf(response, song):
     add_chord_diagrams(elements,relevant_chords)
 
     # Build the PDF
-    doc.build(elements)
+    SimpleDocTemplate(response).build(elements)
 
     
