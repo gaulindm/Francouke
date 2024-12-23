@@ -68,14 +68,27 @@ class Song(models.Model):
         return reverse('score', kwargs={'pk': self.pk})
     
     def get_used_chords(self):
-        """
-        Extract chord names from the song's lyrics.
-        Assumes chords are enclosed in square brackets, e.g., [C], [G].
-        Joins the list of lyrics_with_chords into a single string for processing.
-        """
-        if isinstance(self.lyrics_with_chords, list):
-            lyrics_text = '\n'.join(self.lyrics_with_chords)  # Combine list into a single string
-        else:
-            lyrics_text = str(self.lyrics_with_chords)  # Fallback for unexpected types
+            """
+            Extract chord names from the song's lyrics, handling nested lists or other complex structures.
+            """
+            def flatten_lyrics(lyrics):
+                """
+                Flatten a nested list of lyrics into a single list of strings.
+                """
+                flat_list = []
+                for item in lyrics:
+                    if isinstance(item, list):
+                        flat_list.extend(flatten_lyrics(item))  # Recursively flatten nested lists
+                    elif isinstance(item, str):
+                        flat_list.append(item)  # Keep strings as-is
+                return flat_list
 
-        return list(set(re.findall(r'\[([A-G][#b]?(maj|min|dim|aug|sus|6|7|9)?)\]', lyrics_text)))
+            # Ensure lyrics_with_chords is flattened into a single string
+            if isinstance(self.lyrics_with_chords, list):
+                flat_lyrics = flatten_lyrics(self.lyrics_with_chords)
+                lyrics_text = '\n'.join(flat_lyrics)  # Combine flat list into a single string
+            else:
+                lyrics_text = str(self.lyrics_with_chords)  # Fallback if not a list
+
+            # Extract chord names using regex
+            return list(set(re.findall(r'\[([A-G][#b]?(maj|min|dim|aug|sus|6|7|9)?)\]', lyrics_text)))

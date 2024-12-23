@@ -3,6 +3,30 @@ const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F
 const instrument = 'ukulele'; // Specify the instrument
 
 
+
+document.querySelectorAll('.control-panel input, .control-panel select').forEach(element => {
+    element.addEventListener('change', () => {
+        const data = new FormData();
+        data.append(element.id, element.type === 'checkbox' ? element.checked : element.value);
+
+        fetch('/update_preferences/', {
+            method: 'POST',
+            body: data,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Preferences updated!');
+            } else {
+                alert('Error updating preferences.');
+            }
+        });
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
 

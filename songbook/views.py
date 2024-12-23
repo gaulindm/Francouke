@@ -29,7 +29,6 @@ from songbook.utils.pdf_generator import load_chords
 
 
 
-
 def get_chord_definition(request, chord_name):
     """
     Django view to fetch the definition of a specific chord.
@@ -177,6 +176,9 @@ class ScoreView(DetailView):
         # Add custom context data for experimentation
         context['experiment'] = "This is a test for the new score view"
         return context    
+
+
+
 
 
 class SongCreateView(LoginRequiredMixin, CreateView):

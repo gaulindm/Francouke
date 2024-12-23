@@ -69,14 +69,18 @@ class UkuleleDiagram(Flowable):
             self.chord_name
         )
 
-        # Draw fingers for the variation
+        # Calculate the maximum height for flipping y-coordinates
+        max_height = num_frets * fret_spacing
+
+
+        # Draw finger positions (dots)
         self.canv.setFillColor(colors.black)
         for string_idx, fret in enumerate(self.variation):
             if fret > 0:  # Ignore open strings
                 x = string_idx * string_spacing
-                y = fret * fret_spacing
+                y = max_height - (fret - 0.5) * fret_spacing  # Flip y-axis for frets
                 self.canv.circle(x, y, 4 * self.scale, fill=1)
-
+                
         # Draw open strings
         self.canv.setFillColor(colors.white)
         self.canv.setStrokeColor(colors.black)
@@ -89,17 +93,18 @@ class UkuleleDiagram(Flowable):
 
 
 
-def add_chord_diagrams(elements, chords):
+def add_chord_diagrams(elements, relevant_chords):
     """
     Add ukulele chord diagrams to the PDF using JSON chord data.
-    """
-    chord_diagrams = []
-    for chord in chords[:4]:  # Limit to 4 diagrams per row
-        chord_name = chord["name"]
-        variation = chord["variations"][0]  # Select the first variation
-        chord_diagrams.append(UkuleleDiagram(chord_name, variation))
+    """ 
 
-    diagram_table = Table([chord_diagrams], colWidths=[60] * len(chord_diagrams))
+    from reportlab.platypus import Table, TableStyle, Spacer
+
+    diagram_row = [
+        UkuleleDiagram(chord["name"], chord["variations"][0])  # Use the first variation
+        for chord in relevant_chords[:4]  # Limit to 4 diagrams per row
+    ]
+    diagram_table = Table([diagram_row], colWidths=[60] * len(diagram_row))
 
     # Style the table
     diagram_table.setStyle(TableStyle([
@@ -126,7 +131,22 @@ def generate_song_pdf(response, song):
 
 
     chords = load_chords()
-    relevant_chords = [chord for chord in chords if chord["name"] in song.get_used_chords()]
+    #print("Loaded chords:", chords)  # Debugging loaded chords
+
+    #used_chords = song.get_used_chords()
+    used_chords = ["C", "G", "Am"]
+    print("Used chords:", used_chords)  # Debugging used chords
+
+    #relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+
+    relevant_chords = [
+    {"name": "C", "variations": [[0, 0, 0, 3], [5, 4, 3, 3]]},
+    {"name": "G", "variations": [[0, 2, 3, 2], [3, 2, 3, 2]]},
+    {"name": "Am", "variations": [[2, 0, 0, 0], [5, 4, 5, 5]]}
+]
+
+    
+    print("Relevant chords:", relevant_chords)  # Debugging relevant chords
 
     styles = getSampleStyleSheet()
     doc = SimpleDocTemplate(response)
@@ -250,7 +270,14 @@ def generate_song_pdf(response, song):
 
 
     # Create a table to align diagrams horizontally
-    diagram_row = [UkuleleDiagram() for _ in range(4)]
+    diagram_row = [
+        UkuleleDiagram(chord["name"], chord["variations"][0])  # Use the first variation
+        for chord in relevant_chords
+        if "variations" in chord and chord["variations"]  # Ensure variations exist
+    ][:4]  # Limit to 4 diagrams
+
+
+    # Create a table to layout diagrams horizontally
     diagram_table = Table([diagram_row], colWidths=[60] * 4)  # Adjust width as needed
 
     # Style the table
@@ -261,7 +288,7 @@ def generate_song_pdf(response, song):
 
     # Add the diagram table to the PDF
  
-    add_chord_diagrams(elements)
+    add_chord_diagrams(elements,relevant_chords)
 
     # Build the PDF
     doc.build(elements)
