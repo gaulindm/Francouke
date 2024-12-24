@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 #from .forms import UserRegisterForm
 from django.http import JsonResponse
-from .models import UserPreferences
+from .models import UserPreference
 
 
 def register(request):
@@ -25,11 +25,6 @@ def register(request):
 #    return render(request, 'users/profile.html')
 
 
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from .models import UserPreferences
-
 @login_required
 def update_preferences(request):
     if request.method == "POST":
@@ -49,7 +44,7 @@ def update_preferences(request):
         preferences.chord_color = request.POST.get("chord_color", preferences.chord_color)
         
         # Update instrument
-        valid_instruments = ["guitar", "ukulele", "baritone_ukulele", "banjo", "mandoline"]
+        valid_instruments = ["guitar", "ukulele", "baritone_ukulele", "banjo", "mandolin"]
         instrument = request.POST.get("instrument", preferences.instrument)
         if instrument in valid_instruments:
             preferences.instrument = instrument

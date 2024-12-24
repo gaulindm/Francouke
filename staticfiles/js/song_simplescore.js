@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ukulele: "/static/js/ukulele_chords.json",
         baritone_ukulele: "/static/js/baritoneUke_chords.json",
         banjo: "/static/js/banjo_chords.json",
-        mandoline: "/static/js/mandolin_chords.json"
+        mandolin: "/static/js/mandolin_chords.json"
     };
 
     // Function to load chord data for the selected instrument
@@ -226,7 +226,7 @@ function loadInstrumentData(instrument) {
         ukulele: "{% static 'js/ukulele_chords.json' %}",
         baritone_ukulele: "{% static 'js/baritoneUke_chords.json' %}",
         banjo: "{% static 'js/banjo_chords.json' %}",
-        mandoline: "{% static 'js/mandolin_chords.json' %}"
+        mandolin: "{% static 'js/mandolin_chords.json' %}"
     };
 
     const filePath = chordFiles[instrument];

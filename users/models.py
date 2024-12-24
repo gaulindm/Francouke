@@ -1,5 +1,16 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def create_user_preference(sender, instance, created, **kwargs):
+    if created:
+        UserPreference.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_preference(sender, instance, **kwargs):
+    instance.userpreference.save()
 
 class Profile(models.Model):
         #user = models.OntonOneField(User, on_delete=models.CASCADE)
@@ -11,8 +22,8 @@ class Profile(models.Model):
                 return f'{self.username} Profile'
         
 
-class UserPreferences(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class UserPreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preferences')
     transpose_value = models.IntegerField(default=0)  # e.g., semitone adjustments
     font_size = models.CharField(max_length=5, default="14px")
     line_spacing = models.FloatField(default=1.2)
@@ -26,7 +37,7 @@ class UserPreferences(models.Model):
             ("ukulele", "Ukulele"),
             ("baritone_ukulele", "Baritone Ukulele"),
             ("banjo", "Banjo"),
-            ("mandoline", "Mandoline"),
+            ("mandolin", "Mandolin"),
         ],        
            default="ukulele")
     is_lefty = models.BooleanField(default=False)

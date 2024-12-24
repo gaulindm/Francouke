@@ -20,17 +20,27 @@ from unidecode import unidecode
 from django.http import HttpResponse
 from django.db.models import Q  # Import Q for complex queries
 from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
 from .models import Song  # Adjust based on your models
 from taggit.models import Tag
 from .models import Song
 from songbook.utils.pdf_generator import generate_song_pdf  # Import the utility function
 from django.http import JsonResponse
 from songbook.utils.pdf_generator import load_chords
-from users.models import UserPreferences  # Replace `user` with the actual app name if different
+from users.models import UserPreference  # Replace `user` with the actual app name if different
+from songbook.utils.ABC2audio import convert_abc_to_audio
+from django.contrib.auth.decorators import login_required
 
-    
+def generate_audio_from_abc(request, song_id):
+    song = Song.objects.get(pk=song_id)
+    if not song.abc_notation:
+        return HttpResponse("No ABC notation available for this song.", status=400)
 
-
+    audio_path = convert_abc_to_audio(song.abc_notation)
+    with open(audio_path, "rb") as audio_file:
+        response = HttpResponse(audio_file.read(), content_type="audio/wav")
+        response["Content-Disposition"] = f'inline; filename="{song.title}_melody.wav"'
+        return response
 
 def get_chord_definition(request, chord_name):
     """
@@ -47,18 +57,32 @@ def get_chord_definition(request, chord_name):
 
 
 
-def generate_single_song_pdf(request, song_id):
-    # Fetch the song by ID
-    song = get_object_or_404(Song, id=song_id)
 
-    # Create the HTTP response
+@login_required
+def generate_single_song_pdf(request, song_id):
+    from django.http import HttpResponse
+    from .models import Song
+    from .utils.pdf_generator import generate_song_pdf
+
+    # Fetch the song and user
+    song = Song.objects.get(pk=song_id)
+    user = request.user
+
+    # Fetch the user's instrument preference
+    try:
+        instrument = user.preferences.instrument
+    except UserPreference.DoesNotExist:
+        instrument = 'ukulele'  # Default to ukulele if no preference is set
+
+
+    # Prepare the response
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{song.songTitle}.pdf"'
 
-    # Use the utility function to generate the PDF
-    generate_song_pdf(response, song)
-
+    # Generate the PDF
+    generate_song_pdf(response, song, user)
     return response
+
 
 
 

@@ -42,18 +42,24 @@ def extract_used_chords(lyrics_with_chords):
 
 
 
-def load_chords():
-    chord_file = os.path.join(settings.BASE_DIR, "static", "js", "ukulele_chords.json")
-    print(f"Resolved chord file path: {chord_file}")  # Debugging statement
+def load_chords(instrument):
+    """
+    Load chord definitions based on the selected instrument.
+    """
+    file_map = {
+        'ukulele': os.path.join('static', 'js', 'ukulele_chords.json'),
+        'mandolin': os.path.join('static', 'js', 'mandolin_chords.json'),
+    }
+
+    file_path = file_map.get(instrument, file_map['ukulele'])  # Default to ukulele
     try:
-        with open(chord_file, "r") as file:
-            chords = json.load(file)
-        return chords
+        with open(file_path, 'r') as file:
+            return json.load(file)
     except FileNotFoundError:
-        print(f"Error: File not found at {chord_file}")
+        print(f"Error: Chord file not found for {instrument}")
         return []
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON format in {chord_file}: {e}")
+        print(f"Error: Invalid JSON format in {file_path}: {e}")
         return []
 
 
@@ -154,7 +160,7 @@ def add_chord_diagrams(elements, relevant_chords):
        
 
 
-def generate_song_pdf(response, song):
+def generate_song_pdf(response, song, user):
     """
     Generate a PDF for a song, including blank ukulele diagrams.
     """
@@ -167,24 +173,28 @@ def generate_song_pdf(response, song):
     from reportlab.lib import colors
 
 
-    chords = load_chords()
+    # Fetch user's instrument preference
+    instrument = user.preferences.instrument
+    print(f"User's selected instrument: {instrument}")
+
+    # Load the appropriate chord definitions
+    chords = load_chords(instrument)
     print("Loaded chords:", chords[:5])  # Debugging loaded chords
 
+    # Extract used chords from the song
     used_chords = extract_used_chords(song.lyrics_with_chords)
-    #used_chords = ["F", "D", "C6"]
-    print("Used chords:", used_chords)  # Debugging used chords
+    print("Used chords:", used_chords)
 
+    # Find relevant chords for the song
     relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
-
-    #relevant_chords = [
-    #{"name": "C", "variations": [[0, 0, 0, 3], [5, 4, 3, 3]]},
-    #{"name": "G", "variations": [[0, 2, 3, 2], [3, 2, 3, 2]]},
-    #{"name": "Am", "variations": [[2, 0, 0, 0], [5, 4, 5, 5]]}
-#]
-
+    print("Relevant chords:", relevant_chords)
     
-    print("Relevant chords:", relevant_chords)  # Debugging relevant chords
-
+        # Handle case where no chords are relevant
+    if not relevant_chords:
+        styles = getSampleStyleSheet()
+        elements = [Paragraph("No chords to display.", styles["Normal"])]
+        SimpleDocTemplate(response).build(elements)
+        return
  
 
     styles = getSampleStyleSheet()

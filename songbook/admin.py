@@ -5,7 +5,9 @@ from .models import Song
 @admin.register(Song)
 class YourModelAdmin(admin.ModelAdmin):
     list_display = ['songTitle', 'get_artist', 'get_tags']
-    search_fields = ['songTitle', 'metadata__artist']
+    search_fields = ['songTitle', 'metadata__artist','abc_notation']
+    
+    
     ordering = ('metadata__artist',)
 
     def get_artist(self, obj):
