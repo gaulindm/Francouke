@@ -203,7 +203,7 @@ class ScoreView(DetailView):
 
                 # Fetch the user's preferences
         if self.request.user.is_authenticated:
-            preferences, created = UserPreferences.objects.get_or_create(user=self.request.user)
+            preferences, created = UserPreference.objects.get_or_create(user=self.request.user)
             context["preferences"] = preferences
         else:
             context["preferences"] = None  # Handle unauthenticated users if necessary
