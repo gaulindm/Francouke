@@ -48,7 +48,10 @@ def load_chords(instrument):
     """
     file_map = {
         'ukulele': os.path.join('static', 'js', 'ukulele_chords.json'),
+        'guitar': os.path.join('static', 'js', 'guitar_chords.json'),
         'mandolin': os.path.join('static', 'js', 'mandolin_chords.json'),
+        "banjo": os.path.join("static", "js", "banjo_chords.json"),
+        "baritone_ukulele": os.path.join("static", "js", "baritoneUke_chords.json"),
     }
 
     file_path = file_map.get(instrument, file_map['ukulele'])  # Default to ukulele
@@ -82,21 +85,27 @@ class UkuleleDiagram(Flowable):
     """
     A Flowable to render a ukulele chord diagram based on a specific variation.
     """
-    def __init__(self, chord_name, variation, scale=0.75):
+    def __init__(self, chord_name, variation, scale=0.75, is_lefty=False):
         super().__init__()
         self.chord_name = chord_name
         self.variation = variation  # e.g., [0, 0, 0, 3]
         self.scale = scale
+        self.is_lefty = is_lefty  # New parameter to handle left-handed diagrams
 
     def draw(self):
         string_spacing = 15 * self.scale
         fret_spacing = 15 * self.scale
-        num_frets = 4
-        num_strings = 4
+        num_frets = 5
+        num_strings = len(self.variation)
 
-        # Draw strings
+        # Flip x-coordinates if lefty
+        def flip_x(x):
+            return (num_strings - 1) * string_spacing - x if self.is_lefty else x
+
+
+    # Draw strings
         for i in range(num_strings):
-            x = i * string_spacing
+            x = flip_x(i * string_spacing)
             self.canv.line(x, 0, x, fret_spacing * num_frets)
 
         # Draw frets
@@ -112,31 +121,28 @@ class UkuleleDiagram(Flowable):
             self.chord_name
         )
 
-        # Calculate the maximum height for flipping y-coordinates
+        # Calculate max height for y-axis flipping
         max_height = num_frets * fret_spacing
-
 
         # Draw finger positions (dots)
         self.canv.setFillColor(colors.black)
         for string_idx, fret in enumerate(self.variation):
             if fret > 0:  # Ignore open strings
-                x = string_idx * string_spacing
-                y = max_height - (fret - 0.5) * fret_spacing  # Flip y-axis for frets
+                x = flip_x(string_idx * string_spacing)
+                y = max_height - (fret - 0.5) * fret_spacing  # Flip y-axis
                 self.canv.circle(x, y, 4 * self.scale, fill=1)
-                
+
         # Draw open strings
         self.canv.setFillColor(colors.white)
         self.canv.setStrokeColor(colors.black)
         for string_idx, fret in enumerate(self.variation):
             if fret == 0:  # Open string
-                x = string_idx * string_spacing
-                y = fret_spacing * num_frets + 5
+                x = flip_x(string_idx * string_spacing)
+                y = max_height + 5  # Position above the first fret
                 self.canv.circle(x, y, 4 * self.scale, fill=1)
 
 
-
-
-def add_chord_diagrams(elements, relevant_chords):
+def add_chord_diagrams(elements, relevant_chords, is_lefty=False):
     """
     Add ukulele chord diagrams to the PDF using JSON chord data.
     """ 
@@ -144,10 +150,10 @@ def add_chord_diagrams(elements, relevant_chords):
     from reportlab.platypus import Table, TableStyle, Spacer
 
     diagram_row = [
-        UkuleleDiagram(chord["name"], chord["variations"][0])  # Use the first variation
+        UkuleleDiagram(chord["name"], chord["variations"][0], is_lefty=is_lefty)  # Use the first variation
         for chord in relevant_chords[:6]
     ]
-    diagram_table = Table([diagram_row], colWidths=[60] * len(diagram_row))
+    diagram_table = Table([diagram_row], colWidths=[100] * len(diagram_row))
 
     # Style the table
     diagram_table.setStyle(TableStyle([
@@ -155,7 +161,7 @@ def add_chord_diagrams(elements, relevant_chords):
         ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),
     ]))
 
-    elements.append(Spacer(1, 24))  # Adjust as necessary
+    elements.append(Spacer(1, 48))  # Adjust as necessary
     elements.append(diagram_table)
        
 
@@ -172,10 +178,18 @@ def generate_song_pdf(response, song, user):
     from reportlab.lib.pagesizes import letter
     from reportlab.lib import colors
 
+    # Ensure the user has preferences
+    if not hasattr(user, "preferences"):
+        preferences.objects.create(user=user)
 
-    # Fetch user's instrument preference
-    instrument = user.preferences.instrument
-    print(f"User's selected instrument: {instrument}")
+
+    # Fetch user preferences
+    preferences = user.preferences  # Fetch once for clarity
+    instrument = preferences.instrument  # Get the instrument
+
+    is_lefty = user.preferences.is_lefty
+    print(f"User's selected instrument: {instrument}, Left-handed: {is_lefty}")
+
 
     # Load the appropriate chord definitions
     chords = load_chords(instrument)
@@ -337,7 +351,7 @@ def generate_song_pdf(response, song, user):
 
     # Add the diagram table to the PDF
  
-    add_chord_diagrams(elements,relevant_chords)
+    add_chord_diagrams(elements, relevant_chords, is_lefty=is_lefty)
 
     # Build the PDF
     SimpleDocTemplate(response).build(elements)
