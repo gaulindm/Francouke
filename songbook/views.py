@@ -26,6 +26,9 @@ from .models import Song
 from songbook.utils.pdf_generator import generate_song_pdf  # Import the utility function
 from django.http import JsonResponse
 from songbook.utils.pdf_generator import load_chords
+from users.models import UserPreferences  # Replace `user` with the actual app name if different
+
+    
 
 
 
@@ -173,9 +176,15 @@ class ScoreView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add custom context data for experimentation
-        context['experiment'] = "This is a test for the new score view"
-        return context    
+
+                # Fetch the user's preferences
+        if self.request.user.is_authenticated:
+            preferences, created = UserPreferences.objects.get_or_create(user=self.request.user)
+            context["preferences"] = preferences
+        else:
+            context["preferences"] = None  # Handle unauthenticated users if necessary
+        
+        return context
 
 
 

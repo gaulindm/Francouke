@@ -25,20 +25,64 @@ def register(request):
 #    return render(request, 'users/profile.html')
 
 
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import UserPreferences
+
 @login_required
 def update_preferences(request):
     if request.method == "POST":
+        # Fetch or create the user's preferences
         preferences = get_object_or_404(UserPreferences, user=request.user)
+        
+        # Update font size
         preferences.font_size = request.POST.get("font_size", preferences.font_size)
+        
+        # Update line spacing
         preferences.line_spacing = request.POST.get("line_spacing", preferences.line_spacing)
+        
+        # Update text color
         preferences.text_color = request.POST.get("text_color", preferences.text_color)
+        
+        # Update chord color
         preferences.chord_color = request.POST.get("chord_color", preferences.chord_color)
-        preferences.instrument = request.POST.get("instrument", preferences.instrument)
+        
+        # Update instrument
+        valid_instruments = ["guitar", "ukulele", "baritone_ukulele", "banjo", "mandoline"]
+        instrument = request.POST.get("instrument", preferences.instrument)
+        if instrument in valid_instruments:
+            preferences.instrument = instrument
+        else:
+            return JsonResponse({"status": "error", "message": "Invalid instrument selected"})
+        
+        # Update left-handed mode
         preferences.is_lefty = request.POST.get("is_lefty") == "true"
+        
+        # Update chord diagram position
         preferences.chord_diagram_position = request.POST.get(
             "chord_diagram_position", preferences.chord_diagram_position
         )
+        
+        # Update chord placement
         preferences.chord_placement = request.POST.get("chord_placement", preferences.chord_placement)
+        
+        # Save the updated preferences
         preferences.save()
-        return JsonResponse({"status": "success"})
+        
+        # Return a JSON response with the updated preferences
+        return JsonResponse({
+            "status": "success",
+            "updated_preferences": {
+                "font_size": preferences.font_size,
+                "line_spacing": preferences.line_spacing,
+                "text_color": preferences.text_color,
+                "chord_color": preferences.chord_color,
+                "instrument": preferences.instrument,
+                "is_lefty": preferences.is_lefty,
+                "chord_diagram_position": preferences.chord_diagram_position,
+                "chord_placement": preferences.chord_placement,
+            }
+        })
+
     return JsonResponse({"status": "error", "message": "Invalid request"})

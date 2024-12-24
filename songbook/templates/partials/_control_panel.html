@@ -1,6 +1,7 @@
 {% load static %}
 <div class="content-section">
     <h3>Control Panel</h3>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <p class='text-muted'>
       <ul class="list-group">
         <li class="list-group-item list-group-item-heavy">Modify ChordPro<div>
@@ -35,11 +36,11 @@
                 <div class="me-3">
                     <label for="fontSize" class="form-label">Font Size:</label>
                     <select id="fontSize" onchange="updateStyle('fontSize', this.value)" class="form-control form-control-sm">
-                        <option value="12px">12px</option>
-                        <option value="14px">14px</option>
-                        <option value="16px">16px</option>
-                        <option value="18px">18px</option>
-                        <option value="20px">20px</option>
+                        <option value="12px" {% if preferences.font_size == "12px" %}selected{% endif %}>12px</option>
+                        <option value="14px" {% if preferences.font_size == "14px" %}selected{% endif %}>14px</option>
+                        <option value="16px" {% if preferences.font_size == "16px" %}selected{% endif %}>16px</option>
+                        <option value="18px" {% if preferences.font_size == "18px" %}selected{% endif %}>18px</option>
+                        <option value="20px" {% if preferences.font_size == "20px" %}selected{% endif %}>20px</option>
                     </select>
                 </div>
           
@@ -47,12 +48,11 @@
                 <div class="me-3">
                     <label for="lineSpacing" class="form-label">Line Spacing:</label>
                     <select id="lineSpacing" onchange="updateStyle('lineHeight', this.value)" class="form-control form-control-sm">
-                        <option value="1.0">1.0</option>
-                        <option value="1.1">1.1</option>
-                        <option value="1.2">1.2</option>
-                        <option value="1.4">1.4</option>
-                        <option value="1.6">1.6</option>
-                        <option value="1.8">1.8</option>
+                        <option value="1.0" {% if preferences.line_spacing == "1.0" %}selected{% endif %}>1.0</option>
+                        <option value="1.2" {% if preferences.line_spacing == "1.2" %}selected{% endif %}>1.2</option>
+                        <option value="1.4" {% if preferences.line_spacing == "1.4" %}selected{% endif %}>1.4</option>
+                        <option value="1.6" {% if preferences.line_spacing == "1.6" %}selected{% endif %}>1.6</option>
+                        <option value="1.8" {% if preferences.line_spacing == "1.8" %}selected{% endif %}>1.8</option>
                     </select>
                 </div>
                 <!-- Text Color -->
@@ -87,12 +87,13 @@
           <div class="control-panel mt-2">
               <label for="instrument-selector">Select Instrument:</label>
               <select id="instrument-selector" class="form-control">
-                  <option value="guitar">Guitar</option>
-                  <option value="ukulele" selected>Ukulele</option>
-                  <option value="baritone_ukulele">Baritone Ukulele</option>
-                  <option value="banjo">Banjo</option>
-                  <option value="mandoline">Mandoline</option>
-              </select>
+                <option value="guitar" {% if preferences.instrument == "guitar" %}selected{% endif %}>Guitar</option>
+                <option value="ukulele" {% if preferences.instrument == "ukulele" %}selected{% endif %}>Ukulele</option>
+                <option value="baritone_ukulele" {% if preferences.instrument == "baritone_ukulele" %}selected{% endif %}>Baritone Ukulele</option>
+                <option value="banjo" {% if preferences.instrument == "banjo" %}selected{% endif %}>Banjo</option>
+                <option value="mandoline" {% if preferences.instrument == "mandoline" %}selected{% endif %}>Mandoline</option>
+            </select>
+
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="isLeftyToggle" onchange="updateLeftyMode()">
@@ -139,6 +140,5 @@
   </ul>
 </div>
 </div>
-  <!-- CSRF Token -->
-  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
 

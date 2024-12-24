@@ -7,23 +7,31 @@ const instrument = 'ukulele'; // Specify the instrument
 document.querySelectorAll('.control-panel input, .control-panel select').forEach(element => {
     element.addEventListener('change', () => {
         const data = new FormData();
-        data.append(element.id, element.type === 'checkbox' ? element.checked : element.value);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Handle checkbox values correctly
+        if (element.type === 'checkbox') {
+            data.append(element.id, element.checked);
+        } else {
+            data.append(element.id, element.value);
+        }
 
         fetch('/update_preferences/', {
             method: 'POST',
             body: data,
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': csrfToken
             }
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                alert('Preferences updated!');
+                console.log('Preferences updated successfully');
             } else {
-                alert('Error updating preferences.');
+                console.error('Error updating preferences:', data.message);
             }
-        });
+        })
+        .catch(error => console.error('Fetch error:',error));
     });
 });
 

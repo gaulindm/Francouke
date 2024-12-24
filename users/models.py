@@ -19,7 +19,19 @@ class UserPreferences(models.Model):
     text_color = models.CharField(max_length=7, default="#000000")  # Hex color
     chord_color = models.CharField(max_length=7, default="#FF0000")  # Hex color
     chord_weight = models.CharField(max_length=10, default="normal")
-    instrument = models.CharField(max_length=20, default="guitar")
+    instrument = models.CharField(
+           max_length=20,
+            choices=[
+            ("guitar", "Guitar"),
+            ("ukulele", "Ukulele"),
+            ("baritone_ukulele", "Baritone Ukulele"),
+            ("banjo", "Banjo"),
+            ("mandoline", "Mandoline"),
+        ],        
+           default="ukulele")
     is_lefty = models.BooleanField(default=False)
     chord_diagram_position = models.CharField(max_length=10, default="bottom")
     chord_placement = models.CharField(max_length=20, default="inline")
+
+def __str__(self):
+        return f"Preferences for {self.user.username}"
