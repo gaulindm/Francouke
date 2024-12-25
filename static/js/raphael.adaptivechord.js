@@ -69,18 +69,32 @@
             element.path(`M20 ${y}L80 ${y}`);
         }
     
-        // Draw markers
-        data.forEach((fret, index) => {
-            const x = stringPositions[index];
-            if (fret === -1) {
-                element.text(x, 20, 'x');
-            } else if (fret === 0) {
-                element.circle(x, 23, 4).attr({ stroke: '#000', fill: '#fff' });
-            } else {
-                const y = 30 + fret * fretSpacing - fretSpacing / 2;
-                element.circle(x, y, 6).attr({ fill: '#000' });
-            }
+        // Draw markers and nut bar
+data.forEach((fret, index) => {
+    const x = stringPositions[index];
+    if (fret === -1) {
+        // Make the 'x' bigger by adjusting font size and weight
+        element.text(x, 10, 'x').attr({
+            'font-size': 16,
+            'font-weight': 'bold',
+            'text-anchor': 'middle',
+            'fill': '#000',
         });
+    } else if (fret === 0) {
+        element.circle(x, 23, 4).attr({ stroke: '#000', fill: '#fff' });
+    } else {
+        const y = 30 + fret * fretSpacing - fretSpacing / 2;
+        element.circle(x, y, 6).attr({ fill: '#000' });
+    }
+});
+
+// Add nut bar
+const nutBarThickness = 4; // Thickness of the nut bar
+element.rect(20, 30 - nutBarThickness, 60, nutBarThickness).attr({
+    fill: '#000', // Solid black color
+    stroke: '#000', // Optional: Same color as the fill
+    'stroke-width': 0, // No border
+});
     
         // Add optional label
         if (labelOrVariant) {
