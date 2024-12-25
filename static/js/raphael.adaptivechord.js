@@ -43,63 +43,88 @@
 
     Raphael.chord.Chord = function (elementOrPosition, data, labelOrVariant) {
         const element = typeof elementOrPosition === 'string' || elementOrPosition instanceof HTMLElement
-            ? Raphael(elementOrPosition, 80, 90)
-            : Raphael(elementOrPosition.x, elementOrPosition.y, 80, 90);
+            ? Raphael(elementOrPosition, 80, 110) // Increased height from 90 to 110
+            : Raphael(elementOrPosition.x, elementOrPosition.y, 80, 110);
     
-        element.setViewBox(0, 0, 100, 120); // Ensure proper sizing for the SVG viewport
+        element.setViewBox(0, 0, 100, 140); // Increased viewBox height from 120 to 140
     
         const numStrings = data.length;
-        const fretCount = 5;
+        const fretCount = 5; // Number of frets to display
         const fretboardWidth = 100;
-        const fretboardHeight = 90;
+        const fretboardHeight = 90; // Keep fretboard height the same
         const stringSpacing = (fretboardWidth - 40) / (numStrings - 1);
         const fretSpacing = fretboardHeight / fretCount;
+    
+        // Draw light border
+        element.rect(0, 0, 100, 140).attr({
+            stroke: '#ccc', // Light gray border color
+            'stroke-width': 1, // Thin border
+            fill: 'none', // Transparent fill
+        });
+    
+        // Determine if an offset is needed
+        const activeFrets = data.filter((fret) => fret > 0); // Exclude 0 and -1
+        const minFret = Math.min(...activeFrets);
+        const offset = minFret > 3 ? minFret : 0; // Only apply offset if all frets > 3
     
         // Draw strings
         const stringPositions = [];
         for (let i = 0; i < numStrings; i++) {
             const x = 20 + i * stringSpacing;
             stringPositions.push(Raphael.chord.isLefty ? 80 - (x - 20) : x); // Adjust for lefty
-            element.path(`M${stringPositions[i]} 30L${stringPositions[i]} ${30 + fretboardHeight}`);
+            element.path(`M${stringPositions[i]} 40L${stringPositions[i]} ${40 + fretboardHeight}`);
         }
     
         // Draw frets
         for (let i = 0; i <= fretCount; i++) {
-            const y = 30 + i * fretSpacing;
+            const y = 40 + i * fretSpacing;
             element.path(`M20 ${y}L80 ${y}`);
         }
     
-        // Draw markers and nut bar
-data.forEach((fret, index) => {
-    const x = stringPositions[index];
-    if (fret === -1) {
-        // Make the 'x' bigger by adjusting font size and weight
-        element.text(x, 10, 'x').attr({
-            'font-size': 16,
-            'font-weight': 'bold',
-            'text-anchor': 'middle',
-            'fill': '#000',
+        // Draw nut bar if there is no offset
+        if (offset === 0) {
+            const nutBarThickness = 4; // Thickness of the nut bar
+            element.rect(20, 40 - nutBarThickness, 60, nutBarThickness).attr({
+                fill: '#000', // Solid black color
+                stroke: '#000', // Optional: Same color as the fill
+                'stroke-width': 0, // No border
+            });
+        }
+    
+        // Add offset label if needed
+        if (offset > 0) {
+            element.text(2, 28, `${offset}fr`).attr({
+                'font-size': 16,
+                'font-weight': 'bold',
+                'text-anchor': 'start',
+            });
+        }
+    
+        // Draw markers
+        data.forEach((fret, index) => {
+            const x = stringPositions[index];
+            if (fret === -1) {
+                element.text(x, 17, 'x').attr({
+                    'font-size': 17,
+                    'font-weight': 'normal',
+                    'text-anchor': 'middle',
+                    'fill': '#000',
+                });
+            } else if (fret === 0) {
+                element.circle(x, 30, 4).attr({ stroke: '#000', fill: '#fff' });
+            } else {
+                const adjustedFret = fret - offset;
+                if (adjustedFret > 0) {
+                    const y = 40 + adjustedFret * fretSpacing - fretSpacing / 2;
+                    element.circle(x, y, 5).attr({ fill: '#000' });
+                }
+            }
         });
-    } else if (fret === 0) {
-        element.circle(x, 23, 4).attr({ stroke: '#000', fill: '#fff' });
-    } else {
-        const y = 30 + fret * fretSpacing - fretSpacing / 2;
-        element.circle(x, y, 6).attr({ fill: '#000' });
-    }
-});
-
-// Add nut bar
-const nutBarThickness = 4; // Thickness of the nut bar
-element.rect(20, 30 - nutBarThickness, 60, nutBarThickness).attr({
-    fill: '#000', // Solid black color
-    stroke: '#000', // Optional: Same color as the fill
-    'stroke-width': 0, // No border
-});
     
         // Add optional label
         if (labelOrVariant) {
-            element.text(50, 8, labelOrVariant).attr({
-                'font-size': 20,
+            element.text(50, 10, labelOrVariant).attr({
+                'font-size': 24,
                 'font-weight': 'bold',
                 'text-anchor': 'middle',
             });
@@ -108,6 +133,7 @@ element.rect(20, 30 - nutBarThickness, 60, nutBarThickness).attr({
         return { element }; // Return the Raphael instance
     };
     
+         
     // Expose Raphael's chord functionality
     window.Raphael.chord = Raphael.chord;
 })(window.Raphael);
