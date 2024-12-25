@@ -46,7 +46,6 @@ def parse_song_data(data):
     if current_part:
         song_parts.append(current_part)
 
-
     return song_parts
 
 # Example usage:
