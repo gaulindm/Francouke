@@ -43,7 +43,7 @@
 
     Raphael.chord.Chord = function (elementOrPosition, data, labelOrVariant) {
         const element = typeof elementOrPosition === 'string' || elementOrPosition instanceof HTMLElement
-            ? Raphael(elementOrPosition, 80, 110) // Increased height from 90 to 110
+            ? Raphael(elementOrPosition, 80, 110)
             : Raphael(elementOrPosition.x, elementOrPosition.y, 80, 110);
     
         element.setViewBox(0, 0, 100, 140); // Increased viewBox height from 120 to 140
@@ -62,10 +62,10 @@
             fill: 'none', // Transparent fill
         });
     
-        // Determine if an offset is needed
-        const activeFrets = data.filter((fret) => fret > 0); // Exclude 0 and -1
-        const minFret = Math.min(...activeFrets);
-        const offset = minFret > 3 ? minFret : 0; // Only apply offset if all frets > 3
+        // Refined offset logic
+        const activeFrets = data.filter((fret) => fret > 0); // Only include non-muted, non-zero frets
+        const allFretsAboveThreshold = activeFrets.every((fret) => fret >= 3); // Are all frets > 3?
+        const offset = allFretsAboveThreshold ? Math.min(...activeFrets) : 0; // Apply offset only if all are > 3
     
         // Draw strings
         const stringPositions = [];
@@ -104,6 +104,7 @@
         data.forEach((fret, index) => {
             const x = stringPositions[index];
             if (fret === -1) {
+                // Muted string
                 element.text(x, 17, 'x').attr({
                     'font-size': 17,
                     'font-weight': 'normal',
@@ -111,9 +112,11 @@
                     'fill': '#000',
                 });
             } else if (fret === 0) {
+                // Open string
                 element.circle(x, 30, 4).attr({ stroke: '#000', fill: '#fff' });
             } else {
-                const adjustedFret = fret - offset;
+                // Adjusted fret position
+                const adjustedFret = fret - (offset-1);
                 if (adjustedFret > 0) {
                     const y = 40 + adjustedFret * fretSpacing - fretSpacing / 2;
                     element.circle(x, y, 5).attr({ fill: '#000' });
@@ -132,6 +135,7 @@
     
         return { element }; // Return the Raphael instance
     };
+    
     
          
     // Expose Raphael's chord functionality
