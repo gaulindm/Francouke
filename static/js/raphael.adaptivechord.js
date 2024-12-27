@@ -107,10 +107,14 @@
     
             return { element };
         }
-    
-        // Regular chord rendering logic (for fretted chords)
-        const activeFrets = data.filter((fret) => fret > 0);
-        const offset = activeFrets.length === 0 ? 0 : Math.min(...activeFrets);
+        // Refined offset logic
+        const activeFrets = data.filter((fret) => fret > 0); // Only include fretted strings
+        const allFretsAboveThreshold = activeFrets.every((fret) => fret > 3); // Check if all are > 3
+        const offset = allFretsAboveThreshold ? Math.min(...activeFrets) : 0; // Apply offset only if all frets > 3
+
+        console.log("Active frets:", activeFrets);
+        console.log("All frets above threshold:", allFretsAboveThreshold);
+        console.log("Calculated offset:", offset);
     
         // Draw strings
         const stringPositions = [];
@@ -145,10 +149,12 @@
             });
         }
     
-        // Draw markers
+            // Draw markers
         data.forEach((fret, index) => {
             const x = stringPositions[index];
+            console.log(`Processing string ${index + 1}: fret = ${fret}, offset = ${offset}`);
             if (fret === -1) {
+                // Muted string
                 element.text(x, 17, 'x').attr({
                     'font-size': 17,
                     'font-weight': 'normal',
@@ -156,15 +162,19 @@
                     'fill': '#000',
                 });
             } else if (fret === 0) {
+                // Open string
                 element.circle(x, 30, 4).attr({ stroke: '#000', fill: '#fff' });
             } else {
-                const adjustedFret = fret - (offset - 1);
+                // Adjusted fret position
+                const adjustedFret = fret - (offset);
+                console.log(`Adjusted fret position for string ${index + 1}: ${adjustedFret}`);
                 if (adjustedFret > 0) {
                     const y = 40 + adjustedFret * fretSpacing - fretSpacing / 2;
                     element.circle(x, y, 5).attr({ fill: '#000' });
                 }
             }
         });
+
     
         // Add optional label
         if (labelOrVariant) {
