@@ -13,14 +13,14 @@
             try {
                 const response = await fetch(filePath);
                 this.data = await response.json();
-                console.log(`Chord data for ${this.currentInstrument} loaded successfully.`);
+                //console.log(`Chord data for ${this.currentInstrument} loaded successfully.`);
             } catch (error) {
-                console.error(`Error loading chord data from ${filePath}:`, error);
+                //console.error(`Error loading chord data from ${filePath}:`, error);
             }
         },
         find: function (chordName, variation) {
             if (!this.data) {
-                console.error("Chord data not loaded. Please call loadData first.");
+                //console.error("Chord data not loaded. Please call loadData first.");
                 return undefined;
             }
         
@@ -32,11 +32,11 @@
         
             variation = variation || 1; // Default to the first variation
             if (variation > chord.variations.length) {
-                console.warn(`Variation ${variation} exceeds available variations. Using the last one.`);
+                //console.warn(`Variation ${variation} exceeds available variations. Using the last one.`);
                 variation = chord.variations.length;
             }
         
-            console.log(`Chord data for ${chordName} found:`, chord.variations[variation - 1]);
+            //console.log(`Chord data for ${chordName} found:`, chord.variations[variation - 1]);
             return chord.variations[variation - 1];
         }
     };
@@ -67,7 +67,7 @@
     
         if (allStringsOpen) {
             // Draw an empty chord diagram with nut bar and open string markers
-            console.log("All strings are open, drawing an empty chord diagram.");
+            //console.log("All strings are open, drawing an empty chord diagram.");
             
             // Draw strings
             const stringPositions = [];
@@ -112,9 +112,9 @@
         const allFretsAboveThreshold = activeFrets.every((fret) => fret > 3); // Check if all are > 3
         const offset = allFretsAboveThreshold ? Math.min(...activeFrets) : 0; // Apply offset only if all frets > 3
 
-        console.log("Active frets:", activeFrets);
-        console.log("All frets above threshold:", allFretsAboveThreshold);
-        console.log("Calculated offset:", offset);
+        //console.log("Active frets:", activeFrets);
+        //console.log("All frets above threshold:", allFretsAboveThreshold);
+        //console.log("Calculated offset:", offset);
     
         // Draw strings
         const stringPositions = [];
@@ -152,7 +152,7 @@
             // Draw markers
         data.forEach((fret, index) => {
             const x = stringPositions[index];
-            console.log(`Processing string ${index + 1}: fret = ${fret}, offset = ${offset}`);
+            //console.log(`Processing string ${index + 1}: fret = ${fret}, offset = ${offset}`);
             if (fret === -1) {
                 // Muted string
                 element.text(x, 17, 'x').attr({
@@ -167,7 +167,7 @@
             } else {
                 // Adjusted fret position
                 const adjustedFret = fret - (offset);
-                console.log(`Adjusted fret position for string ${index + 1}: ${adjustedFret}`);
+                //console.log(`Adjusted fret position for string ${index + 1}: ${adjustedFret}`);
                 if (adjustedFret > 0) {
                     const y = 40 + adjustedFret * fretSpacing - fretSpacing / 2;
                     element.circle(x, y, 5).attr({ fill: '#000' });

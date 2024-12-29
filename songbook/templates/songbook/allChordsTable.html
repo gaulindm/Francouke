@@ -33,40 +33,91 @@
 </head>
 <body>
     <h1>All Chord Diagrams</h1>
-    <h2>Instrument: Ukulele</h2>
-    <div id="ukulele-chords"></div>
+    <h2>Customize View</h2>
+    <form id="instrument-form">
+        <label for="instrument-select">Choose an instrument:</label>
+        <select id="instrument-select" name="instrument">
+            <option value="ukulele" selected>Ukulele</option>
+            <option value="guitar">Guitar</option>
+            <option value="banjo">Banjo</option>
+            <option value="mandolin">Mandolin</option>
+            <option value="baritoneUke">Baritone Ukulele</option>
+        </select>
+        <label>
+            <input type="checkbox" id="is-lefty"> Left-Handed
+        </label>
+        <button type="submit">Update</button>
+    </form>
+
+    <div id="chord-tables"></div>
 
     <script>
-        // Function to group chords by root and types
+        const PREFERRED_CHORD_ORDER = [
+            "", "7", "m", "m7", "maj7", "dim", "aug", "sus2", "sus4", 
+            "5", "6", "m6", "m9", "maj9", "11", "maj13"
+        ];
+
+        const CHORD_DEFINITIONS = {
+            ukulele: "{% static 'js/ukulele_chords.json' %}",
+            guitar: "{% static 'js/guitar_chords.json' %}",
+            banjo: "{% static 'js/banjo_chords.json' %}",
+            mandolin: "{% static 'js/mandolin_chords.json' %}",
+            baritoneUke: "{% static 'js/baritone_uke_chords.json' %}"
+        };
+
+        // Fetch and render chords for the selected instrument
+        function fetchAndRenderChords(selectedInstrument, isLefty) {
+            const container = document.getElementById("chord-tables");
+            container.innerHTML = ""; // Clear existing tables
+
+            const dataPath = CHORD_DEFINITIONS[selectedInstrument];
+            fetch(dataPath)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Loaded ${selectedInstrument} chords:`, data);
+                    const groupedChords = groupChordsByRootAndType(data);
+                    renderChordsTable(container, selectedInstrument, groupedChords, isLefty);
+                })
+                .catch(error => console.error(`Error loading ${selectedInstrument} chord data:`, error));
+        }
+
+        // Group chords by root and types
         function groupChordsByRootAndType(jsonData) {
             const groupedChords = {};
             jsonData.forEach(chord => {
-                const [root, type = "maj"] = chord.name.match(/([A-G]#?)(.*)/).slice(1);
+                if (!chord.name) {
+                    console.warn("Invalid chord: Missing name", chord);
+                    return;
+                }
+
+                const match = chord.name.match(/([A-G]#?b?)(.*)/);
+                if (!match) {
+                    console.warn(`Invalid chord name format: ${chord.name}`);
+                    return;
+                }
+
+                const [root, type = "maj"] = match.slice(1); // Extract root and type
                 if (!groupedChords[root]) groupedChords[root] = {};
                 groupedChords[root][type] = chord.variations;
             });
             return groupedChords;
         }
 
-        // Function to render the chord table
-        function renderChordsTable(containerId, chordData) {
-            const container = document.getElementById(containerId);
+        // Render the chord table for an instrument
+        function renderChordsTable(container, instrument, chordData, isLefty) {
             const table = document.createElement("table");
+            const header = document.createElement("h3");
+            header.textContent = `${instrument.charAt(0).toUpperCase() + instrument.slice(1)} Chords`;
+            container.appendChild(header);
 
             // Create table header
             const headerRow = document.createElement("tr");
             headerRow.innerHTML = `<th>Chord Type</th>` + 
-                                  Object.keys(chordData).map(root => `<th colspan="2">${root}</th>`).join("");
+                                  Object.keys(chordData).map(root => `<th>${root}</th>`).join("");
             table.appendChild(headerRow);
 
-            // Generate all chord types across roots
-            const allChordTypes = new Set();
-            Object.values(chordData).forEach(rootChords => {
-                Object.keys(rootChords).forEach(type => allChordTypes.add(type));
-            });
-
-            // Create rows for each chord type
-            allChordTypes.forEach(type => {
+            // Loop through preferred chord order
+            PREFERRED_CHORD_ORDER.forEach(type => {
                 const row1 = document.createElement("tr");
                 const row2 = document.createElement("tr");
 
@@ -83,7 +134,9 @@
 
                         if (variation) {
                             try {
-                                new Raphael.chord.Chord(diagramContainer, variation, `${root} ${type}`);
+                                const mirroredVariation = isLefty ? mirrorVariation(variation) : variation;
+                                console.log(`Rendering ${root} ${type} variation:`, mirroredVariation);
+                                new Raphael.chord.Chord(diagramContainer, mirroredVariation, `${root} ${type}`);
                             } catch (error) {
                                 console.warn(`Error rendering ${root} ${type} variation ${index + 1}:`, error);
                             }
@@ -102,14 +155,25 @@
             container.appendChild(table);
         }
 
-        // Load JSON data and render the table
-        fetch("{% static 'js/ukulele_chords.json' %}")
-            .then(response => response.json())
-            .then(data => {
-                const groupedChords = groupChordsByRootAndType(data);
-                renderChordsTable("ukulele-chords", groupedChords);
-            })
-            .catch(error => console.error("Error loading chord data:", error));
+        // Helper function to mirror variations for left-handed chords
+        function mirrorVariation(variation) {
+            if (!Array.isArray(variation)) {
+                console.warn("Invalid variation:", variation);
+                return variation; // Return as-is if not an array
+            }
+            return variation.slice().reverse(); // Flip the variation
+        }
+
+        // Handle form submission
+        document.getElementById("instrument-form").addEventListener("submit", event => {
+            event.preventDefault();
+            const selectedInstrument = document.getElementById("instrument-select").value;
+            const isLefty = document.getElementById("is-lefty").checked;
+            fetchAndRenderChords(selectedInstrument, isLefty);
+        });
+
+        // Initial render
+        fetchAndRenderChords("ukulele", false); // Default to ukulele only
     </script>
 </body>
 </html>
