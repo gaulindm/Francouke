@@ -6,10 +6,11 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarToggle">
         <div class="navbar-nav mr-auto">
-
+          <a class="nav-item nav-link" href="{% url 'chord-dictionary' %}">Chord Dictionary</a>
           <a class="nav-item nav-link" href="{% url 'songbook-about' %}">A propos</a>
         </div>
-        <!-- Navbar Right Side -->
+        
+      </div>        <!-- Navbar Right Side -->
         
         <div class="navbar-nav ms-auto">
         {% if user.is_authenticated %}

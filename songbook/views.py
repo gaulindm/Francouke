@@ -53,7 +53,10 @@ def get_chord_definition(request, chord_name):
     return JsonResponse({"success": False, "error": f"Chord '{chord_name}' not found."})
 
 
-
+def chord_dictionary(request):
+    instruments = ["ukulele", "guitar", "mandolin", "banjo", "baritone_ukulele"]
+    chord_data = {instrument: load_chords(instrument) for instrument in instruments}
+    return render(request, "songbook/allChordsTable.html", {"chord_data": chord_data})
 
 
 

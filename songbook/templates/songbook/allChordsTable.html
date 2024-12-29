@@ -20,6 +20,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
+            vertical-align: top;
         }
         th {
             background-color: #f4f4f4;
@@ -32,79 +33,83 @@
 </head>
 <body>
     <h1>All Chord Diagrams</h1>
-    <h2>Instrument: Guitar</h2>
-    <div id="guitar-chords"></div>
-
     <h2>Instrument: Ukulele</h2>
     <div id="ukulele-chords"></div>
 
     <script>
-        const chordDefinitions = {
-            guitar: [
-                { root: "A", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "A#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "B", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "C", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "C#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "D", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "D#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "E", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "F", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "F#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "G", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "G#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] }
-            ],
-            ukulele: [
-                { root: "A", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "A#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "B", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "C", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "C#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "D", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "D#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "E", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "F", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "F#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "G", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] },
-                { root: "G#", types: ["maj", "min", "7", "maj7", "min7", "dim", "aug", "sus2", "sus4"] }
-            ]
-        };
+        // Function to group chords by root and types
+        function groupChordsByRootAndType(jsonData) {
+            const groupedChords = {};
+            jsonData.forEach(chord => {
+                const [root, type = "maj"] = chord.name.match(/([A-G]#?)(.*)/).slice(1);
+                if (!groupedChords[root]) groupedChords[root] = {};
+                groupedChords[root][type] = chord.variations;
+            });
+            return groupedChords;
+        }
 
-        function renderChords(containerId, instrument, data) {
+        // Function to render the chord table
+        function renderChordsTable(containerId, chordData) {
             const container = document.getElementById(containerId);
             const table = document.createElement("table");
 
-            // Create header
-            const header = document.createElement("tr");
-            header.innerHTML = "<th>Chord Type</th>" + data.map(chord => `<th>${chord.root}</th>`).join("");
-            table.appendChild(header);
+            // Create table header
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Chord Type</th>` + 
+                                  Object.keys(chordData).map(root => `<th colspan="2">${root}</th>`).join("");
+            table.appendChild(headerRow);
+
+            // Generate all chord types across roots
+            const allChordTypes = new Set();
+            Object.values(chordData).forEach(rootChords => {
+                Object.keys(rootChords).forEach(type => allChordTypes.add(type));
+            });
 
             // Create rows for each chord type
-            const chordTypes = data[0].types;
-            chordTypes.forEach(type => {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${type}</td>`;
-                data.forEach(chord => {
-                    const cell = document.createElement("td");
-                    const diagramContainer = document.createElement("div");
-                    diagramContainer.className = "diagram-container";
-                    cell.appendChild(diagramContainer);
-                    row.appendChild(cell);
+            allChordTypes.forEach(type => {
+                const row1 = document.createElement("tr");
+                const row2 = document.createElement("tr");
 
-                    // Render the chord diagram
-                    const chordData = Raphael.chord.find(instrument, chord.root, type, 1);
-                    if (chordData) {
-                        new Raphael.chord.Chord(diagramContainer, chordData, `${chord.root} ${type}`);
-                    }
+                // Add chord type to the first column
+                row1.innerHTML = `<td rowspan="2">${type}</td>`;
+                row2.innerHTML = "";
+
+                Object.keys(chordData).forEach(root => {
+                    const variations = chordData[root][type] || [null, null]; // Fallback if no variations exist
+                    variations.forEach((variation, index) => {
+                        const cell = document.createElement("td");
+                        const diagramContainer = document.createElement("div");
+                        diagramContainer.className = "diagram-container";
+
+                        if (variation) {
+                            try {
+                                new Raphael.chord.Chord(diagramContainer, variation, `${root} ${type}`);
+                            } catch (error) {
+                                console.warn(`Error rendering ${root} ${type} variation ${index + 1}:`, error);
+                            }
+                        }
+
+                        cell.appendChild(diagramContainer);
+                        if (index === 0) row1.appendChild(cell);
+                        if (index === 1) row2.appendChild(cell);
+                    });
                 });
-                table.appendChild(row);
+
+                table.appendChild(row1);
+                table.appendChild(row2);
             });
 
             container.appendChild(table);
         }
 
-        renderChords("guitar-chords", "guitar", chordDefinitions.guitar);
-        renderChords("ukulele-chords", "ukulele", chordDefinitions.ukulele);
+        // Load JSON data and render the table
+        fetch("{% static 'js/ukulele_chords.json' %}")
+            .then(response => response.json())
+            .then(data => {
+                const groupedChords = groupChordsByRootAndType(data);
+                renderChordsTable("ukulele-chords", groupedChords);
+            })
+            .catch(error => console.error("Error loading chord data:", error));
     </script>
 </body>
 </html>
