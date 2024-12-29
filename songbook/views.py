@@ -58,6 +58,8 @@ def chord_dictionary(request):
     chord_data = {instrument: load_chords(instrument) for instrument in instruments}
     return render(request, "songbook/allChordsTable.html", {"chord_data": chord_data})
 
+from django.shortcuts import render
+
 
 
 
@@ -257,15 +259,13 @@ class SongUpdateView(LoginRequiredMixin, UpdateView):
 
 
 
-class SongDeleteView (LoginRequiredMixin, UserPassesTestMixin,DeleteView):
+class SongDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Song
-    success_url = '/'
+    success_url = reverse_lazy('songbook-home')  # Use reverse_lazy for better practice.
 
     def test_func(self):
         song = self.get_object()
-        if self.request.user == song.contributor:
-            return True
-        return False 
+        return self.request.user == song.contributor
 
 
 def about(request):
