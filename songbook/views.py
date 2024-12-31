@@ -221,14 +221,14 @@ class ScoreView(DetailView):
 
 class SongCreateView(LoginRequiredMixin, CreateView):
     model = Song
-    fields = ['songTitle','songChordPro','metadata']
+    fields = ['songTitle','songChordPro','metadata','tags']
     def form_valid(self, form):
         form.instance.contributor = self.request.user
         return super().form_valid(form)
 
 class SongUpdateView(LoginRequiredMixin, UpdateView):
     model = Song
-    fields = ['songTitle', 'songChordPro', 'lyrics_with_chords', 'metadata']
+    fields = ['songTitle', 'songChordPro', 'lyrics_with_chords', 'metadata','tags']
     success_url = reverse_lazy('songbook-home')  # Redirect after success
 
     def form_valid(self, form):
