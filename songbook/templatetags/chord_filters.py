@@ -17,4 +17,12 @@ def format_chords(text):
     text = text.replace('\n', '<br>')
 
     return mark_safe(text)
+
+def limit_chords(chords, max_count=8):
+    if not chords:
+        return "N/A"
+    chord_list = chords.split(",")  # Adjust this based on how `chords` is stored
+    if len(chord_list) > max_count:
+        return ", ".join(chord_list[:max_count]) + ", ..."
+    return ", ".join(chord_list)
     

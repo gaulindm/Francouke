@@ -37,6 +37,7 @@
             <tr>
                 <th>Partition</th>
                 <th>Interprète</th>
+                <th>Année</th>
                 <th>Tags</th>
                 <th class="text-center">Tonalité et (accords jouées)</th>
                 <th class="text-center">Actions</th> <!-- Add Actions column -->
@@ -51,6 +52,9 @@
                     </a>
                 </td>
                 <td>{{ item.song.metadata.artist|default_if_none:"Unknown Artist" }}</td>
+                <td class="text-center">
+                    {{ item.song.metadata.year|default_if_none:"" }}
+                </td>
                 <td>        
                     {% for tag in item.song.tags.all %}
                         <small>{{ tag }}</small>{% if not forloop.last %}, {% endif %}
