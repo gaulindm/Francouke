@@ -136,30 +136,21 @@
         </div>
         
     </li>
+    <li class="list-group-item list-group-item-heavy">test {{ item.song.metadata.youtube }}
+    </li>
   </ul>
 </div>
-<div id="youtube-player-container"></div>
-<button onclick="playSong()">Play Song</button>
+<div>
+{% if score.metadata.youtube %}
+    <p>YouTube Link: <a href="{{ score.metadata.youtube }}" target="_blank">Watch on YouTube</a></p>
+    <button onclick="playSong('{{ score.metadata.youtube }}')">Play Video</button>
+</div>
 
-<script>
-    const songMetadata = {
-        comment: null,
-        artist: "Je Leloup",
-        songwriter: null,
-        recording: " ",
-        album: " ",
-        year: null,
-        key: " ",
-        firstNote: " ",
-        tempo: " ",
-        timeSignature: " ",
-        youtube: "https://youtu.be/VI3C6MROOvY?si=rI3u_VRRRHPrU7a_"
-    };
+<div id="youtube-player-container" style="margin-top: 20px;"></div>
+{% else %}
+    <p>No YouTube video available for this song.</p>
+{% endif %}
 
-    function playSong() {
-        initializeYouTubePlayer(songMetadata);
-    }
-</script>
 </div>
 
 

@@ -61,6 +61,7 @@
                     {% endfor %}
                 </td>
                 <td class="text-center">
+                    
                     {{ item.song.metadata.key|default_if_none:"Unknown" }} - ({{ item.chords|default_if_none:"N/A" }})
                 </td>
                 <td class="text-center">

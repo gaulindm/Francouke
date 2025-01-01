@@ -2,13 +2,13 @@ const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'G'
 const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'Eb', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'Ab', 9: 'A', 10: 'Bb', 11: 'B'};
 const instrument = 'ukulele'; // Specify the instrument
 
-function initializeYouTubePlayer(metadata) {
-    const container = document.getElementById('youtube-player-container');
-    const videoUrl = metadata.youtube;
-    const videoId = new URL(videoUrl).searchParams.get('v') || videoUrl.split('youtu.be/')[1];
 
-        // Log the extracted videoId for debugging
-        console.log(`Extracted videoId: ${videoId}`);
+
+function playSong(youtubeUrl) {
+    console.log("Playing video from URL:", youtubeUrl);
+
+    const container = document.getElementById('youtube-player-container');
+    const videoId = new URL(youtubeUrl).searchParams.get('v') || youtubeUrl.split('youtu.be/')[1];
 
     if (!videoId) {
         container.innerHTML = `<p>Invalid YouTube URL. Cannot play video.</p>`;
@@ -22,15 +22,11 @@ function initializeYouTubePlayer(metadata) {
     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
 
-    iframe.onerror = () => {
-        container.innerHTML = `
-            <p>Unable to load the video. <a href="${videoUrl}" target="_blank">Watch on YouTube</a></p>
-        `;
-    };
-
     container.innerHTML = ''; // Clear existing iframe
     container.appendChild(iframe);
 }
+
+
 
 document.querySelectorAll('.control-panel input, .control-panel select').forEach(element => {
     element.addEventListener('change', () => {
@@ -233,6 +229,7 @@ function updateChordPlacement(placement) {
             console.warn('Invalid placement value:', placement);
     }
 }
+
 
 
 function renderInline(songDict, semitones) {
