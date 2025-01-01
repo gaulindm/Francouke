@@ -136,9 +136,30 @@
         </div>
         
     </li>
-    <iframe src="https://www.youtube.com/embed/xm7pCeutod4?si=cUjr6n2Cp6t5FGgn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </ul>
 </div>
+<div id="youtube-player-container"></div>
+<button onclick="playSong()">Play Song</button>
+
+<script>
+    const songMetadata = {
+        comment: null,
+        artist: "Je Leloup",
+        songwriter: null,
+        recording: " ",
+        album: " ",
+        year: null,
+        key: " ",
+        firstNote: " ",
+        tempo: " ",
+        timeSignature: " ",
+        youtube: "https://youtu.be/VI3C6MROOvY?si=rI3u_VRRRHPrU7a_"
+    };
+
+    function playSong() {
+        initializeYouTubePlayer(songMetadata);
+    }
+</script>
 </div>
 
 

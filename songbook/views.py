@@ -90,32 +90,6 @@ def generate_single_song_pdf(request, song_id):
 
 
 
-
-def generate_styled_song_pdf(request):
-    # Define song data
-    title = "Imagine"
-    artist = "John Lennon"
-
-    # Create the HTTP response
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{title}.pdf"'
-
-    # Set up PDF document
-    doc = SimpleDocTemplate(response, pagesize=letter)
-    styles = getSampleStyleSheet()
-
-    # Add song details
-    elements = []
-    elements.append(Paragraph(f"Song Title: <b>{title}</b>", styles['Heading1']))
-    elements.append(Paragraph(f"Artist: <b>{artist}</b>", styles['Heading2']))
-    elements.append(Spacer(1, 12))  # Add spacing
-
-    # Build the PDF
-    doc.build(elements)
-    return response
-   
-
-
 def home(request):
     context = {
         'songs':Song.objects.all()
