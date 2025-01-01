@@ -9,6 +9,44 @@ import json
 import os
 import re
 
+def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty):
+    """
+    Draw footer with chord diagrams at the bottom of the page.
+    """
+    page_width, page_height = doc.pagesize
+    footer_height = 10  # Height reserved for the footer
+    
+    # Calculate maximum number of chords that can fit in a row
+    max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
+    
+    # Only include the first row of diagrams in the footer
+    diagrams_to_draw = relevant_chords[:max_chords_per_row]
+
+    # Calculate the starting x-coordinate to center the diagrams
+    total_chords = len(diagrams_to_draw)
+    total_diagram_width = total_chords * chord_spacing
+    start_x = (page_width - total_diagram_width) / 2
+
+
+
+    # Move to the bottom of the page
+    canvas.saveState()
+    canvas.translate(start_x, footer_height)
+
+    # Draw the chord diagrams
+    x_offset = 0
+    for chord in diagrams_to_draw:
+        diagram = UkuleleDiagram(chord["name"], chord["variations"][0], is_lefty=is_lefty)
+        diagram.canv = canvas
+        canvas.saveState()
+        canvas.translate(x_offset, 0)
+        diagram.draw()
+        canvas.restoreState()
+        x_offset += chord_spacing    
+   
+    canvas.restoreState()
+
+
 def extract_used_chords(lyrics_with_chords):
     """
     Extract chord names from the lyrics_with_chords JSON structure.
@@ -187,7 +225,6 @@ def generate_song_pdf(response, song, user):
     # Fetch user preferences
     preferences = user.preferences  # Fetch once for clarity
     instrument = preferences.instrument  # Get the instrument
-
     is_lefty = user.preferences.is_lefty
     #print(f"User's selected instrument: {instrument}, Left-handed: {is_lefty}")
 
@@ -213,8 +250,6 @@ def generate_song_pdf(response, song, user):
  
 
     styles = getSampleStyleSheet()
-    
-
     elements = []
 
 
@@ -235,7 +270,7 @@ def generate_song_pdf(response, song, user):
         response,
         pagesize=letter,
         topMargin=2,
-        bottomMargin=24,  # Reserve space for diagrams
+        bottomMargin=12,  # Reserve space for diagrams
         leftMargin=20,
         rightMargin=20,
     )
@@ -335,7 +370,7 @@ def generate_song_pdf(response, song, user):
     elements.append(content_table)   #Song content( Songs and chords)
 
       # --- Chord Diagram Section ---
-    elements.append(Spacer(0, 72))
+    elements.append(Spacer(0, 12))
 
 
  # --- Dynamic Spacing Calculation ---
@@ -346,7 +381,7 @@ def generate_song_pdf(response, song, user):
     row_spacing = 72  # Set a default or calculated row spacing
 
     # --- Chord Diagram Section ---
-    add_chord_diagrams(elements, relevant_chords, is_lefty=is_lefty, chord_spacing=chord_spacing, row_spacing=row_spacing)
+    #add_chord_diagrams(elements, relevant_chords, is_lefty=is_lefty, chord_spacing=chord_spacing, row_spacing=row_spacing)
 
 
  
@@ -357,7 +392,8 @@ def generate_song_pdf(response, song, user):
 
     # Build the PDF
     #SimpleDocTemplate(response).build(elements)
-    doc.build(elements)
-
+   # Build the document
+    doc.build(elements, onFirstPage=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty),
+              onLaterPages=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty))
 
     
