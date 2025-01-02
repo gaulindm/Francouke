@@ -39,7 +39,7 @@
                 <th>Interprète</th>
                 <th>Année</th>
                 <th>Tags</th>
-                <th class="text-center">Tonalité et (accords jouées)</th>
+                <th class="text-center">Accords jouées</th>
                 <th class="text-center">Actions</th> <!-- Add Actions column -->
             </tr>
         </thead>
@@ -62,12 +62,19 @@
                 </td>
                 <td class="text-center">
                     
-                    {{ item.song.metadata.key|default_if_none:"Unknown" }} - ({{ item.chords|default_if_none:"N/A" }})
+
+
+                    {% if item.chords|length > 25 %}
+                        {{ item.chords|slice:":25"}}...
+                    {% else %}
+                        {{ item.chords}}
+                    {% endif %}
+
                 </td>
                 <td class="text-center">
                     <!-- Add Download PDF Link -->
                     <a href="{% url 'generate_single_song_pdf' item.song.id %}" class="btn btn-primary btn-sm" title="Download PDF for {{ item.song.songTitle }}">
-                        Download PDF
+                        PDF
                     </a>
                 </td>
             </tr>
