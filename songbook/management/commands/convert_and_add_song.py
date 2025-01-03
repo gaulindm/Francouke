@@ -47,6 +47,7 @@ class Command(BaseCommand):
             metadata_str = f"""{{title: {title}}}
 {{artist: {artist}}}
 {{album: }}
+{{youtube:}}
 {{capo: }}
 {{composer: }}
 {{lyricist: }}
