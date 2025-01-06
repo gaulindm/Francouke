@@ -87,6 +87,15 @@
     </table>
 </div>
 
+<form method="post" action="{% url 'generate_titles_pdf' %}">
+    {% csrf_token %}
+    <!-- Pass the tag name instead of the ID -->
+    <input type="hidden" name="tag_name" value="{{ selected_tag }}">
+    <button formaction="{% url 'generate_titles_pdf' %}" type="submit">Generate Titles PDF</button>
+</form>
+
+
+
 
 
 {% if is_paginated %}

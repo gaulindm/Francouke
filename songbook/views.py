@@ -31,6 +31,73 @@ from users.models import UserPreference  # Replace `user` with the actual app na
 from songbook.utils.ABC2audio import convert_abc_to_audio
 from django.contrib.auth.decorators import login_required
 
+
+# views.py
+
+from .forms import TagFilterForm
+
+def song_list(request):
+    form = TagFilterForm(request.POST or None)
+    songs = Song.objects.all()
+
+    if request.method == 'POST' and form.is_valid():
+        selected_tag = form.cleaned_data['tag']
+        songs = songs.filter(tags=selected_tag)
+
+    context = {
+        'songs': songs,
+        'form': form,
+    }
+    return render(request, 'song_list.html', context)
+
+
+
+
+
+# views.py
+from django.http import HttpResponse
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+
+
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+from django.shortcuts import redirect
+
+def generate_titles_pdf(request):
+    tag_name = request.POST.get('tag_name')  # Retrieve the tag name from POST
+    if tag_name:
+        try:
+            tag = Tag.objects.get(name=tag_name)  # Look up by name instead of ID
+            songs = Song.objects.filter(tags=tag)
+        except Tag.DoesNotExist:
+            songs = Song.objects.none()
+    else:
+        songs = Song.objects.none()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="song_titles.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = [Paragraph("List of Songs", styles['Title']), Spacer(1, 12)]
+
+    for song in songs:
+        elements.append(Paragraph(song.songTitle, styles['Normal']))
+        elements.append(Spacer(1, 12))
+
+    doc.build(elements)
+    return response
+
+
+
+
+
+
 def generate_audio_from_abc(request, song_id):
     song = Song.objects.get(pk=song_id)
     if not song.abc_notation:
@@ -126,6 +193,14 @@ class SongListView(ListView):
             queryset = queryset.filter(tags__name=selected_tag)
 
         return queryset
+
+
+    def post(self, request, *args, **kwargs):
+        tag_id = request.POST.get('tag')
+        if tag_id:
+            return redirect(reverse('generate_titles_pdf') + f'?tag={tag_id}')
+        return self.get(request, *args, **kwargs)
+
 
     def get_context_data(self, **kwargs):
         """
