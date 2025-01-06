@@ -24,7 +24,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Song  # Adjust based on your models
 from taggit.models import Tag
 from .models import Song
-from songbook.utils.pdf_generator import generate_song_pdf  # Import the utility function
+from songbook.utils.pdf_generator import generate_songs_pdf  # Import the utility function
 from django.http import JsonResponse
 from songbook.utils.pdf_generator import load_chords
 from users.models import UserPreference  # Replace `user` with the actual app name if different
@@ -93,6 +93,23 @@ def generate_titles_pdf(request):
     doc.build(elements)
     return response
 
+
+def generate_multi_song_pdf(request):
+    tag_name = request.POST.get('tag_name')
+    if tag_name:
+        try:
+            tag = Tag.objects.get(name=tag_name)
+            songs = Song.objects.filter(tags=tag)
+        except Tag.DoesNotExist:
+            songs = Song.objects.none()
+    else:
+        songs = Song.objects.none()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="multi_song_report.pdf"'
+
+    generate_songs_pdf(response, songs, request.user)
+    return response
 
 
 

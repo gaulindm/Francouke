@@ -87,13 +87,11 @@
     </table>
 </div>
 
-<form method="post" action="{% url 'generate_titles_pdf' %}">
+<form method="post" action="{% url 'generate_multi_song_pdf' %}">
     {% csrf_token %}
-    <!-- Pass the tag name instead of the ID -->
     <input type="hidden" name="tag_name" value="{{ selected_tag }}">
-    <button formaction="{% url 'generate_titles_pdf' %}" type="submit">Generate Titles PDF</button>
+    <button type="submit">Generate Multi-Song Report</button>
 </form>
-
 
 
 

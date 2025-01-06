@@ -25,6 +25,7 @@ urlpatterns = [
     path('song/<int:song_id>/generate-audio/', generate_audio_from_abc, name='generate_audio_from_abc'),
     path('chord-dictionary/', views.chord_dictionary, name='chord-dictionary'),
     path('generate_titles_pdf/', views.generate_titles_pdf, name='generate_titles_pdf'),
+    path('generate_multi_song_pdf/', views.generate_multi_song_pdf, name='generate_multi_song_pdf'),
 ]
     
 
