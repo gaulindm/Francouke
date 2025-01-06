@@ -13,13 +13,6 @@ from .chord_utils import load_chords, extract_used_chords, add_chord_diagrams, d
 
 
 
-
-
-
-
-
-
-
 def generate_song_pdf(response, song, user):
     """
     Generate a PDF for a song, including blank ukulele diagrams.
@@ -65,12 +58,7 @@ def generate_song_pdf(response, song, user):
 
 
     # Define base styles (unchanged from your code)
-    base_style = ParagraphStyle(
-        name="BaseStyle",
-        parent=styles['BodyText'],
-        fontSize=14,
-        leading=14,
-    )
+    base_style = ParagraphStyle(name="BaseStyle", parent=styles['BodyText'], fontSize=14, leading=14)
     heading_style = ParagraphStyle(name="Heading", parent=base_style, fontSize=16, spaceAfter=12)
     lyric_style = ParagraphStyle(name="LyricStyle", parent=base_style, fontSize=12)
     centered_style = ParagraphStyle(name="CenteredStyle", parent=base_style, alignment=1)
@@ -189,19 +177,7 @@ def generate_song_pdf(response, song, user):
     max_chords_per_row = 8  # You can adjust this based on layout preferences
     chord_spacing = available_width / max_chords_per_row
     row_spacing = 72  # Set a default or calculated row spacing
-
-    # --- Chord Diagram Section ---
-    #add_chord_diagrams(elements, relevant_chords, is_lefty=is_lefty, chord_spacing=chord_spacing, row_spacing=row_spacing)
-
-
  
-
-
- 
-#    add_chord_diagrams(elements, relevant_chords, is_lefty=is_lefty)
-
-    # Build the PDF
-    #SimpleDocTemplate(response).build(elements)
    # Build the document
     doc.build(elements, onFirstPage=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty),
               onLaterPages=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty))

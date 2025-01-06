@@ -19,8 +19,8 @@ class YourModelAdmin(admin.ModelAdmin):
     def get_youtube(self, obj):
         # Extract the artist from the metadata JSON field
         return obj.metadata.get('youtube', '') if obj.metadata else 'No Metadata'
-    get_year.admin_order_field = 'metadata__youtube'
-    get_year.short_description = 'youtube'  # Column title in the admin
+    get_youtube.admin_order_field = 'metadata__youtube'
+    get_youtube.short_description = 'youtube'  # Column title in the admin
 
 
 
