@@ -65,9 +65,6 @@ from django.shortcuts import render
 
 @login_required
 def generate_single_song_pdf(request, song_id):
-    from django.http import HttpResponse
-    from .models import Song
-    from .utils.pdf_generator import generate_song_pdf
 
     # Fetch the song and user
     song = Song.objects.get(pk=song_id)
