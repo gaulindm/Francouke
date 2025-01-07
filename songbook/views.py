@@ -24,12 +24,43 @@ from django.contrib.auth.decorators import login_required
 from .models import Song  # Adjust based on your models
 from taggit.models import Tag
 from .models import Song
-from songbook.utils.pdf_generator import generate_song_pdf  # Import the utility function
+from songbook.utils.pdf_generator import generate_songs_pdf  # Import the utility function
+from reportlab.platypus import SimpleDocTemplate, Paragraph,Flowable, Table, TableStyle, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph,Flowable, Table, TableStyle, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
 from django.http import JsonResponse
 from songbook.utils.pdf_generator import load_chords
 from users.models import UserPreference  # Replace `user` with the actual app name if different
 from songbook.utils.ABC2audio import convert_abc_to_audio
 from django.contrib.auth.decorators import login_required
+
+
+def generate_multi_song_pdf(request):
+    tag_name = request.POST.get('tag_name')
+    if tag_name:
+        try:
+            tag = Tag.objects.get(name=tag_name)
+            songs = Song.objects.filter(tags=tag)
+        except Tag.DoesNotExist:
+            songs = Song.objects.none()
+    else:
+        songs = Song.objects.none()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="multi_song_report.pdf"'
+
+    generate_songs_pdf(response, songs, request.user)
+    return response
+
+
+
+
+
+
+
+
 
 def generate_audio_from_abc(request, song_id):
     song = Song.objects.get(pk=song_id)
@@ -58,7 +89,38 @@ def chord_dictionary(request):
     chord_data = {instrument: load_chords(instrument) for instrument in instruments}
     return render(request, "songbook/allChordsTable.html", {"chord_data": chord_data})
 
-from django.shortcuts import render
+import logging
+
+logger = logging.getLogger(__name__)
+
+from django.shortcuts import redirect
+
+def generate_titles_pdf(request):
+    tag_name = request.POST.get('tag_name')  # Retrieve the tag name from POST
+    if tag_name:
+        try:
+            tag = Tag.objects.get(name=tag_name)  # Look up by name instead of ID
+            songs = Song.objects.filter(tags=tag)
+        except Tag.DoesNotExist:
+            songs = Song.objects.none()
+    else:
+        songs = Song.objects.none()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="song_titles.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = [Paragraph("List of Songs", styles['Title']), Spacer(1, 12)]
+
+    for song in songs:
+        elements.append(Paragraph(song.songTitle, styles['Normal']))
+        elements.append(Spacer(1, 12))
+
+    doc.build(elements)
+    return response
+
+
 
 
 
@@ -82,7 +144,7 @@ def generate_single_song_pdf(request, song_id):
     response['Content-Disposition'] = f'attachment; filename="{song.songTitle}.pdf"'
 
     # Generate the PDF
-    generate_song_pdf(response, song, user)
+    generate_songs_pdf(response, song, user)
     return response
 
 
@@ -103,26 +165,28 @@ class SongListView(ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        """
-        Override to filter the song queryset based on search query and tag.
-        """
         queryset = super().get_queryset()
         search_query = self.request.GET.get('q', '')  # Search query
         selected_tag = self.request.GET.get('tag', '')  # Selected tag
 
-        # Apply filters
         if search_query:
             queryset = queryset.filter(
                 Q(songTitle__icontains=search_query) |
-                Q(metadata__artist__icontains=search_query) |
-                Q(metadata__composer__icontains=search_query) |
-                Q(metadata__lyricist__icontains=search_query)
+                Q(metadata__artist__icontains=search_query)
             )
 
-        if selected_tag:  # Filter by tag if a tag is selected
+        if selected_tag:
             queryset = queryset.filter(tags__name=selected_tag)
 
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        tag_id = request.POST.get('tag')
+        if tag_id:
+            return redirect(reverse('generate_titles_pdf') + f'?tag={tag_id}')
+        return self.get(request, *args, **kwargs)
+
+
 
     def get_context_data(self, **kwargs):
         """

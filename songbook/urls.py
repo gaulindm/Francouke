@@ -19,9 +19,11 @@ urlpatterns = [
     path('song/<int:pk>/update/', SongUpdateView.as_view(), name='song-update'),
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),
-    path('', SongListView.as_view(), name='song_list'),  # Define a name for this pattern
+    path('', SongListView.as_view(), name='song_list'),  # wait until the end to remove
     path('generate-song-pdf/<int:song_id>/', views.generate_single_song_pdf, name='generate_single_song_pdf'),
     path('song/<int:song_id>/generate-audio/', generate_audio_from_abc, name='generate_audio_from_abc'),
     path('chord-dictionary/', views.chord_dictionary, name='chord-dictionary'),
+    path('generate_titles_pdf/', views.generate_titles_pdf, name='generate_titles_pdf'),
+    path('generate_multi_song_pdf/', views.generate_multi_song_pdf, name='generate_multi_song_pdf'),
 ]    
 

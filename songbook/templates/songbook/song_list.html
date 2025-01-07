@@ -87,6 +87,11 @@
     </table>
 </div>
 
+<form method="post" action="{% url 'generate_multi_song_pdf' %}">
+    {% csrf_token %}
+    <input type="hidden" name="tag_name" value="{{ selected_tag }}">
+    <button type="submit">Generate Multi-Song Report</button>
+</form>
 
 
 {% if is_paginated %}
