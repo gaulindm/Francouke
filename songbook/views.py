@@ -75,7 +75,7 @@ def generate_single_song_pdf(request, song_id):
 
     # Fetch the user's instrument preference
     try:
-        instrument = user.preferences.instrument
+        instrument = user.userpreference.instrument
     except UserPreference.DoesNotExist:
         instrument = 'ukulele'  # Default to ukulele if no preference is set
 

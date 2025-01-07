@@ -28,14 +28,14 @@ def generate_song_pdf(response, song, user):
 
 
     # Ensure the user has preferences
-    if not hasattr(user, "preferences"):
+    if not hasattr(user, "userpreference"):
         preferences.objects.create(user=user)
 
 
     # Fetch user preferences
-    preferences = user.preferences  # Fetch once for clarity
+    preferences = user.userpreference  # Fetch once for clarity
     instrument = preferences.instrument  # Get the instrument
-    is_lefty = user.preferences.is_lefty
+    is_lefty = user.userpreference.is_lefty
     #print(f"User's selected instrument: {instrument}, Left-handed: {is_lefty}")
 
 
