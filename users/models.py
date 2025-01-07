@@ -23,7 +23,7 @@ class Profile(models.Model):
         
 
 class UserPreference(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preferences')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userpreference')
     transpose_value = models.IntegerField(default=0)  # e.g., semitone adjustments
     font_size = models.CharField(max_length=5, default="14px")
     line_spacing = models.FloatField(default=1.2)

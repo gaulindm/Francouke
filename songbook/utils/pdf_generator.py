@@ -38,9 +38,9 @@ def generate_songs_pdf(response, songs, user):
     elements = []
 
     for song in songs:
-        preferences = user.preferences
-        instrument = preferences.instrument
-        is_lefty = user.preferences.is_lefty
+        preferences = user.userpreference
+        instrument = user.userpreference.instrument
+        is_lefty = user.userpreference.is_lefty
 
         chords = load_chords(instrument)
         used_chords = extract_used_chords(song.lyrics_with_chords)
