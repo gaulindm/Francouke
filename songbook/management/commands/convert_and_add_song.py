@@ -56,6 +56,7 @@ class Command(BaseCommand):
 {{year: }}
 {{1stnote: }}
 {{tempo: }}
+{{youtube: }}
 {{timeSignature: }}"""
 
             # Combine metadata and converted content

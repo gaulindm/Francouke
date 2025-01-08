@@ -12,15 +12,6 @@ from .chord_utils import load_chords, extract_used_chords, add_chord_diagrams, d
 
 
 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from .chord_utils import load_chords, extract_used_chords, draw_footer
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.pagesizes import letter
-from .chord_utils import load_chords, extract_used_chords, draw_footer
-
 def generate_songs_pdf(response, songs, user):
     doc = SimpleDocTemplate(
         response,
@@ -38,7 +29,7 @@ def generate_songs_pdf(response, songs, user):
     elements = []
 
     for song in songs:
-        preferences = user.userpreference
+        #preferences = user.userpreference
         instrument = user.userpreference.instrument
         is_lefty = user.userpreference.is_lefty
 

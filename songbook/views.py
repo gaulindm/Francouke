@@ -151,17 +151,17 @@ from django.shortcuts import render
 def generate_single_song_pdf(request, song_id):
     from django.http import HttpResponse
     from .models import Song
-    from .utils.pdf_generator import generate_song_pdf
+    from .utils.pdf_generator import generate_songs_pdf
 
     # Fetch the song and user
     song = Song.objects.get(pk=song_id)
     user = request.user
 
     # Fetch the user's instrument preference
-    try:
-        instrument = user.preferences.instrument
-    except UserPreference.DoesNotExist:
-        instrument = 'ukulele'  # Default to ukulele if no preference is set
+    #try:
+    #    instrument = user.userpreference.instrument
+    #except UserPreference.DoesNotExist:
+    #    instrument = 'ukulele'  # Default to ukulele if no preference is set
 
 
     # Prepare the response
@@ -169,7 +169,7 @@ def generate_single_song_pdf(request, song_id):
     response['Content-Disposition'] = f'attachment; filename="{song.songTitle}.pdf"'
 
     # Generate the PDF
-    generate_song_pdf(response, song, user)
+    generate_songs_pdf(response, [song], user)
     return response
 
 
