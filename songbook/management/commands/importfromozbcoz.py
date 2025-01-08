@@ -15,7 +15,7 @@ class Command(BaseCommand):
             self.stderr.write(f"The directory '{directory}' does not exist.")
             return
 
-        # Metadata template to insert
+        # Metadata template to insert after title and artist
         metadata_template = """\
 {album: }
 {youtube: }
@@ -43,13 +43,18 @@ class Command(BaseCommand):
                     self.stderr.write(f"Error reading file {file_path}: {e}")
                     continue
 
-                # Combine metadata template and file content
-                song_chord_pro_content = f"{metadata_template}\n{file_content}"
-                self.stdout.write(f"Combined content length: {len(song_chord_pro_content)} characters")
+                # Replace {t:} with {title:} in the content
+                file_content = file_content.replace('{t:', '{title:')
 
                 # Use the file name (without extension) as the title
                 song_title = os.path.splitext(filename)[0]
                 self.stdout.write(f"Title: {song_title}")
+
+                # Default artist (modify as needed or parse from content)
+                artist = "Unknown Artist"  # You may replace this with actual logic if artist info is available
+
+                # Combine title, artist, metadata template, and file content
+                song_chord_pro_content = f"{metadata_template}\n{file_content}"
 
                 # Hardcoded contributor ID
                 contributor_id = 1
@@ -72,7 +77,7 @@ class Command(BaseCommand):
                         song.save()
 
                     # Verify the field was saved
-                    saved_song = Song.objects.get(title=song_title)
+                    saved_song = Song.objects.get(songTitle=song_title)
                     if saved_song.songChordPro == song_chord_pro_content:
                         self.stdout.write(f"songChordPro successfully updated for '{song_title}'")
                     else:
