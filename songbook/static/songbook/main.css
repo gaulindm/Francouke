@@ -74,8 +74,8 @@ body {
   
   .table-condensed td,
   .table-condensed th {
-      padding: 5px; /* Adjust padding for compact rows */
-      line-height: 1.2; /* Tighten the line spacing */
+      padding: 1px; /* Adjust padding for compact rows */
+      line-height: 1 /* Tighten the line spacing */
       font-size: 0.9rem; /* Optionally reduce font size */
   }
 
@@ -91,7 +91,10 @@ body {
     font-size: 2.5rem;
   }
 
-
+  .btn-compact {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
 
   /* Format 1 */
 .media.format-1 .article-title {

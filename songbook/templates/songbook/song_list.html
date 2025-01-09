@@ -72,8 +72,9 @@
 
                 </td>
                 <td class="text-center">
-                    <!-- Add Download PDF Link -->
-                    <a href="{% url 'generate_single_song_pdf' item.song.id %}" class="btn btn-primary btn-sm" title="Download PDF for {{ item.song.songTitle }}">
+                    <a href="{% url 'generate_single_song_pdf' item.song.id %}" 
+                       class="btn btn-primary btn-sm btn-compact" 
+                       title="Download PDF for {{ item.song.songTitle }}">
                         PDF
                     </a>
                 </td>
@@ -86,36 +87,36 @@
         </tbody>
     </table>
 </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Left-aligned Button -->
+    <form method="post" action="{% url 'generate_multi_song_pdf' %}" class="mb-0">
+        {% csrf_token %}
+        <input type="hidden" name="tag_name" value="{{ selected_tag }}">
+        <button type="submit" class="btn btn-primary">Generate Multi-Song Report</button>
+    </form>
 
-<form method="post" action="{% url 'generate_multi_song_pdf' %}">
-    {% csrf_token %}
-    <input type="hidden" name="tag_name" value="{{ selected_tag }}">
-    <button type="submit">Generate Multi-Song Report</button>
-</form>
-
-
-
-
-{% if is_paginated %}
-<div class="pagination">
-    {% if page_obj.has_previous %}
-    <a class="btn btn-outline-info mb-4" href="?page=1" aria-label="First page">First</a>
-    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous page">Previous</a>
-    {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-        <a class="btn btn-info mb-4" href="?page={{ num }}" aria-current="page">{{ num }}</a>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+    <!-- Right-aligned Pagination -->
+    {% if is_paginated %}
+    <div class="pagination d-flex gap-2 mb-0">
+        {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info" href="?page=1" aria-label="First page">First</a>
+        <a class="btn btn-outline-info" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous page">Previous</a>
         {% endif %}
-    {% endfor %}
 
-    {% if page_obj.has_next %}
-    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}" aria-label="Next page">Next</a>
-    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last page">Last</a>
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <a class="btn btn-info" href="?page={{ num }}" aria-current="page">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+            <a class="btn btn-outline-info" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a class="btn btn-outline-info" href="?page={{ page_obj.next_page_number }}" aria-label="Next page">Next</a>
+        <a class="btn btn-outline-info" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last page">Last</a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
-{% endif %}
 
 {% endblock content %}
