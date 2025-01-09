@@ -49,8 +49,7 @@ class Command(BaseCommand):
 {{album: }}
 {{youtube:}}
 {{capo: }}
-{{composer: }}
-{{lyricist: }}
+{{songwriter: }}
 {{key: }}
 {{recording: }}
 {{year: }}
