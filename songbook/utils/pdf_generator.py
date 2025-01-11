@@ -23,9 +23,9 @@ def generate_songs_pdf(response, songs, user):
     )
     styles = getSampleStyleSheet()
     base_style = styles['BodyText']
-    bridge_style = ParagraphStyle('Chorus', parent=base_style, fontSize=12, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
-    chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=12, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
-    verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=12, leading=14, spaceBefore=12, spaceAfter=12)
+    bridge_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
 
     elements = []
 
@@ -51,7 +51,7 @@ def generate_songs_pdf(response, songs, user):
         'FirstVocalNoteStyle',
         parent=styles['Normal'],  # Inherit from the Normal style
         alignment=2,  # Right-aligned text
-        fontSize=12,  # Optional: Adjust the font size
+        fontSize=13,  # Optional: Adjust the font size
         spaceBefore=6,  # Optional: Add space above the paragraph
         spaceAfter=6,  # Optional: Add space below the paragraph
     )
@@ -114,7 +114,7 @@ def generate_songs_pdf(response, songs, user):
             ],
         ]
 
-        header_table = Table(header_data, colWidths=[150, 300, 150])
+        header_table = Table(header_data, colWidths=[120, 360, 120])
         header_table.setStyle(TableStyle([
             ('SPAN', (0, 1), (2, 1)),  # Merge all three cells in the second row
             ('SPAN', (0, 2), (2, 2)),  # Merge all three cells in the third row
@@ -127,7 +127,7 @@ def generate_songs_pdf(response, songs, user):
             ('RIGHTPADDING', (1, 1), (1, 1), 10),
             ('TOPPADDING', (1, 1), (2, 2), 0),
             ('BOTTOMPADDING', (1, 1), (1, 1), 5),
-           # ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines for debugging
+            #('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines for debugging
         ]))
         elements.append(header_table)
         elements.append(Spacer(1, 12))
