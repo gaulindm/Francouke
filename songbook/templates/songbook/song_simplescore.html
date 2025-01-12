@@ -45,7 +45,7 @@
                     <table id="song_header" table table-borderless style="width: 100%; margin: 0 auto; padding: 1;">
                         <tbody>
                             <tr style="height:fit-content;">
-                                <td class="col-3">
+                                <td class="col-3" style="text-align: left;">
                                     {% if score.metadata.timeSignature %}
                                         {{ score.metadata.timeSignature }}
                                     {% endif %}
@@ -63,15 +63,15 @@
                                 <td class="col-sm-3">
                                     
                                     {% if score.metadata.tempo %}
-                                        {{ score.metadata.tempo }} bpm
+                                        {{ score.metadata.tempo }}
                                 {% endif %}
                                     
                                     </td>
-                                <td class="col-sm-6" style="text-align: center; font-weight: bolder;">{{ score.metadata.artist }}</td>
+                                <td class="col-sm-6" style="text-align: center; font-weight: bolder;">{{ score.metadata.songwriter }}</td>
                                 <td class="col-sm-3"></td>
                             </tr>
                             <tr>
-                                <td colspan="3" style="text-align: center; " id="recording">D'après l'album {{ score.metadata.album }} en {{ score.metadata.key }} ({{ score.metadata.year }})</td>
+                                <td colspan="3" style="text-align: center; " id="recording">{{ score.metadata.recording}}interprétation de {{ score.metadata.artist }} en {{ score.metadata.year }}</td>
                             </tr>
                         </tbody>
                     </table>

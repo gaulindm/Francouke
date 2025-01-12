@@ -51,7 +51,7 @@ def generate_songs_pdf(response, songs, user):
         'FirstVocalNoteStyle',
         parent=styles['Normal'],  # Inherit from the Normal style
         alignment=2,  # Right-aligned text
-        fontSize=13,  # Optional: Adjust the font size
+        fontSize=12,  # Optional: Adjust the font size
         spaceBefore=6,  # Optional: Add space above the paragraph
         spaceAfter=6,  # Optional: Add space below the paragraph
     )
