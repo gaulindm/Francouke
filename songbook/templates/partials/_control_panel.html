@@ -1,13 +1,17 @@
 {% load static %}
 <div class="content-section">
-    <h3>Control Panel</h3>
+    {% if object.contributor == user %}<h3>Modify</h3>(must be contributor of song)<br> 
+                <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
+                <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
+            {% endif%}
+    
+    
+    
+    
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <p class='text-muted'>
       <ul class="list-group">
-        <li class="list-group-item list-group-item-heavy">Modify ChordPro<div>
-          <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
-          <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
-        </div>
+        <li class="list-group-item list-group-item-heavy"><h3>Control Panel</h3>
         </li>
         <li class="list-group-item list-group-item-heavy">Transpose    
           <select id="transpose-select" onchange="transposeSong(this.value)">

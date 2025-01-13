@@ -292,7 +292,7 @@ class SongCreateView(LoginRequiredMixin, CreateView):
         form.instance.contributor = self.request.user
         return super().form_valid(form)
 
-class SongUpdateView(LoginRequiredMixin, UpdateView):
+class SongUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Song
     fields = ['songTitle', 'songChordPro', 'lyrics_with_chords', 'metadata','tags']
     success_url = reverse_lazy('songbook-home')  # Redirect after success
@@ -314,6 +314,12 @@ class SongUpdateView(LoginRequiredMixin, UpdateView):
         # Update the lyrics_with_chords field with parsed data
         form.instance.lyrics_with_chords = parsed_lyrics
         return super().form_valid(form)
+
+    def test_func(self):
+        song = self.get_object()
+        if self.request.user == song.contributor:
+            return True
+        return False 
 
     def get_object(self, queryset=None):
         # Ensure only the contributor can update the song
