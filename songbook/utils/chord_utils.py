@@ -80,17 +80,20 @@ class ChordDiagram(Flowable):
 
 
 
-
 def load_chords(instrument):
     """
     Load chord definitions based on the selected instrument.
     """
+    # Dynamically locate the directory where chord files are stored
+    base_dir = os.path.dirname(os.path.abspath(__file__))  # Current file's directory
+    chord_files_dir = os.path.join(base_dir, '..', 'chord_definitions')  # Adjust path
+
     file_map = {
-        'ukulele': os.path.join('static', 'js', 'ukulele_chords.json'),
-        'guitar': os.path.join('static', 'js', 'guitar_chords.json'),
-        'mandolin': os.path.join('static', 'js', 'mandolin_chords.json'),
-        "banjo": os.path.join("static", "js", "banjo_chords.json"),
-        "baritone_ukulele": os.path.join("static", "js", "baritoneUke_chords.json"),
+        'ukulele': os.path.join(chord_files_dir, 'ukulele_chords.json'),
+        'guitar': os.path.join(chord_files_dir, 'guitar_chords.json'),
+        'mandolin': os.path.join(chord_files_dir, 'mandolin_chords.json'),
+        "banjo": os.path.join(chord_files_dir, "banjo_chords.json"),
+        "baritone_ukulele": os.path.join(chord_files_dir, "baritoneUke_chords.json"),
     }
 
     file_path = file_map.get(instrument, file_map['ukulele'])  # Default to ukulele
@@ -98,11 +101,12 @@ def load_chords(instrument):
         with open(file_path, 'r') as file:
             return json.load(file)
     except FileNotFoundError:
-        print(f"Error: Chord file not found for {instrument}")
+        print(f"Error: Chord file still not found for {instrument}")
         return []
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON format in {file_path}: {e}")
         return []
+
     
 def extract_used_chords(lyrics_with_chords):
     """
