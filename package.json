@@ -19,5 +19,8 @@
   "homepage": "https://github.com/gaulindm/FrancoUke#readme",
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "codemirror": "^6.0.1"
   }
 }

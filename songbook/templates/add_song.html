@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title>Add Song</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+
+    >
+    <!-- CodeMirror CSS from jsDelivr -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/lib/codemirror.css"
+    >
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Add a New Song</h1>
+        <form method="post" id="add-song-form">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.artist.label_tag }}
+                {{ form.artist }}
+            </div>
+            <div class="mb-3">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+            </div>
+            <div class="mb-3">
+                {{ form.content.label_tag }}
+                <textarea id="song-content" name="content">{{ form.content.value }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Save Song</button>
+        </form>
+    </div>
+
+    <!-- CodeMirror JS from jsDelivr -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/lib/codemirror.js"
+    ></script>
+
+    <!-- CodeMirror Markdown Mode from jsDelivr -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/mode/markdown/markdown.js"
+    ></script>
+
+    <!-- Bootstrap JS Bundle from CDN -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+
+    ></script>
+
+    <script>
+        // Initialize CodeMirror
+        var editor = CodeMirror.fromTextArea(document.getElementById("song-content"), {
+            mode: "markdown",
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: "default",
+        });
+
+        // Sync CodeMirror content with textarea on form submission
+        document.getElementById("add-song-form").addEventListener("submit", function() {
+            document.getElementById("song-content").value = editor.getValue();
+        });
+    </script>
+</body>
+</html>

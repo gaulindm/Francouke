@@ -1,7 +1,63 @@
-const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
-const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'};
+const chordMap = {'C': 0, 'C#': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11};
+const reverseChordMap = {0: 'C', 1: 'C#', 2: 'D', 3: 'Eb', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'Ab', 9: 'A', 10: 'Bb', 11: 'B'};
 const instrument = 'ukulele'; // Specify the instrument
 
+
+
+function playSong(youtubeUrl) {
+    console.log("Playing video from URL:", youtubeUrl);
+
+    const container = document.getElementById('youtube-player-container');
+    const videoId = new URL(youtubeUrl).searchParams.get('v') || youtubeUrl.split('youtu.be/')[1];
+
+    if (!videoId) {
+        container.innerHTML = `<p>Invalid YouTube URL. Cannot play video.</p>`;
+        return;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    iframe.width = "100%";
+    iframe.height = "200px";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    iframe.allowFullscreen = true;
+
+    container.innerHTML = ''; // Clear existing iframe
+    container.appendChild(iframe);
+}
+
+
+
+document.querySelectorAll('.control-panel input, .control-panel select').forEach(element => {
+    element.addEventListener('change', () => {
+        const data = new FormData();
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Handle checkbox values correctly
+        if (element.type === 'checkbox') {
+            data.append(element.id, element.checked);
+        } else {
+            data.append(element.id, element.value);
+        }
+
+        fetch('/update_preferences/', {
+            method: 'POST',
+            body: data,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Preferences updated successfully');
+            } else {
+                console.error('Error updating preferences:', data.message);
+            }
+        })
+        .catch(error => console.error('Fetch error:',error));
+    });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
@@ -173,6 +229,7 @@ function updateChordPlacement(placement) {
             console.warn('Invalid placement value:', placement);
     }
 }
+
 
 
 function renderInline(songDict, semitones) {

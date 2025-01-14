@@ -74,12 +74,23 @@ body {
   
   .table-condensed td,
   .table-condensed th {
-      padding: 5px; /* Adjust padding for compact rows */
-      line-height: 1.2; /* Tighten the line spacing */
+      padding: 1px; /* Adjust padding for compact rows */
+      line-height: 1 /* Tighten the line spacing */
       font-size: 0.9rem; /* Optionally reduce font size */
   }
 
+  .nav-link.dropdown-toggle:hover {
+    color: #0056b3; /* Darker blue on hover */
+    text-decoration: underline;
+}
 
+.dropdown-menu .dropdown-item {
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f8f9fa; /* Light gray background on hover */
+}
   .account-img {
     height: 125px;
     width: 125px;
@@ -91,7 +102,10 @@ body {
     font-size: 2.5rem;
   }
 
-
+  .btn-compact {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
 
   /* Format 1 */
 .media.format-1 .article-title {

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title>Add Song</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'codemirror/codemirror.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Add a New Song</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary mt-3">Save Song</button>
+        </form>
+    </div>
+
+    <script>
+        // Optional: Initialize CodeMirror on the textarea if required
+        var editor = CodeMirror.fromTextArea(document.querySelector("textarea"), {
+            mode: "markdown",
+            lineNumbers: true
+        });
+    </script>
+</body>
+</html>
+
