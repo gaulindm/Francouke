@@ -70,7 +70,8 @@
                 <p>Use the form on the left to create or edit songs. Below are some helpful tips:</p>
                 <ul>
                     <li><strong>Keybindings:</strong> Use Ctrl+S to save your work.</li>
-                    <li><strong>Search & Replace:</strong> Use Ctrl+F to search, and Ctrl+H to replace text.</li>
+                    <li><strong>Search & Replace double curly:</strong> Use Ctrl+Alt+R will replace with [ ]</li>
+
                     <li><strong>Metadata:</strong> Metadata fields are optional but helpful for organizing your songs.</li>
                 </ul>
                 <p>For more advanced features, refer to the documentation or contact support.</p>
@@ -103,6 +104,24 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
     ></script>
 
+    <!-- Include CodeMirror Addons for Auto-closing Brackets and Search/Replace -->
+    <script
+    src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/edit/closebrackets.js"
+    ></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/search/search.js"
+    ></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/search/searchcursor.js"
+    ></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/dialog/dialog.js"
+    ></script>
+   <!-- Include the CodeMirror Dialog CSS correctly -->
+<link
+rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/dialog/dialog.css"
+/>
     <script>
         // Initialize CodeMirror for the songChordPro field
         var editor = CodeMirror.fromTextArea(document.getElementById("id_songChordPro"), {
@@ -110,6 +129,29 @@
             lineNumbers: true,
             lineWrapping: true,
             theme: "default",
+            autoCloseBrackets: true, // Enable auto-closing brackets and braces
+            extraKeys: {
+            "Ctrl-F": "find", // Search shortcut
+            "Ctrl-H": "replace", // Replace shortcut
+            "Ctrl-Alt-R": function(cm) { // Custom shortcut for replacing '{{' and '}}' with '[' and ']'
+                let doc = cm.getDoc();
+                cm.operation(function() {
+                    // Replace all occurrences of '{{' with '['
+                    let cursorOpen = doc.getSearchCursor("{{");
+                    while (cursorOpen.findNext()) {
+                        doc.replaceRange("[", cursorOpen.from(), {line: cursorOpen.from().line, ch: cursorOpen.from().ch + 2});
+                    }
+                    
+                    // Replace all occurrences of '}}' with ']'
+                    let cursorClose = doc.getSearchCursor("}}");
+                    while (cursorClose.findNext()) {
+                        doc.replaceRange("]", cursorClose.from(), {line: cursorClose.from().line, ch: cursorClose.from().ch + 2});
+                    }
+                });
+                alert("Replaced all instances double curly braces");
+            }
+        }
+
         });
     
         // Sync CodeMirror content with the textarea on form submission
