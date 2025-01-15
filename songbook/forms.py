@@ -8,6 +8,7 @@ class TagFilterForm(forms.Form):
         label='Select Tag',
         required=True
     )
+
 class SongForm(forms.Form):
     artist = forms.CharField(
         max_length=255,
