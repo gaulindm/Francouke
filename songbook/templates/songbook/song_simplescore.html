@@ -39,7 +39,7 @@
 
       <main role="main" class="container">
         <div class="row">
-            <div class="col-8 bg-light">
+            <div class="col-md-8 col-12 bg-light">
                 <!-- Page Area -->
                 <div id="printableScore" style="background-color:#FFF; padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 800px; margin: 20px auto;">
                     <table id="song_header" table table-borderless style="width: 100%; margin: 0 auto; padding: 1;">
@@ -89,7 +89,7 @@
                     <div id="left-chord-diagram-placeholder" class="col-2 d-none"></div>
     
                     <!-- Lyrics Container -->
-                    <div class="col-10">
+                    <div class="col-12">
                         <div id="lyrics-container" class="lyrics-container">
                             <div id="song-content"></div>
                         </div>
@@ -118,11 +118,13 @@
         </div>
             
             <!-- Control Panel -->
-            <div class="col-4">
+            <div class="col-md-4 col-12 d-md-block">
                 {% include "partials/_control_panel.html" %}
             </div>
         </div>
         
+
+
 <!-- Modal for Print Preview -->
 <div class="modal fade" id="printPreviewModal" tabindex="-1" aria-labelledby="printPreviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

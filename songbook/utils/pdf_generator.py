@@ -5,19 +5,19 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import letter
 from django.conf import settings
+from reportlab.platypus.flowables import Flowable
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, PageBreak
 import json
 import os
 import re
 from .chord_utils import load_chords, extract_used_chords, add_chord_diagrams, draw_footer, ChordDiagram
-
-
 
 def generate_songs_pdf(response, songs, user):
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
         topMargin=2,
-        bottomMargin=12,
+        bottomMargin=80,
         leftMargin=20,
         rightMargin=20,
     )
@@ -136,6 +136,7 @@ def generate_songs_pdf(response, songs, user):
         lyrics_with_chords = song.lyrics_with_chords or []
         paragraph_buffer = []
         is_chorus = False
+        refrain_added = False
 
         for group in lyrics_with_chords:
             for item in group:
@@ -145,13 +146,28 @@ def generate_songs_pdf(response, songs, user):
                         if paragraph_buffer:
                             elements.append(Paragraph(" ".join(paragraph_buffer), verse_style))
                             paragraph_buffer = []
+                        # Add the "Refrain:" label left-aligned
+                        elements.append(Paragraph("<b>Refrain:</b>", ParagraphStyle(
+                            'RefrainStyle',
+                            parent=base_style,
+                            alignment=0,  # Left-aligned
+                            fontSize=13,
+                            leading=14,
+                            spaceBefore=2,
+                            spaceAfter=2
+                        )))
                         continue
+
                     elif item["directive"] == "{eoc}":
                         is_chorus = False
+
+                        
                         if paragraph_buffer:
                             elements.append(Paragraph(" ".join(paragraph_buffer), chorus_style))
                             paragraph_buffer = []
                         continue
+
+
                 elif "format" in item:
                     if item["format"] == "LINEBREAK":
                         paragraph_buffer.append("<br/>")
@@ -161,16 +177,21 @@ def generate_songs_pdf(response, songs, user):
                             style = chorus_style if is_chorus else verse_style
                             elements.append(Paragraph(paragraph_text, style))
                             paragraph_buffer = []
+
                 elif "lyric" in item:
                     chord = item.get("chord", "")
                     lyric = item["lyric"]
-                    paragraph_buffer.append(f"<b>[{chord}]</b> {lyric}" if chord else lyric)
+                    line = f"<b>[{chord}]</b> {lyric}" if chord else lyric
 
-            if paragraph_buffer:
-                paragraph_text = " ".join(paragraph_buffer)
-                style = chorus_style if is_chorus else verse_style
-                elements.append(Paragraph(paragraph_text, style))
-                paragraph_buffer = []
+                    # Add chorus or verse lines
+                    paragraph_buffer.append(line)
+
+        # Add remaining lines
+        if paragraph_buffer:
+            paragraph_text = " ".join(paragraph_buffer)
+            style = chorus_style if is_chorus else verse_style
+            elements.append(Paragraph(paragraph_text, style))
+            paragraph_buffer = []
 
         elements.append(PageBreak())  # Separate songs by page
 
