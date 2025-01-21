@@ -148,12 +148,14 @@ def add_chord_diagrams(elements, relevant_chords, is_lefty=False, chord_spacing=
     max_chords_per_row = 8  # Max chords per row
     diagram_rows = []
 
-    # Create diagram rows
     for i in range(0, len(relevant_chords), max_chords_per_row):
-        row = [
-            UkuleleDiagram(chord["name"], chord["variations"][0], is_lefty=is_lefty)
-            for chord in relevant_chords[i:i + max_chords_per_row]
-        ]
+        row = []
+        for chord in relevant_chords[i:i + max_chords_per_row]:
+            print('Chord variation')
+            # Check if the second variation exists
+            variation = chord["variations"][1] if len(chord["variations"]) > 1 else chord["variations"][0]
+            
+            row.append(ChordDiagram(chord["name"], variation, is_lefty=is_lefty))
         diagram_rows.append(row)
 
     # Create a table for each row of diagrams

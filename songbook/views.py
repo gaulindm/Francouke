@@ -398,3 +398,6 @@ class SongDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render (request, 'songbook/about.html',{'title':about})
+
+def betabugs(request):
+    return render (request, 'songbook/betabugs.html',{'title':betabugs})

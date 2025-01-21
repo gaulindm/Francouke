@@ -21,6 +21,7 @@ urlpatterns = [
     path('song/<int:pk>/update/', SongUpdateView.as_view(), name='song-update'),
     path('song/<int:pk>/delete/', SongDeleteView.as_view(), name='song-delete'),
     path('about/', views.about, name='songbook-about'),
+    path('betabugs/', views.betabugs, name='songbook-betabugs'),
     path('', SongListView.as_view(), name='song_list'),  # Define a name for this pattern
     path('generate-song-pdf/<int:song_id>/', views.generate_single_song_pdf, name='generate_single_song_pdf'),
     path('song/<int:song_id>/generate-audio/', generate_audio_from_abc, name='generate_audio_from_abc'),

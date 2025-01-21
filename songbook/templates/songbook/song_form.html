@@ -5,6 +5,10 @@
     body {
         padding-top: 70px; /* Adjust based on your navbar height */
     }
+
+    .cm-curly {
+        color: red;
+    }
 </style>
     <div class="container">
         <div class="row">
@@ -70,11 +74,22 @@
                 <h5>Guide</h5>
                 <p>Utilisez le formulaire à la gauche pour créer ou modifier vos contributions. Voici des conseils:</p>
                 <p>Si vous utilisez <a href="https://www.topaccords.com/">www.topaccords.com</a> pour ajouter une chanson, utiliser les touches Ctrl+Alt+R pour remplacer les {{ et }} par [ et ] </p>
+                <p>Voici des raccourcis qui pourraient bien servir:</p>
                 <ul>
-                    <li><strong>Keybindings:</strong> Use Ctrl+S to save your work.</li>
-                    <li><strong>Search & Replace double curly:</strong> Use Ctrl+Alt+R will replace with [ ]</li>
-
-                    <li><strong>Metadata:</strong> Metadata fields are optional but helpful for organizing your songs.</li>
+                    <li><strong>CTRL-Z</strong> - Undo</li>
+                    <li><strong>CTRL-Y</strong> - Redo</li>
+                    <li><strong>CTRL-F</strong> - Find</li>
+                </ul>
+                <p>Voici les balises à utiliser pour identifier les chansons:</p>
+                <ul>
+                    <li>{titre:}</li>
+                    <li>{artist:}
+                    <li>{youtube:}
+                    <li>{songwriter:}
+                    <li>{recording:}
+                    <li>{year:}
+                    <li>{1stnote:}
+                    <li>{timeSignature:}
                 </ul>
                 <p>Pour des commentaires ou des suggestion, veuillez communiquer avec gaulindm@gmail.com.</p>
             </div>
@@ -152,11 +167,35 @@ href="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/dialog/dialog.css"
                     }
                 });
                 alert("Replaced all instances double curly braces");
-            }
-        }
-
+            },
+            "Ctrl-Z": function(cm) { cm.undo(); },
+            "Ctrl-Y": function(cm) { cm.redo(); },
+            "Cmd-Z": function(cm) { cm.undo(); }, // macOS undo
+            "Cmd-Shift-Z": function(cm) { cm.redo(); } // macOS redo
+        },
+        viewportMargin: Infinity, // Ensure the editor can grow dynamically
+        height: "auto", // Let it grow naturally
         });
-    
+
+
+// Add an overlay for highlighting { ... }
+editor.addOverlay({
+    token: function(stream) {
+        if (stream.match("{")) { // Match opening brace
+            while (!stream.eat("}")) { // Consume until closing brace
+                stream.next();
+            }
+            stream.eat("}"); // Consume the closing brace
+            return "curly"; // Apply the 'cm-curly' CSS class
+        }
+        stream.next(); // Move to the next character if no match
+        return null;   // No special styling
+    }
+});
+
+    // Adjust initial height to be taller
+    editor.setSize(null, "500px"); // Set the height to 500px or adjust as needed
+        
         // Sync CodeMirror content with the textarea on form submission
         document.getElementById("song-form").addEventListener("submit", function(event) {
             // Update the textarea value with the editor content
