@@ -33,11 +33,26 @@ def generate_songs_pdf(response, songs, user):
     # Get user preferences
     instrument = user.userpreference.instrument
     is_lefty = user.userpreference.is_lefty
+    is_printing_alternate_chord = user.userpreference.is_printing_alternate_chord
+
 
     # Load chords and extract relevant ones
     chords = load_chords(instrument)
     used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
     relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+
+    diagrams_to_draw = []
+    for chord in relevant_chords:
+        diagrams_to_draw.append({
+            "name": chord["name"],
+            "variation": chord["variations"][0]
+        })
+        if is_printing_alternate_chord and len(chord["variations"]) > 1:
+            diagrams_to_draw.append({
+                "name": chord["name"],
+                "variation": chord["variations"][1]
+            })
+
 
     # Calculate diagrams per row and rows needed
     chord_spacing = 50 if instrument == "ukulele" else 70  # Adjust spacing per instrument
@@ -233,7 +248,15 @@ def generate_songs_pdf(response, songs, user):
 
     doc.build(
         elements,
-        onFirstPage=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument),
-        onLaterPages=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument)
+        onFirstPage=lambda c, d: draw_footer(
+            c, d, relevant_chords, chord_spacing, row_spacing, is_lefty,
+            instrument=instrument,
+            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord
+        ),
+        onLaterPages=lambda c, d: draw_footer(
+            c, d, relevant_chords, chord_spacing, row_spacing, is_lefty,
+            instrument=instrument,
+            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord
+        )
     )
 

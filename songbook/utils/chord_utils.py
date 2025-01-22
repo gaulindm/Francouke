@@ -140,31 +140,33 @@ def extract_used_chords(lyrics_with_chords):
     # Return the chords as a sorted list
     return sorted(chords)
 
-def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument="ukulele"):
+def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument="ukulele", is_printing_alternate_chord=False):
     """
-    Draw footer with chord diagrams at the bottom of the page, dynamically adjusting for the instrument.
+    Draw footer with chord diagrams at the bottom of the page, respecting user preferences.
     """
     page_width, _ = doc.pagesize
     footer_height = 10  # Height reserved for the footer
 
     # Instrument-specific adjustments
-    string_count = 4 if instrument == "ukulele" else 6  # Default to 4 for ukulele, 6 for guitar
-    diagram_scale = 0.6 if instrument == "ukulele" else 0.5  # Scale for diagrams
-    min_chord_spacing = 50 if instrument == "ukulele" else 70  # Minimum spacing
+    string_count = 4 if instrument == "ukulele" else 6
+    diagram_scale = 0.5 if instrument == "ukulele" else 0.7
+    min_chord_spacing = 50 if instrument == "ukulele" else 70
 
     diagrams_to_draw = []
     for chord in relevant_chords:
+        # Always add the first variation
         diagrams_to_draw.append({
             "name": chord["name"],
             "variation": chord["variations"][0]
         })
-        if len(relevant_chords) < 7 and len(chord["variations"]) > 1:  # Display second variation if < 7 chords
+        # Add alternate variation if user preference allows
+        if is_printing_alternate_chord and len(chord["variations"]) > 1:
             diagrams_to_draw.append({
                 "name": chord["name"],
                 "variation": chord["variations"][1]
             })
 
-    # Calculate chord_spacing dynamically
+    # Adjust chord_spacing dynamically
     total_diagrams = len(diagrams_to_draw)
     chord_spacing = max((page_width - 2 * doc.leftMargin) / total_diagrams, min_chord_spacing)
     max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
@@ -179,7 +181,7 @@ def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lef
     y_offset = footer_height
     for row in rows:
         total_row_width = len(row) * chord_spacing
-        start_x = (page_width - total_row_width) / 2  # Center the row
+        start_x = (page_width - total_row_width) / 2
         canvas.saveState()
         canvas.translate(start_x, y_offset)
 

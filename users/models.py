@@ -43,6 +43,9 @@ class UserPreference(models.Model):
     is_lefty = models.BooleanField(default=False)
     chord_diagram_position = models.CharField(max_length=10, default="bottom")
     chord_placement = models.CharField(max_length=20, default="inline")
+    # New field
+    is_printing_alternate_chord = models.BooleanField(default=False)
 
-def __str__(self):
-        return f"Preferences for {self.user.username}"
+
+    def __str__(self):
+        return f"{self.instrument} - Lefty: {self.is_lefty}, Alt Chords: {self.is_printing_alternate_chord}"
