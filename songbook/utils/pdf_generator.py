@@ -10,7 +10,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, PageBreak
 import json
 import os
 import re
-from .chord_utils import load_chords, extract_used_chords, add_chord_diagrams, draw_footer, ChordDiagram
+from .chord_utils import load_chords, extract_used_chords, draw_footer, ChordDiagram
 
 def generate_songs_pdf(response, songs, user):
     doc = SimpleDocTemplate(
@@ -28,6 +28,35 @@ def generate_songs_pdf(response, songs, user):
     verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
 
     elements = []
+
+
+    # Get user preferences
+    instrument = user.userpreference.instrument
+    is_lefty = user.userpreference.is_lefty
+
+    # Load chords and extract relevant ones
+    chords = load_chords(instrument)
+    used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
+    relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+
+    # Calculate diagrams per row and rows needed
+    chord_spacing = 50 if instrument == "ukulele" else 70  # Adjust spacing per instrument
+    page_width, page_height = letter
+    max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
+    total_diagrams = len(relevant_chords) * (2 if len(relevant_chords) < 7 else 1)  # Include 2 variations if < 7 chords
+    rows_needed = (total_diagrams + max_chords_per_row - 1) // max_chords_per_row  # Calculate rows needed
+
+    row_spacing = 72  # Space between rows
+    diagram_height = rows_needed * row_spacing
+
+    # Adjust bottom margin dynamically
+    if rows_needed > 1:
+        doc.bottomMargin = max(80, diagram_height + 20)  # Ensure there's enough space for diagrams
+
+    # Debugging output
+    print(f"Total diagrams: {total_diagrams}, Rows needed: {rows_needed}, Bottom margin: {doc.bottomMargin}")
+
+
 
     songwriter_style = ParagraphStyle(
         'SongwriterStyle',
@@ -65,7 +94,7 @@ def generate_songs_pdf(response, songs, user):
         used_chords = extract_used_chords(song.lyrics_with_chords)
         relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
 
-
+  
 
 
 
@@ -202,6 +231,9 @@ def generate_songs_pdf(response, songs, user):
     chord_spacing = available_width / max_chords_per_row
     row_spacing = 72
 
-    doc.build(elements, 
-              onFirstPage=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty),
-              onLaterPages=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty))
+    doc.build(
+        elements,
+        onFirstPage=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument),
+        onLaterPages=lambda c, d: draw_footer(c, d, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument)
+    )
+

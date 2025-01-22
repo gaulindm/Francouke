@@ -6,7 +6,7 @@ from reportlab.platypus import Table, TableStyle, Spacer, Flowable
 from reportlab.lib import colors
 
 class ChordDiagram(Flowable):
-    def __init__(self, chord_name, variation, scale=0.65, is_lefty=False):
+    def __init__(self, chord_name, variation, scale=0.5, is_lefty=False):
         super().__init__()
         self.chord_name = chord_name
         self.variation = variation  # e.g., [0, 0, 0, 3]
@@ -140,71 +140,58 @@ def extract_used_chords(lyrics_with_chords):
     # Return the chords as a sorted list
     return sorted(chords)
 
-
-def add_chord_diagrams(elements, relevant_chords, is_lefty=False, chord_spacing=100, row_spacing=24):
+def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument="ukulele"):
     """
-    Add ukulele chord diagrams to the PDF, with adjustable spacing between chords and rows.
+    Draw footer with chord diagrams at the bottom of the page, dynamically adjusting for the instrument.
     """
-    max_chords_per_row = 8  # Max chords per row
-    diagram_rows = []
-
-    for i in range(0, len(relevant_chords), max_chords_per_row):
-        row = []
-        for chord in relevant_chords[i:i + max_chords_per_row]:
-            print('Chord variation')
-            # Check if the second variation exists
-            variation = chord["variations"][1] if len(chord["variations"]) > 1 else chord["variations"][0]
-            
-            row.append(ChordDiagram(chord["name"], variation, is_lefty=is_lefty))
-        diagram_rows.append(row)
-
-    # Create a table for each row of diagrams
-    for row in diagram_rows:
-        diagram_table = Table([row], colWidths=[chord_spacing] * len(row))
-
-        # Style the table
-        diagram_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ]))
-
-        elements.append(diagram_table)
-        elements.append(Spacer(1, row_spacing))  # Spacer between rows
-
-def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty):
-    """
-    Draw footer with chord diagrams at the bottom of the page.
-    """
-    page_width, page_height = doc.pagesize
+    page_width, _ = doc.pagesize
     footer_height = 10  # Height reserved for the footer
-    
-    # Calculate maximum number of chords that can fit in a row
+
+    # Instrument-specific adjustments
+    string_count = 4 if instrument == "ukulele" else 6  # Default to 4 for ukulele, 6 for guitar
+    diagram_scale = 0.6 if instrument == "ukulele" else 0.5  # Scale for diagrams
+    min_chord_spacing = 50 if instrument == "ukulele" else 70  # Minimum spacing
+
+    diagrams_to_draw = []
+    for chord in relevant_chords:
+        diagrams_to_draw.append({
+            "name": chord["name"],
+            "variation": chord["variations"][0]
+        })
+        if len(relevant_chords) < 7 and len(chord["variations"]) > 1:  # Display second variation if < 7 chords
+            diagrams_to_draw.append({
+                "name": chord["name"],
+                "variation": chord["variations"][1]
+            })
+
+    # Calculate chord_spacing dynamically
+    total_diagrams = len(diagrams_to_draw)
+    chord_spacing = max((page_width - 2 * doc.leftMargin) / total_diagrams, min_chord_spacing)
     max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
-    
-    # Only include the first row of diagrams in the footer
-    diagrams_to_draw = relevant_chords[:max_chords_per_row]
 
-    # Calculate the starting x-coordinate to center the diagrams
-    total_chords = len(diagrams_to_draw)
-    total_diagram_width = total_chords * chord_spacing
-    start_x = (page_width - total_diagram_width) / 2
+    # Split diagrams into rows
+    rows = [
+        diagrams_to_draw[i:i + max_chords_per_row]
+        for i in range(0, total_diagrams, max_chords_per_row)
+    ]
 
-
-
-    # Move to the bottom of the page
-    canvas.saveState()
-    canvas.translate(start_x, footer_height)
-
-    # Draw the chord diagrams
-    x_offset = 0
-    for chord in diagrams_to_draw:
-        diagram = ChordDiagram(chord["name"], chord["variations"][0], is_lefty=is_lefty)
-        diagram.canv = canvas
+    # Draw each row of chords
+    y_offset = footer_height
+    for row in rows:
+        total_row_width = len(row) * chord_spacing
+        start_x = (page_width - total_row_width) / 2  # Center the row
         canvas.saveState()
-        canvas.translate(x_offset, 0)
-        diagram.draw()
-        canvas.restoreState()
-        x_offset += chord_spacing    
-   
-    canvas.restoreState()
+        canvas.translate(start_x, y_offset)
 
+        x_offset = 0
+        for chord in row:
+            diagram = ChordDiagram(chord["name"], chord["variation"], scale=diagram_scale, is_lefty=is_lefty)
+            diagram.canv = canvas
+            canvas.saveState()
+            canvas.translate(x_offset, 0)
+            diagram.draw()
+            canvas.restoreState()
+            x_offset += chord_spacing
+
+        canvas.restoreState()
+        y_offset += row_spacing  # Move to the next row
