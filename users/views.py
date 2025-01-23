@@ -2,10 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-#from .forms import UserRegisterForm
 from django.http import JsonResponse
 from .models import UserPreference
-
+from .forms import UserPreferenceForm
 
 def register(request):
     if request.method == 'POST':
@@ -20,16 +19,27 @@ def register(request):
     return render(request, 'users/register.html',{'form':form})
 
 
-#@login_required
-#def profile(request):
-#    return render(request, 'users/profile.html')
+@login_required
+def user_preference_view(request):
+    # Get or create the user's preferences
+    preferences, created = UserPreference.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserPreferenceForm(request.POST, instance=preferences)
+        if form.is_valid():
+            form.save()
+            return redirect('/')  # Replace with your desired redirect URL
+    else:
+        form = UserPreferenceForm(instance=preferences)
+
+    return render(request, 'users/user_preference_form.html', {'form': form})
 
 
 @login_required
 def update_preferences(request):
     if request.method == "POST":
         # Fetch or create the user's preferences
-        preferences = get_object_or_404(UserPreferences, user=request.user)
+        preferences = get_object_or_404(UserPreference, user=request.user)
         
         # Update font size
         preferences.font_size = request.POST.get("font_size", preferences.font_size)

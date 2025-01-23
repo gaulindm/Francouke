@@ -54,9 +54,7 @@ def add_song(request):
             metadata_str = (
                 f"{{title: {title}}}\n"
                 f"{{artist: {artist}}}\n"
-                "{{album: }}\n"
                 "{{youtube: }}\n"
-                "{{capo: }}\n"
                 "{{songwriter: }}\n"
                 "{{key: }}\n"
                 "{{recording: }}\n"

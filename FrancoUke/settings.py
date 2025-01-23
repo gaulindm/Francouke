@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     'songbook.apps.SongbookConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
+    'debug_toolbar',
     'crispy_bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django_extensions',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -78,6 +81,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'FrancoUke.wsgi.application'
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

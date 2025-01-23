@@ -6,7 +6,7 @@ from .views import (
     SongUpdateView,
     SongDeleteView,
     UserSongListView,
-    ScoreView
+    ScoreView,
 )
 from . import views
 from .views import add_song
