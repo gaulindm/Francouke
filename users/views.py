@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import UserPreference
+from django.urls import reverse
 from .forms import UserPreferenceForm
 
 def register(request):
@@ -12,7 +13,12 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Your account has been created!  You are now able to log in!')
+
+            messages.success(
+                request,
+                f'Compte créé pour {username} ! Visitez votre page <a href="{reverse("users:user_preferences")}">Préférences</a> pour personnaliser vos paramètres si vous prévoyez de générer des fichiers PDF avec des diagrammes d\'accords.'
+            )
+
             return redirect('login')
     else:
         form = UserCreationForm()

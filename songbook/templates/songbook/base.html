@@ -27,12 +27,22 @@
   </title>
 </head>
   <body>
+
     <header class="site-header">
       {% include "partials/_navbar.html" %}
     </header>
 
   <main role="main" class="container">
-    
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 
         {% block content %}{% endblock %}
     

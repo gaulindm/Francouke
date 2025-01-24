@@ -1,21 +1,25 @@
 {% extends "songbook/base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Join Today</legend>
+                <legend class="border-bottom mb-4">Rejoignez-nous dès aujourd'hui</legend>
                 {{ form|crispy }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Sign Up</button>
+                <button class="btn btn-outline-info" type="submit">S'inscrire</button>
             </div>
         </form>
         <div class="border-top pt-3">
             <small class="text-muted">
-                Already Have An Account? <a class="ml-2" href="#">Sign In</a>
+                Vous avez déjà un compte ? <a class="ml-2" href="{% url 'login' %}">Connectez-vous</a>
             </small>
         </div>
+    </div>
+    <div class="alert alert-info mt-4">
+        <p>Vous prévoyez de créer des fichiers PDF avec des diagrammes d'accords ? Vous pouvez définir vos préférences après vous être inscrit(e) ! Visitez votre page <a href="{% url 'users:user_preferences' %}">Préférences</a>.</p>
     </div>
 {% endblock content %}
