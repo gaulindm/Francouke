@@ -9,15 +9,20 @@
         toggleLeftyMode: function (isLefty) {
             this.isLefty = isLefty;
         },
+        
         loadData: async function (filePath) {
             try {
                 const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 this.data = await response.json();
-                //console.log(`Chord data for ${this.currentInstrument} loaded successfully.`);
+                console.log(`Chord data for ${this.currentInstrument} loaded successfully.`);
             } catch (error) {
-                //console.error(`Error loading chord data from ${filePath}:`, error);
+                console.error(`Error loading chord data from ${filePath}:`, error);
             }
         },
+        
         find: function (chordName, variation) {
             if (!this.data) {
                 //console.error("Chord data not loaded. Please call loadData first.");

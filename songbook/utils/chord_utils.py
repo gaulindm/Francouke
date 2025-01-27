@@ -1,5 +1,6 @@
 import os
 import json
+from django.conf import settings
 from reportlab.graphics.shapes import Drawing, Line
 from reportlab.graphics import renderPDF
 from reportlab.platypus import Table, TableStyle, Spacer, Flowable
@@ -85,15 +86,17 @@ def load_chords(instrument):
     Load chord definitions based on the selected instrument.
     """
     # Dynamically locate the directory where chord files are stored
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # Current file's directory
-    chord_files_dir = os.path.join(base_dir, '..', 'chord_definitions')  # Adjust path
+    #base_dir = os.path.dirname(os.path.abspath(__file__))  # Current file's directory
+    #chord_files_dir = os.path.join(base_dir, '..', 'chord_definitions')  # Adjust path
+    static_dir = os.path.join(settings.BASE_DIR, 'static', 'js')  # Adjust path for static location
+
 
     file_map = {
-        'ukulele': os.path.join(chord_files_dir, 'ukulele_chords.json'),
-        'guitar': os.path.join(chord_files_dir, 'guitar_chords.json'),
-        'mandolin': os.path.join(chord_files_dir, 'mandolin_chords.json'),
-        "banjo": os.path.join(chord_files_dir, "banjo_chords.json"),
-        "baritone_ukulele": os.path.join(chord_files_dir, "baritoneUke_chords.json"),
+        'ukulele': os.path.join(static_dir, 'ukulele_chords.json'),
+        'guitar': os.path.join(static_dir, 'guitar_chords.json'),
+        'mandolin': os.path.join(static_dir, 'mandolin_chords.json'),
+        "banjo": os.path.join(static_dir, "banjo_chords.json"),
+        "baritone_ukulele": os.path.join(static_dir, "baritoneUke_chords.json"),
     }
 
     file_path = file_map.get(instrument, file_map['ukulele'])  # Default to ukulele
@@ -101,12 +104,11 @@ def load_chords(instrument):
         with open(file_path, 'r') as file:
             return json.load(file)
     except FileNotFoundError:
-        print(f"Error: Chord file still not found for {instrument}")
+        print(f"Error: Chord file not found for {instrument}")
         return []
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON format in {file_path}: {e}")
         return []
-
     
 def extract_used_chords(lyrics_with_chords):
     """
@@ -140,10 +142,19 @@ def extract_used_chords(lyrics_with_chords):
     # Return the chords as a sorted list
     return sorted(chords)
 
-def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lefty, instrument="ukulele", is_printing_alternate_chord=False):
+def draw_footer(
+    canvas, doc, relevant_chords, chord_spacing, row_spacing, 
+    is_lefty, instrument="ukulele", is_printing_alternate_chord=False
+):
     """
     Draw footer with chord diagrams at the bottom of the page, respecting user preferences.
     """
+    # Check if there are chords to draw
+    if not relevant_chords:
+        print("No relevant chords to draw. Skipping footer.")
+        return
+
+    # Page dimensions
     page_width, _ = doc.pagesize
     footer_height = 10  # Height reserved for the footer
 
@@ -152,24 +163,28 @@ def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lef
     diagram_scale = 0.5 if instrument == "ukulele" else 0.7
     min_chord_spacing = 50 if instrument == "ukulele" else 70
 
+    # Prepare chord diagrams to draw
     diagrams_to_draw = []
     for chord in relevant_chords:
-        # Always add the first variation
+        # Add the first variation of each chord
         diagrams_to_draw.append({
             "name": chord["name"],
             "variation": chord["variations"][0]
         })
-        # Add alternate variation if user preference allows
+        # Add alternate variation if allowed and available
         if is_printing_alternate_chord and len(chord["variations"]) > 1:
             diagrams_to_draw.append({
                 "name": chord["name"],
                 "variation": chord["variations"][1]
             })
 
-    # Adjust chord_spacing dynamically
+    # Validate total diagrams and calculate spacing
     total_diagrams = len(diagrams_to_draw)
-    chord_spacing = max((page_width - 2 * doc.leftMargin) / total_diagrams, min_chord_spacing)
-    max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
+    chord_spacing = max(
+        (page_width - 2 * doc.leftMargin) / total_diagrams,
+        min_chord_spacing
+    )
+    max_chords_per_row = max(1, int((page_width - 2 * doc.leftMargin) / chord_spacing))  # Ensure at least 1 per row
 
     # Split diagrams into rows
     rows = [
@@ -187,7 +202,11 @@ def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lef
 
         x_offset = 0
         for chord in row:
-            diagram = ChordDiagram(chord["name"], chord["variation"], scale=diagram_scale, is_lefty=is_lefty)
+            # Draw each chord diagram
+            diagram = ChordDiagram(
+                chord["name"], chord["variation"], 
+                scale=diagram_scale, is_lefty=is_lefty
+            )
             diagram.canv = canvas
             canvas.saveState()
             canvas.translate(x_offset, 0)
@@ -197,3 +216,4 @@ def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, is_lef
 
         canvas.restoreState()
         y_offset += row_spacing  # Move to the next row
+
