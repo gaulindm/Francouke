@@ -5,6 +5,8 @@ from .models import UserPreference
 admin.site.register(Profile)
 
 
+
+
 @admin.register(UserPreference)
 class UserPreferencesAdmin(admin.ModelAdmin):
     list_display = ('user', 'instrument', 'is_lefty','is_printing_alternate_chord')

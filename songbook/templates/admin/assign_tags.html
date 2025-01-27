@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Assign Tag (DEBUG CHECK)</h1>
+
+<!-- Debug: Display the form's data -->
+<p><strong>Form Debug Info:</strong></p>
+<pre>
+    {{ form.as_table }}
+</pre>
+
+<form method="post" id="assign-tag-form">{% csrf_token %}
+    {{ form.as_p }}
+
+    <!-- Debug: Ensure hidden input for 'apply' -->
+    <input type="hidden" name="apply" value="1">
+
+    <!-- Submit button -->
+    <button type="submit" class="button" id="apply-button">Apply</button>
+    <a href="{{ request.META.HTTP_REFERER }}" class="button">Cancel</a>
+</form>
+
+<!-- Debug: Output all POST data -->
+<script>
+    document.getElementById("assign-tag-form").onsubmit = function () {
+        console.log("Form submitted! Data:");
+        const formData = new FormData(this);
+        for (const [key, value] of formData.entries()) {
+            console.log(key + ": " + value);
+        }
+    };
+</script>
+{% endblock %}
