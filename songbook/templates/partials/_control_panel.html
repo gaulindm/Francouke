@@ -1,6 +1,6 @@
 {% load static %}
 <div class="content-section">
-    {% if object.contributor == user %}<h3>Modify</h3>(must be contributor of song)<br> 
+    {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
                 <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
                 <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
             {% endif%}

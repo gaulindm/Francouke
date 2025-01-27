@@ -368,21 +368,25 @@ class SongUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Update the lyrics_with_chords field with parsed data
         form.instance.lyrics_with_chords = parsed_lyrics
         return super().form_valid(form)
+#If user needs to be contributor
+#  def test_func(self):
+#       song = self.get_object()
+#       if self.request.user == song.contributor:
+#           return True
+#       return False 
+
+#   def get_object(self, queryset=None):
+#       # Ensure only the contributor can update the song
+#       obj = super().get_object(queryset)
+#       if obj.contributor != self.request.user:
+#           raise PermissionDenied("You do not have permission to edit this song.")
+#       return obj
 
     def test_func(self):
-        song = self.get_object()
-        if self.request.user == song.contributor:
-            return True
-        return False 
+        return self.request.user.is_authenticated
 
     def get_object(self, queryset=None):
-        # Ensure only the contributor can update the song
-        obj = super().get_object(queryset)
-        if obj.contributor != self.request.user:
-            raise PermissionDenied("You do not have permission to edit this song.")
-        return obj
-
-
+        return super().get_object(queryset)
 
 
 class SongDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
