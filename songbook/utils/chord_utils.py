@@ -34,8 +34,10 @@ class ChordDiagram(Flowable):
 
         # Draw nut or offset label
         if needs_offset:
-            self.canv.setFont("Helvetica-Bold", 8)
-            self.canv.drawString(-10, fret_spacing * (num_frets - 1), f"{fret_offset}")
+            self.canv.setFont("Helvetica-Bold", 10)  # Slightly larger font
+            self.canv.setFillColor(colors.red)  # Use a distinct color
+            self.canv.drawString(-15, fret_spacing * (num_frets - 1) + 5, f"{fret_offset}")
+            self.canv.setFillColor(colors.black)  # Reset color for other elements
         else:
             self.canv.setLineWidth(2)
             self.canv.line(0, fret_spacing * num_frets, string_spacing * (num_strings - 1), fret_spacing * num_frets)
@@ -66,9 +68,11 @@ class ChordDiagram(Flowable):
         self.canv.setFillColor(colors.black)
         for string_idx, fret in enumerate(self.variation):
             if fret > 0:  # Ignore open strings
-                x = flip_x(string_idx * string_spacing)
-                y = max_height - ((fret - fret_offset) - 0.5) * fret_spacing  # Adjust for offset
-                self.canv.circle(x, y, 4 * self.scale, fill=1)
+                adjusted_fret = fret - fret_offset
+                if adjusted_fret > 0:  # Only draw if the fret is within the diagram
+                    x = flip_x(string_idx * string_spacing)
+                    y = max_height - ((adjusted_fret - 0.5) * fret_spacing)
+                    self.canv.circle(x, y, 4 * self.scale, fill=1)
 
         # Draw open strings
         self.canv.setFillColor(colors.white)

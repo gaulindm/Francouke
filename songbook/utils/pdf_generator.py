@@ -179,10 +179,15 @@ def generate_songs_pdf(response, songs, user):
         # Lyrics Section with section handling
         lyrics_with_chords = song.lyrics_with_chords or []
         paragraph_buffer = []
+        chorus_line_buffer = []
         is_chorus = False
         refrain_added = False
 
         for group in lyrics_with_chords:
+
+
+
+            
             for item in group:
                 if "directive" in item:
                     if item["directive"] == "{soc}":
@@ -190,26 +195,46 @@ def generate_songs_pdf(response, songs, user):
                         if paragraph_buffer:
                             elements.append(Paragraph(" ".join(paragraph_buffer), verse_style))
                             paragraph_buffer = []
-                        # Add the "Refrain:" label left-aligned
-                        elements.append(Paragraph("<b>Refrain:</b>", ParagraphStyle(
-                            'RefrainStyle',
-                            parent=base_style,
-                            alignment=0,  # Left-aligned
-                            fontSize=13,
-                            leading=14,
-                            spaceBefore=2,
-                            spaceAfter=2
-                        )))
+
+                        #Prepare the chorus table structure
+                        chorus_table_data=[[
+                            Paragraph("<b>Refrain:</b>",ParagraphStyle(
+                                'RefrainStyle',
+                                parent=base_style,
+                                alignment=0,
+                                fontSize=13,
+                                leading=14,
+                                spaceBefore=2,
+                                spaceAfter=2
+                            )),
+                            ""
+                        ]]
+                        chorus_line_buffer = []  #Reset chorus buffer for new buffer
                         continue
 
                     elif item["directive"] == "{eoc}":
                         is_chorus = False
 
+                        if chorus_line_buffer:
+                            #Add the final accumulated line to the table
+                            chorus_table_data.append(["",Paragraph(" ".join(chorus_line_buffer),chorus_style)])
+                            chorus_line_buffer = []
                         
-                        if paragraph_buffer:
-                            elements.append(Paragraph(" ".join(paragraph_buffer), chorus_style))
-                            paragraph_buffer = []
-                        continue
+
+                        #Create the chorus table
+                        chorus_table = Table(chorus_table_data,colWidths=[80,400])
+                        chorus_table.setStyle(TableStyle([
+                            ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align "Refrain" to the left
+                            ('ALIGN', (1, 0), (1, -1), 'CENTER'),  # Align chorus lines to the center
+                            ('VALIGN',(0,0),(-1,-1), 'TOP'),  #Align everything to the top
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines for debugging
+                        ]))
+
+                        #Append the table to the document
+                        elements.append(chorus_table)
+                        elements.append(Spacer(1, 12))
+                                
 
 
                 elif "format" in item:
@@ -227,8 +252,10 @@ def generate_songs_pdf(response, songs, user):
                     lyric = item["lyric"]
                     line = f"<b>[{chord}]</b> {lyric}" if chord else lyric
 
-                    # Add chorus or verse lines
-                    paragraph_buffer.append(line)
+                    if is_chorus:
+                        chorus_line_buffer.append(line)  # Accumulate chorus lines
+                    else:
+                        paragraph_buffer.append(line)  # Accumulate verse lines
 
         # Add remaining lines
         if paragraph_buffer:
