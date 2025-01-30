@@ -30,6 +30,7 @@ def generate_songs_pdf(response, songs, user):
     elements = []
 
 
+
     # Get user preferences
     instrument = user.userpreference.instrument
     is_lefty = user.userpreference.is_lefty
@@ -176,7 +177,7 @@ def generate_songs_pdf(response, songs, user):
         elements.append(header_table)
         elements.append(Spacer(1, 12))
 
-        # Lyrics Section with section handling
+      # Lyrics Section with section handling
         lyrics_with_chords = song.lyrics_with_chords or []
         paragraph_buffer = []
         chorus_line_buffer = []
@@ -184,10 +185,6 @@ def generate_songs_pdf(response, songs, user):
         refrain_added = False
 
         for group in lyrics_with_chords:
-
-
-
-            
             for item in group:
                 if "directive" in item:
                     if item["directive"] == "{soc}":
@@ -196,56 +193,73 @@ def generate_songs_pdf(response, songs, user):
                             elements.append(Paragraph(" ".join(paragraph_buffer), verse_style))
                             paragraph_buffer = []
 
-                        #Prepare the chorus table structure
-                        chorus_table_data=[[
-                            Paragraph("<b>Refrain:</b>",ParagraphStyle(
-                                'RefrainStyle',
-                                parent=base_style,
-                                alignment=0,
-                                fontSize=13,
-                                leading=14,
-                                spaceBefore=2,
-                                spaceAfter=2
-                            )),
-                            ""
-                        ]]
-                        chorus_line_buffer = []  #Reset chorus buffer for new buffer
-                        continue
+                        # Reset the chorus table structure
+                        chorus_table_data = []
+                        chorus_line_buffer = []  # Buffer to accumulate a full line before adding to the table
+                        continue  # Move to the next item
 
                     elif item["directive"] == "{eoc}":
                         is_chorus = False
-
-                        if chorus_line_buffer:
-                            #Add the final accumulated line to the table
-                            chorus_table_data.append(["",Paragraph(" ".join(chorus_line_buffer),chorus_style)])
-                            chorus_line_buffer = []
                         
+                        if chorus_line_buffer:  # Make sure we store the final buffer before EOC
+                            full_line = " ".join(chorus_line_buffer)
+                            chorus_table_data.append(["", Paragraph(full_line, chorus_style)])
 
-                        #Create the chorus table
-                        chorus_table = Table(chorus_table_data,colWidths=[80,400])
-                        chorus_table.setStyle(TableStyle([
-                            ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align "Refrain" to the left
-                            ('ALIGN', (1, 0), (1, -1), 'CENTER'),  # Align chorus lines to the center
-                            ('VALIGN',(0,0),(-1,-1), 'TOP'),  #Align everything to the top
-                            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines for debugging
-                        ]))
+                        if chorus_table_data:  # Ensure "Refrain:" is always the first row
+                            
+                            chorus_table_data.insert(0, [
+                                Paragraph("<b>Refrain:</b>", ParagraphStyle(
+                                    'RefrainStyle',
+                                    parent=chorus_style,
+                                    alignment=0,
+                                    fontSize=13,
+                                    leading=14,
+                                    spaceBefore=2,
+                                    spaceAfter=2,
+                                    textColor=colors.black
+                                )),
+                                chorus_table_data.pop(0)[1] if chorus_table_data else Paragraph("", chorus_style)
+                            ])
 
-                        #Append the table to the document
-                        elements.append(chorus_table)
-                        elements.append(Spacer(1, 12))
-                                
+                            # Create the chorus table
+                            chorus_table = Table(chorus_table_data, colWidths=[80, 400], hAlign='LEFT')
+                            chorus_table.setStyle(TableStyle([
+                                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                                ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                                #('GRID', (0, 0), (-1, -1), 1, colors.black),
+                            ]))
+
+                            elements.append(chorus_table)
+                            elements.append(Spacer(1, 12))  # Space after chorus
+
+                        # Reset buffer after processing chorus
+                        chorus_line_buffer = []
+            
+
+
 
 
                 elif "format" in item:
                     if item["format"] == "LINEBREAK":
-                        paragraph_buffer.append("<br/>")
+                        if is_chorus and chorus_line_buffer:
+                            # Store full chorus line before resetting buffer
+                            full_line = " ".join(chorus_line_buffer)
+                            chorus_table_data.append(["", Paragraph(full_line, chorus_style)])
+
+                            # Reset buffer only after storing full line
+                            chorus_line_buffer = []   
+
+                        elif not is_chorus and paragraph_buffer:
+                            paragraph_buffer.append("<br/>")  # Keep verse formatting
+
                     elif item["format"] == "PARAGRAPHBREAK":
                         if paragraph_buffer:
                             paragraph_text = " ".join(paragraph_buffer)
                             style = chorus_style if is_chorus else verse_style
                             elements.append(Paragraph(paragraph_text, style))
-                            paragraph_buffer = []
+                            paragraph_buffer = []  # Reset buffer
 
                 elif "lyric" in item:
                     chord = item.get("chord", "")
@@ -253,9 +267,11 @@ def generate_songs_pdf(response, songs, user):
                     line = f"<b>[{chord}]</b> {lyric}" if chord else lyric
 
                     if is_chorus:
-                        chorus_line_buffer.append(line)  # Accumulate chorus lines
+                        chorus_line_buffer.append(line)  # Accumulate chorus lines until a LINEBREAK
+                        
                     else:
-                        paragraph_buffer.append(line)  # Accumulate verse lines
+                        paragraph_buffer.append(line)  # Accumulate verse lines as usual
+
 
         # Add remaining lines
         if paragraph_buffer:
