@@ -222,7 +222,7 @@ def generate_songs_pdf(response, songs, user):
                             ])
 
                             # Create the chorus table
-                            chorus_table = Table(chorus_table_data, colWidths=[80, 400], hAlign='LEFT')
+                            chorus_table = Table(chorus_table_data, colWidths=[80, 440], hAlign='LEFT')
                             chorus_table.setStyle(TableStyle([
                                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                                 ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
