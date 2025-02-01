@@ -25,7 +25,7 @@ def generate_songs_pdf(response, songs, user):
     base_style = styles['BodyText']
     chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
-    intro_style = ParagraphStyle('Intro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    intro_style = ParagraphStyle('Intro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
     outro_style = ParagraphStyle('Outro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     bridge_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     interlude_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
@@ -240,12 +240,13 @@ def generate_songs_pdf(response, songs, user):
                                 section_table_data.pop(0)[1]
                             ])
 
-                            section_table = Table(section_table_data, colWidths=[80, 440], hAlign='CENTER')
+                            section_table = Table(section_table_data, colWidths=[80, 440], hAlign='LEFT')
                             section_table.setStyle(TableStyle([
                                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                                 ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
                                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                                 ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                                #('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add grid lines for debugging
                             ]))
 
                             elements.append(section_table)

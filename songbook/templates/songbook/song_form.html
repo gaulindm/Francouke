@@ -13,7 +13,7 @@
     <div class="container">
         <div class="row">
             <!-- Left Column: Form -->
-            <div class="col-md-8">                
+            <div class="col-lg-8">                
                 <div class="content-section">
                     <form method="POST" id="song-form">
                         {% csrf_token %}
@@ -68,7 +68,7 @@
                 </div>
             </div>
          <!-- Right Column: Guide -->
-        <div class="col-md-4">
+        <div class="col-lg-4">
             {% verbatim %}
             <div class="content-section border rounded p-3 bg-light">
                 <h5>Guide</h5>
@@ -90,6 +90,15 @@
                     <li>{year:}
                     <li>{1stnote:}
                     <li>{timeSignature:}
+                </ul>
+                <p>Vous pouvez séparer votre contribution en section.  Les sections seront placées dans un tableau avec bordure invisible.  Il est possible de choisir l'alignement des paroles dans le codage.  <strong>Ne struturez pas les couplets!</strong></p>
+                <ul>
+                    <li>{soi}Intro {eoi}</li>
+                    <li>{soc}Refrain {eoc}</li>
+                    <li>{sob}Pont(bridge) {eob}</li>
+                    <li>{sod}Interlude {eod}</li>
+                    <li>{soo}Outro {eoo}</li>
+                    
                 </ul>
                 <p>Pour des commentaires ou des suggestion, veuillez communiquer avec gaulindm@gmail.com.</p>
             </div>
