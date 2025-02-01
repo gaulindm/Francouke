@@ -2,7 +2,13 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Value
 from django.db.models.functions import Concat
-from .models import Song
+from .models import Song, SongFormatting
+
+
+
+@admin.register(SongFormatting)
+class SongFormattingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'song')
 
 
 @admin.register(Song)

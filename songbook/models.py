@@ -94,3 +94,21 @@ class Song(models.Model):
 
             # Extract chord names using regex
             return list(set(re.findall(r'\[([A-G][#b]?(maj|min|dim|aug|sus|6|7|9)?)\]', lyrics_text)))
+    
+class SongFormatting(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Each user gets their own formatting
+    song = models.ForeignKey('Song', on_delete=models.CASCADE)  # Link to the song
+
+    # Store formatting settings for each section as JSON
+    intro = models.JSONField(default=dict, blank=True)
+    verse = models.JSONField(default=dict, blank=True)
+    chorus = models.JSONField(default=dict, blank=True)
+    bridge = models.JSONField(default=dict, blank=True)
+    interlude = models.JSONField(default=dict, blank=True)
+    outro = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'song')  # Ensure each user has only one formatting per song
+
+    def __str__(self):
+        return f"Formatting for {self.song.title} by {self.user.username}"

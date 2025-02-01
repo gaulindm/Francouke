@@ -26,7 +26,7 @@ def generate_songs_pdf(response, songs, user):
     chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
     intro_style = ParagraphStyle('Intro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
-    outro_style = ParagraphStyle('Outro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    outro_style = ParagraphStyle('Outro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
     bridge_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     interlude_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
 

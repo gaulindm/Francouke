@@ -21,7 +21,7 @@ from django.http import HttpResponse
 from django.db.models import Q  # Import Q for complex queries
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
-from .models import Song  # Adjust based on your models
+from .models import Song, SongFormatting  # Adjust based on your models
 from taggit.models import Tag
 from .models import Song
 from songbook.utils.pdf_generator import generate_songs_pdf  # Import the utility function
@@ -33,16 +33,22 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import SongForm
+from .forms import SongForm, TagFilterForm
 from songbook.models import Song
 from django.utils.timezone import now
 from django.contrib.auth.models import User
 import re
 
 
-# views.py
+def song_detail(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
 
-from .forms import TagFilterForm
+    # Ensure the user has formatting for this song
+    formatting, created = SongFormatting.objects.get_or_create(user=request.user, song=song)
+
+    return render(request, 'song_detail.html', {'song': song, 'formatting': formatting})
+
+
 
 def song_list(request):
     form = TagFilterForm(request.POST or None)
