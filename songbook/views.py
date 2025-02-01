@@ -39,52 +39,6 @@ from django.utils.timezone import now
 from django.contrib.auth.models import User
 import re
 
-def add_song(request):
-    if request.method == "POST":
-        form = SongForm(request.POST)
-        if form.is_valid():
-            artist = form.cleaned_data["artist"]
-            title = form.cleaned_data["title"]
-            content = form.cleaned_data["content"]
-
-            # Convert ChordPro syntax
-            converted_content = re.sub(r"\{\{(.*?)\}\}", r"[\1]", content)
-
-            metadata = {"artist": artist, "title": title}
-            metadata_str = (
-                f"{{title: {title}}}\n"
-                f"{{artist: {artist}}}\n"
-                "{{youtube: }}\n"
-                "{{songwriter: }}\n"
-                "{{key: }}\n"
-                "{{recording: }}\n"
-                "{{year: }}\n"
-                "{{1stnote: }}\n"
-                "{{tempo: }}\n"
-                "{{timeSignature: }}"
-            )
-
-            # Combine metadata and song content
-            song_chordpro = f"{metadata_str}\n\n{converted_content}"
-
-            # Replace `1` with the logged-in user's ID or current user
-            contributor = User.objects.get(pk=1)  # Replace with dynamic user if needed
-
-            # Save to the database
-            Song.objects.create(
-                songTitle=title,
-                songChordPro=song_chordpro,
-                metadata=metadata,
-                date_posted=now(),
-                contributor=contributor,
-            )
-            messages.success(request, f"Song '{title}' added successfully!")
-            return redirect("add_song")
-    else:
-        form = SongForm()
-
-    return render(request, "add_song.html", {"form": form})
-
 
 # views.py
 

@@ -23,9 +23,12 @@ def generate_songs_pdf(response, songs, user):
     )
     styles = getSampleStyleSheet()
     base_style = styles['BodyText']
-    bridge_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
     verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
+    intro_style = ParagraphStyle('Intro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    outro_style = ParagraphStyle('Outro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    bridge_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
+    interlude_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
 
     elements = []
 
@@ -179,106 +182,147 @@ def generate_songs_pdf(response, songs, user):
 
       # Lyrics Section with section handling
         lyrics_with_chords = song.lyrics_with_chords or []
-        paragraph_buffer = []
-        chorus_line_buffer = []
-        is_chorus = False
-        refrain_added = False
+
+        #chorus_line_buffer = []
+        #is_chorus = False
+        #refrain_added = False
+
+ 
+
+        # Initialize necessary variables
+        section_type = None  # Tracks active section (Chorus, Intro, Bridge, Outro)
+        section_buffer = []  # Stores lyrics inside structured sections
+        section_table_data = []  # Stores formatted section content
+        paragraph_buffer = []  # Stores unstructured verses (normal lyrics)
 
         for group in lyrics_with_chords:
             for item in group:
                 if "directive" in item:
-                    if item["directive"] == "{soc}":
-                        is_chorus = True
+                    # Detect the start of a structured section
+                    if item["directive"] in ["{soc}", "{soi}", "{sob}", "{soo}", "{sod}"]:
+                        # Store any buffered verse before switching sections
                         if paragraph_buffer:
                             elements.append(Paragraph(" ".join(paragraph_buffer), verse_style))
+                            elements.append(Spacer(1, 12))
                             paragraph_buffer = []
 
-                        # Reset the chorus table structure
-                        chorus_table_data = []
-                        chorus_line_buffer = []  # Buffer to accumulate a full line before adding to the table
-                        continue  # Move to the next item
+                        # Set section type
+                        section_type = {
+                            "{soc}": "Chorus",
+                            "{soi}": "Intro",
+                            "{sob}": "Bridge",
+                            "{soo}": "Outro",
+                            "{sod}": "Interlude"
+                        }[item["directive"]]
 
-                    elif item["directive"] == "{eoc}":
-                        is_chorus = False
-                        
-                        if chorus_line_buffer:  # Make sure we store the final buffer before EOC
-                            full_line = " ".join(chorus_line_buffer)
-                            chorus_table_data.append(["", Paragraph(full_line, chorus_style)])
+                        section_table_data = []
+                        section_buffer = []
+                        continue
 
-                        if chorus_table_data:  # Ensure "Refrain:" is always the first row
-                            
-                            chorus_table_data.insert(0, [
-                                Paragraph("<b>Refrain:</b>", ParagraphStyle(
-                                    'RefrainStyle',
-                                    parent=chorus_style,
-                                    alignment=0,
-                                    fontSize=13,
-                                    leading=14,
-                                    spaceBefore=2,
-                                    spaceAfter=2,
-                                    textColor=colors.black
-                                )),
-                                chorus_table_data.pop(0)[1] if chorus_table_data else Paragraph("", chorus_style)
+                    # Detect the end of a structured section
+                    elif item["directive"] in ["{eoc}", "{eoi}", "{eob}", "{eoo}", "{eod}"]:
+                        if section_type and section_buffer:
+                            section_table_data.append([
+                                "", 
+                                Paragraph(" ".join(section_buffer), 
+                                    chorus_style if section_type == "Chorus" 
+                                    else intro_style if section_type == "Intro" 
+                                    else bridge_style if section_type == "Bridge" 
+                                    else outro_style if section_type == "Outro"
+                                    else interlude_style)  # New Interlude Formatting
                             ])
 
-                            # Create the chorus table
-                            chorus_table = Table(chorus_table_data, colWidths=[80, 440], hAlign='LEFT')
-                            chorus_table.setStyle(TableStyle([
+
+                        if section_type and section_table_data:
+                            # Insert section name at (0,0)
+                            section_table_data.insert(0, [
+                                Paragraph(f"<b>{section_type}:</b>", base_style), 
+                                section_table_data.pop(0)[1]
+                            ])
+
+                            section_table = Table(section_table_data, colWidths=[80, 440], hAlign='CENTER')
+                            section_table.setStyle(TableStyle([
                                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                                 ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
                                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                                 ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-                                #('GRID', (0, 0), (-1, -1), 1, colors.black),
                             ]))
 
-                            elements.append(chorus_table)
-                            elements.append(Spacer(1, 12))  # Space after chorus
+                            elements.append(section_table)
+                            elements.append(Spacer(1, 12))
 
-                        # Reset buffer after processing chorus
-                        chorus_line_buffer = []
-            
-
-
-
+                        # Reset section tracking
+                        section_type = None
+                        section_buffer = []
+                        continue
 
                 elif "format" in item:
                     if item["format"] == "LINEBREAK":
-                        if is_chorus and chorus_line_buffer:
-                            # Store full chorus line before resetting buffer
-                            full_line = " ".join(chorus_line_buffer)
-                            chorus_table_data.append(["", Paragraph(full_line, chorus_style)])
+                        if section_type and section_buffer:
+                            full_line = " ".join(section_buffer)
+                            section_table_data.append(["", Paragraph(full_line, 
+                                chorus_style if section_type == "Chorus" 
+                                else intro_style if section_type == "Intro" 
+                                else bridge_style if section_type == "Bridge" 
+                                else outro_style)])
+                            section_buffer = []   
 
-                            # Reset buffer only after storing full line
-                            chorus_line_buffer = []   
-
-                        elif not is_chorus and paragraph_buffer:
+                        elif not section_type and paragraph_buffer:
                             paragraph_buffer.append("<br/>")  # Keep verse formatting
 
                     elif item["format"] == "PARAGRAPHBREAK":
                         if paragraph_buffer:
                             paragraph_text = " ".join(paragraph_buffer)
-                            style = chorus_style if is_chorus else verse_style
+                            style = verse_style  # Verses always use verse_style
                             elements.append(Paragraph(paragraph_text, style))
-                            paragraph_buffer = []  # Reset buffer
+                            elements.append(Spacer(1, 12))
+                            paragraph_buffer = []
 
                 elif "lyric" in item:
                     chord = item.get("chord", "")
                     lyric = item["lyric"]
                     line = f"<b>[{chord}]</b> {lyric}" if chord else lyric
 
-                    if is_chorus:
-                        chorus_line_buffer.append(line)  # Accumulate chorus lines until a LINEBREAK
-                        
+                    if section_type:
+                        section_buffer.append(line)  # Store for structured sections
                     else:
-                        paragraph_buffer.append(line)  # Accumulate verse lines as usual
+                        paragraph_buffer.append(line)  # Store for normal verses
 
+        # Ensure any remaining structured section is processed
+        if section_type and section_buffer:
+            section_table_data.append([
+                "", 
+                Paragraph(" ".join(section_buffer), 
+                    chorus_style if section_type == "Chorus" 
+                    else intro_style if section_type == "Intro" 
+                    else bridge_style if section_type == "Bridge" 
+                    else outro_style)
+            ])
 
-        # Add remaining lines
+        if section_type and section_table_data:
+            section_table_data.insert(0, [
+                Paragraph(f"<b>{section_type}:</b>", base_style), 
+                section_table_data.pop(0)[1]
+            ])
+
+            section_table = Table(section_table_data, colWidths=[80, 440], hAlign='CENTER')
+            section_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ]))
+
+            elements.append(section_table)
+            elements.append(Spacer(1, 12))
+
+        # Ensure any remaining verse is added as a paragraph
         if paragraph_buffer:
-            paragraph_text = " ".join(paragraph_buffer)
-            style = chorus_style if is_chorus else verse_style
-            elements.append(Paragraph(paragraph_text, style))
+            elements.append(Paragraph(" ".join(paragraph_buffer), verse_style))
+            elements.append(Spacer(1, 12))
             paragraph_buffer = []
+
+
 
         elements.append(PageBreak())  # Separate songs by page
 

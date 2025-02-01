@@ -9,7 +9,7 @@ from .views import (
     ScoreView,
 )
 from . import views
-from .views import add_song
+
 from .views import generate_audio_from_abc
 
 urlpatterns = [
@@ -28,7 +28,7 @@ urlpatterns = [
     path('chord-dictionary/', views.chord_dictionary, name='chord-dictionary'),
     path('generate_titles_pdf/', views.generate_titles_pdf, name='generate_titles_pdf'),
     path('generate_multi_song_pdf/', views.generate_multi_song_pdf, name='generate_multi_song_pdf'),
-    path('add-song/', add_song, name='add_song'),
+
 ]
     
 

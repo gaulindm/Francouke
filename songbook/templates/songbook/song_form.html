@@ -178,20 +178,7 @@ href="https://cdn.jsdelivr.net/npm/codemirror@5.65.10/addon/dialog/dialog.css"
         });
 
 
-// Add an overlay for highlighting { ... }
-editor.addOverlay({
-    token: function(stream) {
-        if (stream.match("{")) { // Match opening brace
-            while (!stream.eat("}")) { // Consume until closing brace
-                stream.next();
-            }
-            stream.eat("}"); // Consume the closing brace
-            return "curly"; // Apply the 'cm-curly' CSS class
-        }
-        stream.next(); // Move to the next character if no match
-        return null;   // No special styling
-    }
-});
+
 
     // Adjust initial height to be taller
     editor.setSize(null, "500px"); // Set the height to 500px or adjust as needed
