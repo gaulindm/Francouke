@@ -43,6 +43,20 @@ from django.contrib.auth.models import User
 import re
 
 
+from django.http import HttpResponse
+from .utils.pdf_generator import generate_songs_pdf
+
+def preview_pdf(request, song_id):
+    """Generate a PDF and return it as an embedded preview."""
+    song = Song.objects.get(pk=song_id)
+    user = request.user
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{song.songTitle}_preview.pdf"'
+
+    generate_songs_pdf(response, [song], user)  # Generate the PDF and write to response
+    return response
+
 def song_detail(request, song_id):
     song = get_object_or_404(Song, id=song_id)
 

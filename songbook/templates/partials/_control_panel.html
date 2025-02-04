@@ -1,8 +1,17 @@
 {% load static %}
 <div class="content-section">
+    <h1>✅ Debug: Control Panel Loaded</h1>
+    <p>Checking variables...</p>
+    <p><strong>Authenticated User:</strong> {% if user.is_authenticated %}Yes{% else %}No{% endif %}</p>
+    <p><strong>Score Object:</strong> {% if score %}Exists{% else %}⚠️ MISSING{% endif %}</p>
+    <p><strong>Metadata:</strong> {% if score.metadata %}Exists{% else %}⚠️ MISSING{% endif %}</p>
+
+
+
     {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
-                <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
-                <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
+    <a class="btn btn-secondary btn-sm-mt-1 mb-1" href="{% url 'song-update' score.id %}">Update</a>
+    <a class="btn btn-danger btn-sm-mt-1 mb-1" href="{% url 'song-delete' score.id %}">Delete</a>
+    
             {% endif%}
     
     
@@ -38,15 +47,29 @@
             <div class="control-panel mt-12 d-flex flex-wrap align-items-center">
                 <!-- Font Size -->
                 <div class="me-3">
-                    <label for="fontSize" class="form-label">Font Size:</label>
-                    <select id="fontSize" onchange="updateStyle('fontSize', this.value)" class="form-control form-control-sm">
-                        <option value="12px" {% if preferences.font_size == "12px" %}selected{% endif %}>12px</option>
-                        <option value="14px" {% if preferences.font_size == "14px" %}selected{% endif %}>14px</option>
-                        <option value="16px" {% if preferences.font_size == "16px" %}selected{% endif %}>16px</option>
-                        <option value="18px" {% if preferences.font_size == "18px" %}selected{% endif %}>18px</option>
-                        <option value="20px" {% if preferences.font_size == "20px" %}selected{% endif %}>20px</option>
+                    <label for="section-select">Change Font Size For:</label>
+                    <select id="section-select">
+                        <option value="songwriter_style">Songwriter</option>
+                        <option value="recording_style">Recording</option>
+                        <option value="first_vocal_note_style">First Vocal Note</option>
+                        <option value="intro_style">Intro</option>
+                        <option value="verse_style">Verse</option>
+                        <option value="chorus_style">Chorus</option>
+                        <option value="bridge_style">Bridge</option>
+                        <option value="interlude_style">Interlude</option>
+                        <option value="outro_style">Outro</option>
                     </select>
-                </div>
+                    
+                    <label for="fontSize">Font Size:</label>
+                    <select id="fontSize" class="form-control form-control-sm">
+                        <option value="12px">12px</option>
+                        <option value="14px">14px</option>
+                        <option value="16px">16px</option>
+                        <option value="18px">18px</option>
+                        <option value="20px">20px</option>
+                    </select>
+                    
+                    
           
                 <!-- Line Spacing -->
                 <div class="me-3">
@@ -142,5 +165,49 @@
 {% endif %}
 
 </div>
+<script>
+document.getElementById("fontSize").addEventListener("change", function() {
+    let formData = new FormData();
+    let csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    let csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
+    let songId = "{{ score.id }}";  
+    let section = document.getElementById("section-select").value;  // ✅ Get selected section
 
+    formData.append("csrfmiddlewaretoken", csrfToken);
+    formData.append("song_id", songId);
+    formData.append("section", section);
+    formData.append("font_size", this.value);
+
+    fetch("/update_preferences/", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRFToken": csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            console.log("Font size updated!");
+
+            // Reload formatted content
+            fetch(`/format_song/{{ score.id }}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("song-content").innerHTML = data.html;
+            });
+        }
+    })
+    .catch(error => console.error("Fetch error:", error));
+});
+document.addEventListener("DOMContentLoaded", function() {
+    // Fetch formatted song on page load
+    fetch(`/format_song/{{ score.id }}/`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("song-content").innerHTML = data.html;
+    })
+    .catch(error => console.error("Error loading song:", error));
+});
+</script>        
 
