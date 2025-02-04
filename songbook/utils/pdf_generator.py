@@ -6,7 +6,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import letter
 from django.conf import settings
 from reportlab.platypus.flowables import Flowable
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, PageBreak
 import json
 import os
 import re
@@ -17,14 +16,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
 
 def generate_songs_pdf(response, songs, user):
-    doc = SimpleDocTemplate(
-        response,
-        pagesize=letter,
-        topMargin=2,
-        bottomMargin=80,
-        leftMargin=20,
-        rightMargin=20,
-    )
+    doc = SimpleDocTemplate(response, pagesize=letter, topMargin=2, bottomMargin=80, leftMargin=20, rightMargin=20)
     styles = getSampleStyleSheet()
     base_style = styles["BodyText"]
     elements = []
@@ -148,9 +140,6 @@ def generate_songs_pdf(response, songs, user):
         used_chords = extract_used_chords(song.lyrics_with_chords)
         relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
 
-  
-
-
 
 
         # Header Section
@@ -160,17 +149,6 @@ def generate_songs_pdf(response, songs, user):
         songwriter = metadata.get('songwriter', 'Unknown')
         year = metadata.get('year', 'Unknown')
         recording = metadata.get('recording', 'Unknown')
-
-        #song = type('Song', (object,), {'songTitle': "Hey, Good Lookin'"})
-
-       # metadata_text = f"""
-       # <b>Artist:</b> {metadata.get('artist', 'Unknown Artist')}<br/>
-       # <b>Album:</b> {metadata.get('album', 'Unknown')}<br/>
-       # <b>Year:</b> {metadata.get('year', 'Unknown')}<br/>
-       # <b>Chords Match YouTube Pitch:</b> {metadata.get('chords_match', 'N/A')}
-       # """
-
-
 
         recorded_by_text = f"{metadata.get('recording', 'Unknown')} recording by {metadata.get('artist', 'Unknown Artist')}"
         #if metadata.get('album', ''):
@@ -184,17 +162,8 @@ def generate_songs_pdf(response, songs, user):
                 Paragraph(f"<b>{song.songTitle or 'Untitled Song'}</b>", styles['Title']),
                 Paragraph(f"First Vocal Note: {metadata.get('1stnote', 'N/A')}", first_vocal_note_style),
             ],
-            [
-               # Paragraph(f"Tempo: {metadata.get('tempo', '')}", styles['Normal']),    Uncertain of style to adopt
-                Paragraph(f"{metadata.get('songwriter', '')}", songwriter_style),  # Ensure style is correct
-                "",
-                "",
-            ],
-            [
-                Paragraph(recorded_by_text, recording_style),
-                "",
-                "",
-            ],
+            [Paragraph(f"{metadata.get('songwriter', '')}", songwriter_style),  "","",],
+            [Paragraph(recorded_by_text, recording_style), "","",],
         ]
 
         header_table = Table(header_data, colWidths=[120, 360, 120])
@@ -217,12 +186,6 @@ def generate_songs_pdf(response, songs, user):
 
       # Lyrics Section with section handling
         lyrics_with_chords = song.lyrics_with_chords or []
-
-        #chorus_line_buffer = []
-        #is_chorus = False
-        #refrain_added = False
-
- 
 
         # Initialize necessary variables
         section_type = None  # Tracks active section (Chorus, Intro, Bridge, Outro)

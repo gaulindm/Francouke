@@ -16,16 +16,17 @@
         {% include "partials/_navbar.html" %}
     </header>
 
-    <main role="main" class="container-fluid">
+    <main role="main" class="container">
         <div class="row g-0"> <!-- No gap between columns -->
             
             <!-- Print Preview -->
             <div class="col-md-8 col-12 p-2 bg-light d-flex justify-content-center align-items-center">
-                <iframe src="{% url 'preview_pdf' score.id %}" 
+                <iframe id="pdf-preview" src="{% url 'preview_pdf' score.id %}" 
                         width="100%" 
-                        height="100%" 
+                        height="80%" 
                         style="border: none; min-height: 90vh;">
                 </iframe>
+            
             </div>
 
             <!-- Control Panel -->

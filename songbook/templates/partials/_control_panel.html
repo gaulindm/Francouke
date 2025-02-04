@@ -1,14 +1,6 @@
 {% load static %}
 <div class="content-section">
-    <h1>✅ Debug: Control Panel Loaded</h1>
-    <p>Checking variables...</p>
-    <p><strong>Authenticated User:</strong> {% if user.is_authenticated %}Yes{% else %}No{% endif %}</p>
-    <p><strong>Score Object:</strong> {% if score %}Exists{% else %}⚠️ MISSING{% endif %}</p>
-    <p><strong>Metadata:</strong> {% if score.metadata %}Exists{% else %}⚠️ MISSING{% endif %}</p>
-
-
-
-    {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
+        {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
     <a class="btn btn-secondary btn-sm-mt-1 mb-1" href="{% url 'song-update' score.id %}">Update</a>
     <a class="btn btn-danger btn-sm-mt-1 mb-1" href="{% url 'song-delete' score.id %}">Delete</a>
     
@@ -22,8 +14,8 @@
       <ul class="list-group">
         <li class="list-group-item list-group-item-heavy"><h3>Control Panel</h3>
         </li>
-        <li class="list-group-item list-group-item-heavy">Transpose    
-          <select id="transpose-select" onchange="transposeSong(this.value)">
+        <label for="transpose-select">Transpose:</label>
+        <select id="transpose-select" class="form-control">
             <option value="0">Original Key</option>
             <option value="-7">-7 semitone</option>
             <option value="-6">-6 semitone</option>
@@ -40,6 +32,8 @@
             <option value="6">+6 semitone</option>
             <option value="7">+7 semitone</option>
         </select>
+        
+        <button id="update-preview" class="btn btn-primary">Update Print Preview</button>
         </li>
         <!-- Lyrics and Chords Appearance -->
         <li class="list-group-item list-group-item-heavy">
@@ -200,6 +194,15 @@ document.getElementById("fontSize").addEventListener("change", function() {
     })
     .catch(error => console.error("Fetch error:", error));
 });
+
+document.getElementById("update-preview").addEventListener("click", function() {
+    let transposeValue = document.getElementById("transpose-select").value;
+    let pdfIframe = document.getElementById("pdf-preview");
+
+    // Update the PDF source URL with the transposition value
+    pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}`;
+});
+
 document.addEventListener("DOMContentLoaded", function() {
     // Fetch formatted song on page load
     fetch(`/format_song/{{ score.id }}/`)

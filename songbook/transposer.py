@@ -41,6 +41,25 @@ def extract_chords(parsed_data, unique=False):
     return chords  # Return all chords
 
 # transposer.py
+CHORDS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+def transpose_chord(chord, semitones):
+    """Transpose a single chord up/down by a given number of semitones."""
+    if not chord:
+        return chord  # If no chord, return as-is
+
+    base_chord = "".join([c for c in chord if c.isalpha() or c in "#b"])
+    index = CHORDS.index(base_chord) if base_chord in CHORDS else None
+
+    if index is None:
+        return chord  # If chord is not found, return as-is
+
+    new_index = (index + semitones) % len(CHORDS)
+    return CHORDS[new_index] + chord[len(base_chord):]  # Preserve suffix (e.g., "maj7")
+
+
+
+
 def transpose_chord(chord, steps):
     notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     index = notes.index(chord)
