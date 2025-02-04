@@ -3,12 +3,47 @@ from django.utils.html import format_html
 from django.db.models import Value
 from django.db.models.functions import Concat
 from .models import Song, SongFormatting
+from django import forms
 
 
+# Custom admin form to show JSON fields as editable text areas
+class SongFormattingAdminForm(forms.ModelForm):
+    class Meta:
+        model = SongFormatting
+        fields = '__all__'
+        widgets = {
+            'intro': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+            'verse': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+            'chorus': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+            'bridge': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+            'interlude': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+            'outro': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
+        }
 
+# Custom display function for JSON fields in admin list view
 @admin.register(SongFormatting)
 class SongFormattingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'song')
+    form = SongFormattingAdminForm
+    list_display = ('user', 'song', 'display_intro_font_size', 'display_verse_font_size', 'display_chorus_font_size')
+
+    def display_intro_font_size(self, obj):
+        """ Show font size for Intro in admin list view """
+        return obj.intro.get("font_size", "Default") if obj.intro else "Default"
+    display_intro_font_size.short_description = "Intro Font Size"
+
+    def display_verse_font_size(self, obj):
+        """ Show font size for Verse in admin list view """
+        return obj.verse.get("font_size", "Default") if obj.verse else "Default"
+    display_verse_font_size.short_description = "Verse Font Size"
+
+    def display_chorus_font_size(self, obj):
+        """ Show font size for Chorus in admin list view """
+        return obj.chorus.get("font_size", "Default") if obj.chorus else "Default"
+    display_chorus_font_size.short_description = "Chorus Font Size"
+
+
+
+
 
 
 @admin.register(Song)

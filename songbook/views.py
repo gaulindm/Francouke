@@ -18,12 +18,15 @@ from .parsers import parse_song_data
 from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
 from django.http import HttpResponse
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.pagesizes import letter
 from django.db.models import Q  # Import Q for complex queries
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from .models import Song, SongFormatting  # Adjust based on your models
 from taggit.models import Tag
-from .models import Song
 from songbook.utils.pdf_generator import generate_songs_pdf  # Import the utility function
 from django.http import JsonResponse
 from songbook.utils.pdf_generator import load_chords
@@ -66,21 +69,9 @@ def song_list(request):
 
 
 
-
-
-# views.py
-from django.http import HttpResponse
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-
-
-
 import logging
 
 logger = logging.getLogger(__name__)
-
-from django.shortcuts import redirect
 
 def generate_titles_pdf(request):
     tag_name = request.POST.get('tag_name')  # Retrieve the tag name from POST

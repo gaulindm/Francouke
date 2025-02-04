@@ -111,4 +111,4 @@ class SongFormatting(models.Model):
         unique_together = ('user', 'song')  # Ensure each user has only one formatting per song
 
     def __str__(self):
-        return f"Formatting for {self.song.title} by {self.user.username}"
+        return f"Formatting for {self.song.songTitle} by {self.user.username}"

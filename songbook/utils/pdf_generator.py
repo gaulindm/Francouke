@@ -11,6 +11,10 @@ import json
 import os
 import re
 from .chord_utils import load_chords, extract_used_chords, draw_footer, ChordDiagram
+from songbook.models import SongFormatting  # Use absolute import
+
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+
 
 def generate_songs_pdf(response, songs, user):
     doc = SimpleDocTemplate(
@@ -22,14 +26,7 @@ def generate_songs_pdf(response, songs, user):
         rightMargin=20,
     )
     styles = getSampleStyleSheet()
-    base_style = styles['BodyText']
-    chorus_style = ParagraphStyle('Chorus', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
-    verse_style = ParagraphStyle('Verse', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
-    intro_style = ParagraphStyle('Intro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
-    outro_style = ParagraphStyle('Outro', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12)
-    bridge_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
-    interlude_style = ParagraphStyle('Bridge', parent=base_style, fontSize=13, leading=14, spaceBefore=12, spaceAfter=12, alignment=1)
-
+    base_style = styles["BodyText"]
     elements = []
 
 
@@ -44,6 +41,9 @@ def generate_songs_pdf(response, songs, user):
     chords = load_chords(instrument)
     used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
     relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+
+    # Get user formatting settings or create defaults
+    formatting, _ = SongFormatting.objects.get_or_create(user=user, song=songs[0])
 
     diagrams_to_draw = []
     for chord in relevant_chords:
@@ -103,6 +103,41 @@ def generate_songs_pdf(response, songs, user):
         spaceBefore=6,  # Optional: Add space above the paragraph
         spaceAfter=6,  # Optional: Add space below the paragraph
     )
+
+    def get_style(section):
+        config = getattr(formatting, section, {})  # Get JSON formatting for section
+
+        # Get the default "BodyText" style from ReportLab
+        base_style = styles["BodyText"]
+
+        return ParagraphStyle(
+            name=section,
+            parent=base_style,  # Use base style as the parent
+            fontSize=config.get("font_size", 13),
+            textColor=config.get("font_color", "#000000"),
+            fontName=config.get("font_family", "Helvetica") 
+                if config.get("font_family", "Helvetica") in ["Helvetica", "Times-Roman", "Courier"] 
+                else "Helvetica",
+            leading=config.get("line_spacing", 1.5) * config.get("font_size", 13),
+            spaceBefore=config.get("spacing_before", 12),
+            spaceAfter=config.get("spacing_after", 12),
+            alignment={
+                "left": TA_LEFT,
+                "center": TA_CENTER,
+                "right": TA_RIGHT
+            }.get(config.get("alignment", "left"), TA_LEFT)
+        )
+
+
+
+    # Apply user-defined styles (fallback to defaults)
+    intro_style = get_style("intro")
+    verse_style = get_style("verse")
+    chorus_style = get_style("chorus")
+    bridge_style = get_style("bridge")
+    interlude_style = get_style("interlude")
+    outro_style = get_style("outro")
+
 
     for song in songs:
         #preferences = user.userpreference
