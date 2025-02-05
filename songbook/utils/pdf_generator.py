@@ -334,17 +334,20 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
     chord_spacing = available_width / max_chords_per_row
     row_spacing = 72
 
+    # Update the doc.build section to include acknowledgements
     doc.build(
         elements,
         onFirstPage=lambda c, d: draw_footer(
             c, d, relevant_chords, chord_spacing, row_spacing, is_lefty,
             instrument=instrument,
-            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord
+            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord,
+            acknowledgement=songs[0].acknowledgement if hasattr(songs[0], 'acknowledgement') else ''
         ),
         onLaterPages=lambda c, d: draw_footer(
             c, d, relevant_chords, chord_spacing, row_spacing, is_lefty,
             instrument=instrument,
-            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord
+            is_printing_alternate_chord=user.userpreference.is_printing_alternate_chord,
+            acknowledgement=songs[0].acknowledgement if hasattr(songs[0], 'acknowledgement') else ''
         )
     )
 

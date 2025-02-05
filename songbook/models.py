@@ -18,6 +18,7 @@ class Song(models.Model):
     metadata = models.JSONField(blank=True, null=True)  # Stores metadata as JSON
     date_posted = models.DateField(default=timezone.now)
     contributor = models.ForeignKey(User, on_delete=models.CASCADE)
+    acknowledgement = models.CharField(max_length=100, blank=True, null=True)
     #abc_notation = models.TextField(blank=True, null=True, help_text="Optional ABC notation for this song.")
     
     

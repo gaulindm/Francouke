@@ -5,6 +5,7 @@ from reportlab.graphics.shapes import Drawing, Line
 from reportlab.graphics import renderPDF
 from reportlab.platypus import Table, TableStyle, Spacer, Flowable
 from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 class ChordDiagram(Flowable):
     def __init__(self, chord_name, variation, scale=0.5, is_lefty=False):
@@ -148,7 +149,8 @@ def extract_used_chords(lyrics_with_chords):
 
 def draw_footer(
     canvas, doc, relevant_chords, chord_spacing, row_spacing, 
-    is_lefty, instrument="ukulele", is_printing_alternate_chord=False
+    is_lefty, instrument="ukulele", is_printing_alternate_chord=False,
+    acknowledgement=''
 ):
     """
     Draw footer with chord diagrams at the bottom of the page, respecting user preferences.
@@ -160,7 +162,7 @@ def draw_footer(
 
     # Page dimensions
     page_width, _ = doc.pagesize
-    footer_height = 10  # Height reserved for the footer
+    footer_height = 36  # Height reserved for the footer
 
     # Instrument-specific adjustments
     string_count = 4 if instrument == "ukulele" else 6
@@ -221,3 +223,9 @@ def draw_footer(
         canvas.restoreState()
         y_offset += row_spacing  # Move to the next row
 
+    if acknowledgement:
+        canvas.setFont("Helvetica-Oblique", 10)
+        canvas.drawCentredString(
+            doc.pagesize[0] / 2, 0.2 * inch,  # Positioning 0.3 inch from the bottom
+            f"Gracieusté de: {acknowledgement}"
+        )  
