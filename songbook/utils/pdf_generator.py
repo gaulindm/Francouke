@@ -14,8 +14,9 @@ from songbook.models import SongFormatting  # Use absolute import
 
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
+from songbook.utils.transposer import transpose_chord  # ✅ Make sure this path is correct!
 
-def generate_songs_pdf(response, songs, user):
+def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None):
     doc = SimpleDocTemplate(response, pagesize=letter, topMargin=2, bottomMargin=80, leftMargin=20, rightMargin=20)
     styles = getSampleStyleSheet()
     base_style = styles["BodyText"]
@@ -110,7 +111,7 @@ def generate_songs_pdf(response, songs, user):
             fontName=config.get("font_family", "Helvetica") 
                 if config.get("font_family", "Helvetica") in ["Helvetica", "Times-Roman", "Courier"] 
                 else "Helvetica",
-            leading=config.get("line_spacing", 1.5) * config.get("font_size", 13),
+            leading=config.get("line_spacing", 1.2) * config.get("font_size", 13),
             spaceBefore=config.get("spacing_before", 12),
             spaceAfter=config.get("spacing_after", 12),
             alignment={
@@ -186,6 +187,7 @@ def generate_songs_pdf(response, songs, user):
 
       # Lyrics Section with section handling
         lyrics_with_chords = song.lyrics_with_chords or []
+
 
         # Initialize necessary variables
         section_type = None  # Tracks active section (Chorus, Intro, Bridge, Outro)

@@ -40,31 +40,32 @@ def extract_chords(parsed_data, unique=False):
         return list(set(chords))  # Return unique chords
     return chords  # Return all chords
 
-# transposer.py
 CHORDS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 def transpose_chord(chord, semitones):
-    """Transpose a single chord up/down by a given number of semitones."""
+    """Transpose a chord up/down by a given number of semitones."""
     if not chord:
         return chord  # If no chord, return as-is
 
-    base_chord = "".join([c for c in chord if c.isalpha() or c in "#b"])
-    index = CHORDS.index(base_chord) if base_chord in CHORDS else None
+    base_chord = ""  # Extract root note (C, D#, etc.)
+    suffix = ""  # Store additional chord info (m, 7, maj7, etc.)
 
-    if index is None:
-        return chord  # If chord is not found, return as-is
+    # Split the chord into its base note and suffix
+    for i, char in enumerate(chord):
+        if char.isdigit() or char in ["m", "M", "b", "#"]:
+            suffix = chord[i:]  # The rest is the suffix
+            break
+        base_chord += char  # The beginning is the root note
 
+    if base_chord not in CHORDS:
+        return chord  # If not a valid root chord, return unchanged
+
+    # Find the new chord position
+    index = CHORDS.index(base_chord)
     new_index = (index + semitones) % len(CHORDS)
-    return CHORDS[new_index] + chord[len(base_chord):]  # Preserve suffix (e.g., "maj7")
 
+    return CHORDS[new_index] + suffix  # Reattach the suffix
 
-
-
-def transpose_chord(chord, steps):
-    notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    index = notes.index(chord)
-    new_index = (index + steps) % len(notes)
-    return notes[new_index]
 
 def calculate_steps(original_key, new_key):
     notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']

@@ -6,7 +6,7 @@ from django.urls import reverse
 import re
 import json
 from .parsers import parse_song_data  # Import the parse_song_data function
-from .transposer import detect_key
+from .utils.transposer import detect_key
 from taggit.managers import TaggableManager
 
 

@@ -42,10 +42,7 @@
                 <!-- Font Size -->
                 <div class="me-3">
                     <label for="section-select">Change Font Size For:</label>
-                    <select id="section-select">
-                        <option value="songwriter_style">Songwriter</option>
-                        <option value="recording_style">Recording</option>
-                        <option value="first_vocal_note_style">First Vocal Note</option>
+                    <select id="section-select" class="form-control">
                         <option value="intro_style">Intro</option>
                         <option value="verse_style">Verse</option>
                         <option value="chorus_style">Chorus</option>
@@ -55,8 +52,9 @@
                     </select>
                     
                     <label for="fontSize">Font Size:</label>
-                    <select id="fontSize" class="form-control form-control-sm">
+                    <select id="fontSize" class="form-control">
                         <option value="12px">12px</option>
+                        <option value="13px" selected>13px</option>
                         <option value="14px">14px</option>
                         <option value="16px">16px</option>
                         <option value="18px">18px</option>
@@ -197,10 +195,15 @@ document.getElementById("fontSize").addEventListener("change", function() {
 
 document.getElementById("update-preview").addEventListener("click", function() {
     let transposeValue = document.getElementById("transpose-select").value;
+    let section = document.getElementById("section-select").value;
+    let fontSize = document.getElementById("font-size").value
+
+
+
     let pdfIframe = document.getElementById("pdf-preview");
 
-    // Update the PDF source URL with the transposition value
-    pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}`;
+      // ✅ Update the PDF source URL with transposition, section, and font size
+      pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}&section=${section}&font_size=${fontSize}`;
 });
 
 document.addEventListener("DOMContentLoaded", function() {

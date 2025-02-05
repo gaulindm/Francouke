@@ -15,7 +15,7 @@ from .models import Song
 from django.views import View
 from django.db. models import Prefetch
 from .parsers import parse_song_data
-from .transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
+from .utils.transposer import extract_chords, calculate_steps, transpose_lyrics, detect_key
 from unidecode import unidecode
 from django.http import HttpResponse
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
@@ -45,17 +45,47 @@ import re
 
 from django.http import HttpResponse
 from .utils.pdf_generator import generate_songs_pdf
+from .utils.transposer import transpose_lyrics  # Import your transposer function
+
 
 def preview_pdf(request, song_id):
-    """Generate a PDF and return it as an embedded preview."""
+    """Generate a transposed PDF with user-defined font sizes stored in JSON fields."""
     song = Song.objects.get(pk=song_id)
     user = request.user
+
+    # ✅ Get or create formatting settings for the user
+    formatting, created = SongFormatting.objects.get_or_create(user=user, song=song)
+
+    # ✅ Get transpose value (default to 0)
+    transpose_value = int(request.GET.get("transpose", 0))
+
+    # ✅ Get section & font size
+    section = request.GET.get("section", "verse")  # Default to verse
+    font_size = int(request.GET.get("font_size", 14))  # Default 14px
+
+    print(f"⚡ DEBUG: Received font size update for {section}: {font_size}")  # ✅ Debugging
+
+    # ✅ Ensure the section exists in JSON
+    section_format = getattr(formatting, section, {})  # ✅ Get JSON field
+
+    print(f"🔍 BEFORE UPDATE: {section} font size = {section_format.get('font_size', 'Not Set')}")  # ✅ Debugging
+
+    # ✅ Update font size in JSON
+    section_format["font_size"] = font_size  
+    setattr(formatting, section, section_format)  # ✅ Update the section JSON field
+
+    # ✅ Force Django to detect the change in JSONField
+    formatting.save(update_fields=[section])
+
+    print(f"✅ AFTER UPDATE: {section} font size = {getattr(formatting, section).get('font_size', 'Not Set')}")  # ✅ Debugging
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{song.songTitle}_preview.pdf"'
 
-    generate_songs_pdf(response, [song], user)  # Generate the PDF and write to response
+    generate_songs_pdf(response, [song], user, transpose_value, formatting)  # ✅ Pass formatting object
     return response
+
+
 
 def song_detail(request, song_id):
     song = get_object_or_404(Song, id=song_id)
