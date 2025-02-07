@@ -42,48 +42,20 @@ def user_preference_view(request):
 
     return render(request, 'users/user_preference_form.html', {'form': form})
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import UserPreference
+
 @login_required
 def update_preferences(request):
     if request.method == "POST":
-        try:
-            print("🔹 Received update request:", request.POST)  # ✅ Debugging
+        preferences = get_object_or_404(UserPreference, user=request.user)
 
-            # Fetch User Preferences
-            preferences = get_object_or_404(UserPreference, user=request.user)
+        # ✅ Update Global Font Size
+        preferences.font_size = request.POST.get("font_size", preferences.font_size)
+        preferences.save()
 
-            # Fetch or create the Song Formatting entry (Ensure each song has its own formatting)
-            song_id = request.POST.get("song_id")  # Ensure this is sent from frontend
-            song_formatting, created = SongFormatting.objects.get_or_create(song_id=song_id, user=request.user)
-
-            # ✅ Update User Preferences (if needed)
-            preferences.font_size = request.POST.get("font_size", preferences.font_size)
-            preferences.line_spacing = request.POST.get("line_spacing", preferences.line_spacing)
-            preferences.text_color = request.POST.get("text_color", preferences.text_color)
-            preferences.chord_color = request.POST.get("chord_color", preferences.chord_color)
-            preferences.instrument = request.POST.get("instrument", preferences.instrument)
-            preferences.is_lefty = request.POST.get("is_lefty") == "true"
-            preferences.chord_diagram_position = request.POST.get("chord_diagram_position", preferences.chord_diagram_position)
-            preferences.save()
-
-            # ✅ Update Song Formatting Preferences
-            song_formatting.font_size = request.POST.get("font_size", song_formatting.font_size)
-            song_formatting.line_spacing = request.POST.get("line_spacing", song_formatting.line_spacing)
-            song_formatting.text_color = request.POST.get("text_color", song_formatting.text_color)
-            song_formatting.chord_color = request.POST.get("chord_color", song_formatting.chord_color)
-            song_formatting.chord_placement = request.POST.get("chord_placement", song_formatting.chord_placement)
-            song_formatting.save()
-
-            print("✅ Song formatting saved:", song_formatting.font_size, song_formatting.text_color)  # ✅ Debugging
-
-            return JsonResponse({"status": "success", "updated_preferences": {
-                "font_size": song_formatting.font_size,
-                "line_spacing": song_formatting.line_spacing,
-                "text_color": song_formatting.text_color,
-                "chord_color": song_formatting.chord_color,
-                "chord_placement": song_formatting.chord_placement,
-            }})
-        except Exception as e:
-            print("❌ Error:", str(e))  # ✅ Debugging
-            return JsonResponse({"status": "error", "message": str(e)})
+        return JsonResponse({"status": "success", "font_size": preferences.font_size})
 
     return JsonResponse({"status": "error", "message": "Invalid request"})

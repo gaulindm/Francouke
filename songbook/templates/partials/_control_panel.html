@@ -41,107 +41,15 @@
             <div class="control-panel mt-12 d-flex flex-wrap align-items-center">
                 <!-- Font Size -->
                 <div class="me-3">
-                    <label for="section-select">Change Font Size For:</label>
-                    <select id="section-select" class="form-control">
-                        <option value="intro_style">Intro</option>
-                        <option value="verse_style">Verse</option>
-                        <option value="chorus_style">Chorus</option>
-                        <option value="bridge_style">Bridge</option>
-                        <option value="interlude_style">Interlude</option>
-                        <option value="outro_style">Outro</option>
-                    </select>
-                    
-                    <label for="fontSize">Font Size:</label>
-                    <select id="fontSize" class="form-control">
-                        <option value="12px">12px</option>
-                        <option value="13px" selected>13px</option>
-                        <option value="14px">14px</option>
-                        <option value="16px">16px</option>
-                        <option value="18px">18px</option>
-                        <option value="20px">20px</option>
-                    </select>
-                    
-                    
-          
-                <!-- Line Spacing -->
-                <div class="me-3">
-                    <label for="lineSpacing" class="form-label">Line Spacing:</label>
-                    <select id="lineSpacing" onchange="updateStyle('lineHeight', this.value)" class="form-control form-control-sm">
-                        <option value="1.0" {% if preferences.line_spacing == "1.0" %}selected{% endif %}>1.0</option>
-                        <option value="1.2" {% if preferences.line_spacing == "1.2" %}selected{% endif %}>1.2</option>
-                        <option value="1.4" {% if preferences.line_spacing == "1.4" %}selected{% endif %}>1.4</option>
-                        <option value="1.6" {% if preferences.line_spacing == "1.6" %}selected{% endif %}>1.6</option>
-                        <option value="1.8" {% if preferences.line_spacing == "1.8" %}selected{% endif %}>1.8</option>
-                    </select>
-                </div>
-                <!-- Text Color -->
-                <div class="me-8">
-                    <label for="textColor" class="form-label">Text Color:</label>
-                    <input type="color" id="textColor" onchange="updateStyle('color', this.value)" class="form-control form-control-sm">
-                </div>
-                <!-- Chord Color -->
-                <div class="me-8">
-                    <label for="chordColor" class="form-label">Chord Color:</label>
-                    <input type="color" id="chordColor" onchange="updateStyle('chordColor', this.value)" class="form-control form-control-sm">
-                </div>
-
-
-                  <!-- Chord Font Weight -->
-                <div class="me-8">
-                    <label for="chordWeight" class="form-label">Chord Font Weight:</label>
-                    <select id="chordWeight" onchange="updateStyle('chordWeight', this.value)" class="form-control form-control-sm">
-                        <option value="normal">Normal</option>
-                        <option value="bold">Bold</option>
-                        <option value="lighter">Lighter</option>
-                        <option value="bolder">Bolder</option>
-                    </select>
-                </div>
-            
+            <!-- Font Size Controls -->
+<strong>Font Size:</strong>
+<button id="decreaseFontSize" class="btn btn-secondary">−</button>
+<span id="fontSizeDisplay">13px</span>
+<button id="increaseFontSize" class="btn btn-secondary">+</button>
           </div>
       </li>
 
-      <!-- Instrument Selection -->
-      <li class="list-group-item list-group-item-heavy">
-          <strong>Instrument Selection</strong>
-          <div class="control-panel mt-2">
-              <label for="instrument-selector">Select Instrument:</label>
-              <select id="instrument-selector" class="form-control">
-                <option value="guitar" {% if preferences.instrument == "guitar" %}selected{% endif %}>Guitar</option>
-                <option value="ukulele" {% if preferences.instrument == "ukulele" %}selected{% endif %}>Ukulele</option>
-                <option value="baritone_ukulele" {% if preferences.instrument == "baritone_ukulele" %}selected{% endif %}>Baritone Ukulele</option>
-                <option value="banjo" {% if preferences.instrument == "banjo" %}selected{% endif %}>Banjo</option>
-                <option value="mandolin" {% if preferences.instrument == "mandolin" %}selected{% endif %}>Mandolin</option>
-            </select>
-
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="isLeftyToggle" onchange="updateLeftyMode()">
-            <label class="form-check-label" for="isLeftyToggle">Left-handed Mode</label>
-        </div>
-      </li>
-
-
-      <!-- Chord Diagram Position -->
-      <li class="list-group-item list-group-item-heavy">
-          <strong>Chord Diagram Position</strong>
-          <form id="layout-form" class="mt-2">
-            <!--  <label>
-                  <input type="radio" name="diagram-position" value="left"> Left
-              </label>
-              <label>
-                  <input type="radio" name="diagram-position" value="right"> Right
-              </label>-->
-              <label>
-                  <input type="radio" name="diagram-position" value="top"> Top
-              </label>
-              <label>
-                  <input type="radio" name="diagram-position" value="bottom"> Bottom
-              </label>
-              <label>
-                <input type="radio" name="diagram-position" value="none" checked> None
-            </label>
-          </form>
-      </li>
+      
       
   </ul>
 </div>
@@ -158,86 +66,90 @@
 
 </div>
 <script>
-    // Inject saved preferences from Django into JavaScript
-    let userPreferences = {
-        font_size: "{{ request.user.userpreference.font_size|default:'13px' }}",
-        line_spacing: "{{ request.user.userpreference.line_spacing|default:'1.2' }}",
-        text_color: "{{ request.user.userpreference.text_color|default:'#000000' }}",
-        chord_color: "{{ request.user.userpreference.chord_color|default:'#000000' }}",
-        instrument: "{{ request.user.userpreference.instrument|default:'guitar' }}",
-        is_lefty: "{{ request.user.userpreference.is_lefty|yesno:'true,false' }}",
-        chord_diagram_position: "{{ request.user.userpreference.chord_diagram_position|default:'none' }}"
-    };
-</script>
-<script>
 document.addEventListener("DOMContentLoaded", function() {
-    // ✅ Apply Font Size
-    document.getElementById("fontSize").value = userPreferences.font_size;
-    document.querySelectorAll(".lyrics").forEach(el => {
-        el.style.fontSize = userPreferences.font_size;
+    let fontSizeDisplay = document.getElementById("fontSizeDisplay");
+    let decreaseButton = document.getElementById("decreaseFontSize");
+    let increaseButton = document.getElementById("increaseFontSize");
+    let resetButton = document.getElementById("resetFontSize");
+
+    let defaultFontSize = 13;
+    let currentFontSize = parseInt(userFontSize) || defaultFontSize;
+
+    function updateFontSize(newSize) {
+    currentFontSize = newSize;
+    fontSizeDisplay.textContent = currentFontSize + "px";
+
+    // Apply font size globally
+    document.querySelectorAll(".lyrics, .chord").forEach(el => {
+        el.style.fontSize = currentFontSize + "px";
     });
 
-    // ✅ Apply Line Spacing
-    document.getElementById("lineSpacing").value = userPreferences.line_spacing;
-    document.querySelectorAll(".lyrics").forEach(el => {
-        el.style.lineHeight = userPreferences.line_spacing;
-    });
-
-    // ✅ Apply Text Color
-    document.getElementById("textColor").value = userPreferences.text_color;
-    document.querySelectorAll(".lyrics").forEach(el => {
-        el.style.color = userPreferences.text_color;
-    });
-
-    // ✅ Apply Chord Color
-    document.getElementById("chordColor").value = userPreferences.chord_color;
-    document.querySelectorAll(".chord").forEach(el => {
-        el.style.color = userPreferences.chord_color;
-    });
-
-    // ✅ Apply Instrument Selection
-    document.getElementById("instrument-selector").value = userPreferences.instrument;
-
-    // ✅ Apply Lefty Mode Toggle
-    document.getElementById("isLeftyToggle").checked = userPreferences.is_lefty === "true";
-
-    // ✅ Apply Chord Diagram Position
-    document.querySelectorAll("input[name='diagram-position']").forEach(el => {
-        if (el.value === userPreferences.chord_diagram_position) {
-            el.checked = true;
-        }
-    });
-
-    console.log("User preferences loaded:", userPreferences);
-});
+    // Save to Django and then refresh PDF preview
+    saveFontSize(currentFontSize, refreshPDFPreview);
+}
 
 
+    decreaseButton.addEventListener("click", () => updateFontSize(currentFontSize - 1));
+    increaseButton.addEventListener("click", () => updateFontSize(currentFontSize + 1));
+    resetButton.addEventListener("click", () => updateFontSize(defaultFontSize));
 
-
-ffunction updatePreference(setting, value) {
+    function saveFontSize(fontSize, callback) {
     let formData = new FormData();
     let csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
     let csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
-    let songId = "{{ score.id }}";  // Ensure this is correctly passed from Django template
 
     formData.append("csrfmiddlewaretoken", csrfToken);
-    formData.append("song_id", songId);  // ✅ Include song ID
-    formData.append(setting, value);
+    formData.append("font_size", fontSize);
 
     fetch("/update_preferences/", {
         method: "POST",
         body: formData,
-        headers: {
-            "X-CSRFToken": csrfToken
-        }
+        headers: { "X-CSRFToken": csrfToken }
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
-            console.log("✅ Saved:", setting, "=", value);
+            console.log("✅ Font size updated:", fontSize);
+
+            // ✅ Call callback function (refresh PDF preview)
+            if (callback) callback();
         } else {
             console.error("❌ Error:", data.message);
         }
     })
     .catch(error => console.error("Fetch error:", error));
 }
+function refreshPDFPreview() {
+    console.log("🔄 Refreshing PDF preview...");
+
+    fetch(`/format_song/{{ score.id }}/`)  // Adjust if needed
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("song-content").innerHTML = data.html;
+        console.log("✅ PDF preview updated!");
+    })
+    .catch(error => console.error("❌ PDF Refresh Error:", error));
+}
+
+
+    // Apply saved font size on page load
+    fontSizeDisplay.textContent = currentFontSize + "px";
+    document.querySelectorAll(".lyrics, .chord").forEach(el => {
+        el.style.fontSize = currentFontSize + "px";
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    let fontSizeDisplay = document.getElementById("fontSizeDisplay");
+    let currentFontSize = parseInt(userFontSize);  // Load from Django
+
+    fontSizeDisplay.textContent = currentFontSize + "px";
+    document.querySelectorAll(".lyrics, .chord").forEach(el => {
+        el.style.fontSize = currentFontSize + "px";
+    });
+});
+
+</script>
+<script>
+    let userFontSize = "{{ request.user.userpreference.font_size|default:'13px' }}";
+</script>
