@@ -50,41 +50,48 @@ from .utils.transposer import transpose_lyrics  # Import your transposer functio
 
 def preview_pdf(request, song_id):
     """Generate a transposed PDF with user-defined font sizes stored in JSON fields."""
-    song = Song.objects.get(pk=song_id)
+    song = get_object_or_404(Song, pk=song_id)
     user = request.user
 
+    # ✅ Log all query parameters for debugging
+    #print(f"⚡ DEBUG: Received query parameters: {request.GET}")
+
     # ✅ Get or create formatting settings for the user
-    formatting, created = SongFormatting.objects.get_or_create(user=user, song=song)
+    formatting, _ = SongFormatting.objects.get_or_create(user=user, song=song)
 
     # ✅ Get transpose value (default to 0)
     transpose_value = int(request.GET.get("transpose", 0))
 
-    # ✅ Get section & font size
-    section = request.GET.get("section", "verse")  # Default to verse
-    font_size = int(request.GET.get("font_size", 14))  # Default 14px
+    # ✅ Get section name (default to "verse" only if missing)
+    #section = request.GET.get("section", "verse")
 
-    print(f"⚡ DEBUG: Received font size update for {section}: {font_size}")  # ✅ Debugging
+    # ✅ Retrieve the existing font size from the database (use default only if missing)
+    #saved_formatting = getattr(formatting, section, {})  # Fetch saved formatting
+    #font_size = int(request.GET.get("font_size", saved_formatting.get("font_size", 14)))  # Use stored font size!
 
-    # ✅ Ensure the section exists in JSON
-    section_format = getattr(formatting, section, {})  # ✅ Get JSON field
+    #print(f"⚡ DEBUG: Processing section '{section}' with font size {font_size}")  
 
-    print(f"🔍 BEFORE UPDATE: {section} font size = {section_format.get('font_size', 'Not Set')}")  # ✅ Debugging
+    # ✅ Retrieve the section JSON field (or empty dict if not set)
+    #section_format = getattr(formatting, section, {})  
 
-    # ✅ Update font size in JSON
-    section_format["font_size"] = font_size  
-    setattr(formatting, section, section_format)  # ✅ Update the section JSON field
+    #print(f"🔍 BEFORE UPDATE: {section} font size = {section_format.get('font_size', 'Not Set')}")
 
-    # ✅ Force Django to detect the change in JSONField
-    formatting.save(update_fields=[section])
+    # ✅ Update only the correct section
+    #section_format["font_size"] = font_size  
+    #setattr(formatting, section, section_format)  # ✅ Assign updated JSON to the section
 
-    print(f"✅ AFTER UPDATE: {section} font size = {getattr(formatting, section).get('font_size', 'Not Set')}")  # ✅ Debugging
+    # ✅ Save only the updated section field
+    #formatting.save(update_fields=[section])
+
+    #print(f"✅ AFTER UPDATE: {section} font size = {getattr(formatting, section).get('font_size', 'Not Set')}")
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{song.songTitle}_preview.pdf"'
 
-    generate_songs_pdf(response, [song], user, transpose_value, formatting)  # ✅ Pass formatting object
+    # ✅ Pass the updated formatting object to the PDF generator
+    generate_songs_pdf(response, [song], user, transpose_value, formatting)  
+    #generate_songs_pdf(response, [song], user)
     return response
-
 
 
 def song_detail(request, song_id):

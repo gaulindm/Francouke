@@ -158,17 +158,71 @@
 
 </div>
 <script>
-document.getElementById("fontSize").addEventListener("change", function() {
+    // Inject saved preferences from Django into JavaScript
+    let userPreferences = {
+        font_size: "{{ request.user.userpreference.font_size|default:'13px' }}",
+        line_spacing: "{{ request.user.userpreference.line_spacing|default:'1.2' }}",
+        text_color: "{{ request.user.userpreference.text_color|default:'#000000' }}",
+        chord_color: "{{ request.user.userpreference.chord_color|default:'#000000' }}",
+        instrument: "{{ request.user.userpreference.instrument|default:'guitar' }}",
+        is_lefty: "{{ request.user.userpreference.is_lefty|yesno:'true,false' }}",
+        chord_diagram_position: "{{ request.user.userpreference.chord_diagram_position|default:'none' }}"
+    };
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // ✅ Apply Font Size
+    document.getElementById("fontSize").value = userPreferences.font_size;
+    document.querySelectorAll(".lyrics").forEach(el => {
+        el.style.fontSize = userPreferences.font_size;
+    });
+
+    // ✅ Apply Line Spacing
+    document.getElementById("lineSpacing").value = userPreferences.line_spacing;
+    document.querySelectorAll(".lyrics").forEach(el => {
+        el.style.lineHeight = userPreferences.line_spacing;
+    });
+
+    // ✅ Apply Text Color
+    document.getElementById("textColor").value = userPreferences.text_color;
+    document.querySelectorAll(".lyrics").forEach(el => {
+        el.style.color = userPreferences.text_color;
+    });
+
+    // ✅ Apply Chord Color
+    document.getElementById("chordColor").value = userPreferences.chord_color;
+    document.querySelectorAll(".chord").forEach(el => {
+        el.style.color = userPreferences.chord_color;
+    });
+
+    // ✅ Apply Instrument Selection
+    document.getElementById("instrument-selector").value = userPreferences.instrument;
+
+    // ✅ Apply Lefty Mode Toggle
+    document.getElementById("isLeftyToggle").checked = userPreferences.is_lefty === "true";
+
+    // ✅ Apply Chord Diagram Position
+    document.querySelectorAll("input[name='diagram-position']").forEach(el => {
+        if (el.value === userPreferences.chord_diagram_position) {
+            el.checked = true;
+        }
+    });
+
+    console.log("User preferences loaded:", userPreferences);
+});
+
+
+
+
+ffunction updatePreference(setting, value) {
     let formData = new FormData();
     let csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
     let csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
-    let songId = "{{ score.id }}";  
-    let section = document.getElementById("section-select").value;  // ✅ Get selected section
+    let songId = "{{ score.id }}";  // Ensure this is correctly passed from Django template
 
     formData.append("csrfmiddlewaretoken", csrfToken);
-    formData.append("song_id", songId);
-    formData.append("section", section);
-    formData.append("font_size", this.value);
+    formData.append("song_id", songId);  // ✅ Include song ID
+    formData.append(setting, value);
 
     fetch("/update_preferences/", {
         method: "POST",
@@ -180,40 +234,10 @@ document.getElementById("fontSize").addEventListener("change", function() {
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
-            console.log("Font size updated!");
-
-            // Reload formatted content
-            fetch(`/format_song/{{ score.id }}/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("song-content").innerHTML = data.html;
-            });
+            console.log("✅ Saved:", setting, "=", value);
+        } else {
+            console.error("❌ Error:", data.message);
         }
     })
     .catch(error => console.error("Fetch error:", error));
-});
-
-document.getElementById("update-preview").addEventListener("click", function() {
-    let transposeValue = document.getElementById("transpose-select").value;
-    let section = document.getElementById("section-select").value;
-    let fontSize = document.getElementById("font-size").value
-
-
-
-    let pdfIframe = document.getElementById("pdf-preview");
-
-      // ✅ Update the PDF source URL with transposition, section, and font size
-      pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}&section=${section}&font_size=${fontSize}`;
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Fetch formatted song on page load
-    fetch(`/format_song/{{ score.id }}/`)
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById("song-content").innerHTML = data.html;
-    })
-    .catch(error => console.error("Error loading song:", error));
-});
-</script>        
-
+}
