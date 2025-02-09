@@ -34,7 +34,7 @@ from users.models import UserPreference  # Replace `user` with the actual app na
 from songbook.utils.ABC2audio import convert_abc_to_audio
 from django.contrib.auth.decorators import login_required, permission_required
 from .models import SongFormatting
-
+from .forms import SongFormattingForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import SongForm, TagFilterForm
@@ -48,10 +48,30 @@ from django.http import HttpResponse
 from .utils.pdf_generator import generate_songs_pdf
 from .utils.transposer import transpose_lyrics  # Import your transposer function
 
+@login_required
+@permission_required("songbook.change_songformatting", raise_exception=True)
+def edit_song_formatting(request, song_id):
+    formatting = get_object_or_404(SongFormatting, user=request.user, song_id=song_id)
 
+    # 🔍 Debugging - Check if song_id is empty or None
+    print(f"DEBUG: song_id before passing to template: {song_id}")
 
+    if not song_id:  # ✅ If song_id is missing, prevent a crash
+        messages.error(request, "Song ID is missing.")
+        return redirect("songbook-home")  # Redirect to home if song_id is invalid
 
+    if request.method == "POST":
+        form = SongFormattingForm(request.POST, instance=formatting)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Formatting updated successfully!")
+            print(f"DEBUG: Redirecting to score with pk={song_id}")  # ✅ Debugging
+            return redirect("score", pk=song_id)  # ✅ Fix redirect
 
+    else:
+        form = SongFormattingForm(instance=formatting)
+
+    return render(request, "songbook/edit_formatting.html", {"form": form, "pk": song_id})
 
 
 def preview_pdf(request, song_id):

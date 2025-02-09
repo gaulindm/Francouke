@@ -11,7 +11,7 @@
     
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <p class='text-muted'>
-      <ul class="list-group">
+    <ul class="list-group">
         <li class="list-group-item list-group-item-heavy"><h3>Control Panel</h3>
         </li>
         <label for="transpose-select">Transpose:</label>
@@ -41,17 +41,20 @@
             <div class="control-panel mt-12 d-flex flex-wrap align-items-center">
                 <!-- Font Size -->
                 <div class="me-3">
-            <!-- Font Size Controls -->
-<strong>Font Size:</strong>
-<button id="decreaseFontSize" class="btn btn-secondary">−</button>
-<span id="fontSizeDisplay">13px</span>
-<button id="increaseFontSize" class="btn btn-secondary">+</button>
-          </div>
-      </li>
+                    {% if user.is_authenticated and user.is_superuser %}
+                    <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Edit Song Formatting</a>
+                {% elif user.is_authenticated and user.groups.all|length > 0 and "Power Users" in user.groups.all|join:", " %}
+                    <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Edit Song Formatting</a>
+                {% else %}
+                    <p>Please send an email to gaulindm@gmail.com to request Power User permission.</p>
+                {% endif %}
+                </div>
+        </li>
 
       
       
-  </ul>
+    </ul>
+
 </div>
 <div>
 {% if score.metadata.youtube %}
@@ -67,59 +70,8 @@
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    let fontSizeDisplay = document.getElementById("fontSizeDisplay");
-    let decreaseButton = document.getElementById("decreaseFontSize");
-    let increaseButton = document.getElementById("increaseFontSize");
-    let resetButton = document.getElementById("resetFontSize");
 
-    let defaultFontSize = 13;
-    let currentFontSize = parseInt(userFontSize) || defaultFontSize;
-
-    function updateFontSize(newSize) {
-    currentFontSize = newSize;
-    fontSizeDisplay.textContent = currentFontSize + "px";
-
-    // Apply font size globally
-    document.querySelectorAll(".lyrics, .chord").forEach(el => {
-        el.style.fontSize = currentFontSize + "px";
-    });
-
-    // Save to Django and then refresh PDF preview
-    saveFontSize(currentFontSize, refreshPDFPreview);
-}
-
-
-    decreaseButton.addEventListener("click", () => updateFontSize(currentFontSize - 1));
-    increaseButton.addEventListener("click", () => updateFontSize(currentFontSize + 1));
-    resetButton.addEventListener("click", () => updateFontSize(defaultFontSize));
-
-    function saveFontSize(fontSize, callback) {
-    let formData = new FormData();
-    let csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    let csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
-
-    formData.append("csrfmiddlewaretoken", csrfToken);
-    formData.append("font_size", fontSize);
-
-    fetch("/update_preferences/", {
-        method: "POST",
-        body: formData,
-        headers: { "X-CSRFToken": csrfToken }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            console.log("✅ Font size updated:", fontSize);
-
-            // ✅ Call callback function (refresh PDF preview)
-            if (callback) callback();
-        } else {
-            console.error("❌ Error:", data.message);
-        }
-    })
-    .catch(error => console.error("Fetch error:", error));
-}
-function refreshPDFPreview() {
+    function refreshPDFPreview() {
     console.log("🔄 Refreshing PDF preview...");
 
     fetch(`/format_song/{{ score.id }}/`)  // Adjust if needed
@@ -132,24 +84,5 @@ function refreshPDFPreview() {
 }
 
 
-    // Apply saved font size on page load
-    fontSizeDisplay.textContent = currentFontSize + "px";
-    document.querySelectorAll(".lyrics, .chord").forEach(el => {
-        el.style.fontSize = currentFontSize + "px";
-    });
-});
 
-document.addEventListener("DOMContentLoaded", function() {
-    let fontSizeDisplay = document.getElementById("fontSizeDisplay");
-    let currentFontSize = parseInt(userFontSize);  // Load from Django
-
-    fontSizeDisplay.textContent = currentFontSize + "px";
-    document.querySelectorAll(".lyrics, .chord").forEach(el => {
-        el.style.fontSize = currentFontSize + "px";
-    });
-});
-
-</script>
-<script>
-    let userFontSize = "{{ request.user.userpreference.font_size|default:'13px' }}";
 </script>

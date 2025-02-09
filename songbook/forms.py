@@ -27,3 +27,18 @@ class SongForm(forms.Form):
         widget=forms.Textarea(attrs={"placeholder": "Paste your song content here", "class": "form-control", "rows": 10}),
         label="Content"
     )
+
+from .models import SongFormatting
+
+class SongFormattingForm(forms.ModelForm):
+    class Meta:
+        model = SongFormatting
+        fields = ["intro", "verse", "chorus", "bridge", "interlude", "outro"]
+        widgets = {
+            "intro": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "verse": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "chorus": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "bridge": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "interlude": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "outro": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+        }
