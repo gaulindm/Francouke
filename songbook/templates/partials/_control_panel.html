@@ -1,20 +1,17 @@
 {% load static %}
+
 <div class="content-section">
         {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
     <a class="btn btn-secondary btn-sm-mt-1 mb-1" href="{% url 'song-update' score.id %}">Update</a>
-    
-    
-            {% endif%}
-    
-    
-    
-    
+        {% endif%}
+
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <p class='text-muted'>
     <ul class="list-group">
         <li class="list-group-item list-group-item-heavy"><h3>Control Panel</h3>
         </li>
         <label for="transpose-select">Transpose:</label>
+        <P>The feature is temporarily not available </P>
         <select id="transpose-select" class="form-control">
             <option value="0">Original Key</option>
             <option value="-7">-7 semitone</option>

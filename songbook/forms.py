@@ -30,15 +30,42 @@ class SongForm(forms.Form):
 
 from .models import SongFormatting
 
+from django import forms
+import json
+from .models import SongFormatting
+
 class SongFormattingForm(forms.ModelForm):
     class Meta:
         model = SongFormatting
         fields = ["intro", "verse", "chorus", "bridge", "interlude", "outro"]
         widgets = {
-            "intro": forms.Textarea(attrs={"rows": 5, "cols": 50}),
-            "verse": forms.Textarea(attrs={"rows": 5, "cols": 50}),
-            "chorus": forms.Textarea(attrs={"rows": 5, "cols": 50}),
-            "bridge": forms.Textarea(attrs={"rows": 5, "cols": 50}),
-            "interlude": forms.Textarea(attrs={"rows": 5, "cols": 50}),
-            "outro": forms.Textarea(attrs={"rows": 5, "cols": 50}),
+            "intro": forms.Textarea(attrs={"rows": 2, "cols": 50}),
+            "verse": forms.Textarea(attrs={"rows": 2, "cols": 50}),
+            "chorus": forms.Textarea(attrs={"rows": 2, "cols": 50}),
+            "bridge": forms.Textarea(attrs={"rows": 2, "cols": 50}),
+            "interlude": forms.Textarea(attrs={"rows": 2, "cols": 50}),
+            "outro": forms.Textarea(attrs={"rows": 2, "cols": 50}),
         }
+
+    def clean(self):
+
+        cleaned_data = super().clean()
+        
+        for field_name in self.fields:
+            value = cleaned_data.get(field_name, "")
+
+            # ✅ Ensure the value is a string before processing
+            if isinstance(value, str):
+                value = value.strip()
+
+            # ✅ If the field is empty, explicitly save `{}` instead of `None`
+            if value == "" or value is None:
+                cleaned_data[field_name] = {}  # ✅ Ensure `{}` is stored
+            else:
+                try:
+                    if isinstance(value, str):  # ✅ Convert only if value is a string
+                        cleaned_data[field_name] = json.loads(value)  
+                except json.JSONDecodeError:
+                    self.add_error(field_name, "Invalid JSON format. Check for missing commas or brackets.")
+
+        return cleaned_data

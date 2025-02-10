@@ -1,15 +1,122 @@
 {% extends "songbook/base.html" %}
 {% block content %}
-<h2>Edit Song Formatting</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
-{% if pk %}
-    <a href="{% url 'score' pk=pk %}" class="btn btn-secondary">Back to Song</a>
-{% else %}
-    <p>Error: No song found. Please contact support.</p>
-{% endif %}
+<div class="container">
+    <div class="row">
+        <!-- Left Section (Form) - 8 columns -->
+        <div class="col-md-8">
+            <h2>Edit Song Formatting</h2>
+            <form method="POST" class="formatting-form">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Right Section (Guide) - 4 columns -->
+<div class="col-md-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>Formatting Guide</h4>
+        </div>
+        <div class="card-body">
+            <p>
+                You only need to include values you want to change. 
+                Any missing values will use the defaults below.
+            </p>
+            <ul>
+                <li><strong>font_size</strong>: Adjusts text size (Default: <code>13</code>).</li>
+                <li><strong>text_color</strong>: Changes text color (Default: <code>"#000000"</code>).</li>
+                <li><strong>alignment</strong>: Can be <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (Default: <code>"left"</code>).</li>
+                <li><strong>line_spacing</strong>: Controls space between lines (Default: <code>1.2</code>).</li>
+                <li><strong>spaceBefore</strong>: Space before a section (Default: <code>12</code>).</li>
+                <li><strong>spaceAfter</strong>: Space after a section (Default: <code>12</code>).</li>
+            </ul>
+            <p>✅ Example: If you only want to change the font size, enter:</p>
+            <pre>
+{
+    "font_size": 16
+}
+            </pre>
+            <p>⚠️ All other values will remain at their defaults.</p>
+            <p><strong>⚠️ Important:</strong> Do <u>not</u> delete the <code>{}</code> completely!</p>
+<p>If you don’t need any changes, leave the field <code>{}</code> or empty—it will be automatically handled.</p>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+
+    
+
+    .container {
+        margin-top: 20px;
+    }
+    .card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    pre {
+        background: #eee;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .formatting-form {
+        display: flex;
+        flex-direction: column;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        align-self: flex-start;  /* Ensures label is top-aligned */
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    button {
+        margin-top: 10px;
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
 {% endblock %}
