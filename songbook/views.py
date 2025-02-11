@@ -84,6 +84,14 @@ def preview_pdf(request, song_id):
 
     # ✅ Get transpose value (default to 0)
     transpose_value = int(request.GET.get("transpose", 0))
+    
+    # Transpose the song if needed
+    if transpose_value != 0:
+        song.lyrics_with_chords = transpose_lyrics(song.lyrics_with_chords, transpose_value)
+    
+    
+    
+    
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{song.songTitle}_preview.pdf"'
 

@@ -1,43 +1,54 @@
 {% load static %}
 
 <div class="content-section">
-        {% if user.is_authenticated %}<h3>Modify</h3>(must be logged in<br> 
-    <a class="btn btn-secondary btn-sm-mt-1 mb-1" href="{% url 'song-update' score.id %}">Update</a>
-        {% endif%}
+    {% if user.is_authenticated %}
+        <h3>🎵 Song Editor</h3>
+        <p class="text-muted">Modify the ChordPro file (must be logged in)</p>
 
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-    <p class='text-muted'>
-    <ul class="list-group">
-        <li class="list-group-item list-group-item-heavy"><h3>Control Panel</h3>
-        </li>
-        <label for="transpose-select">Transpose:</label>
-        <P>The feature is temporarily not available </P>
-        <select id="transpose-select" class="form-control">
-            <option value="0">Original Key</option>
-            <option value="-7">-7 semitone</option>
-            <option value="-6">-6 semitone</option>
-            <option value="-5">-5 semitone</option>
-            <option value="-4">-4 semitone</option>
-            <option value="-3">-3 semitone</option>
-            <option value="-2">-2 semitone</option>
-            <option value="-1">-1 semitone</option>
-            <option value="1">+1 semitone</option>
-            <option value="2">+2 semitone</option>
-            <option value="3">+3 semitone</option>
-            <option value="4">+4 semitone</option>
-            <option value="5">+5 semitone</option>
-            <option value="6">+6 semitone</option>
-            <option value="7">+7 semitone</option>
-        </select>
-        
-        <button id="update-preview" class="btn btn-primary">Update Print Preview</button>
-        </li>
-        <!-- Lyrics and Chords Appearance -->
-        <li class="list-group-item list-group-item-heavy">
-            <strong>Lyrics and Chords Appearance</strong>
-            <div class="control-panel mt-12 d-flex flex-wrap align-items-center">
-                <!-- Font Size -->
-                <div class="me-3">
+        <div class="d-flex gap-2">
+            <a class="btn btn-secondary btn-sm" href="{% url 'song-update' object.id %}" title="Edit the original ChordPro file">
+                ✏️ Update Song
+            </a>
+
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- 🎸 Transposition Section -->
+    <h3>🎸 Transpose Chords</h3>
+    <p class="text-muted">Change the key of the song dynamically</p>
+
+    <label for="transpose-select">Transpose:</label>
+    <select id="transpose-select" class="form-control w-auto d-inline-block">
+        <option value="0">Original Key</option>
+        <option value="-7">-7 semitone</option>
+        <option value="-6">-6 semitone</option>
+        <option value="-5">-5 semitone</option>
+        <option value="-4">-4 semitone</option>
+        <option value="-3">-3 semitone</option>
+        <option value="-2">-2 semitone</option>
+        <option value="-1">-1 semitone</option>
+        <option value="1">+1 semitone</option>
+        <option value="2">+2 semitone</option>
+        <option value="3">+3 semitone</option>
+        <option value="4">+4 semitone</option>
+        <option value="5">+5 semitone</option>
+        <option value="6">+6 semitone</option>
+        <option value="7">+7 semitone</option>
+    </select>
+    
+    <button id="update-preview" class="btn btn-primary btn-sm mt-2">
+        🔄 Apply Transposition
+    </button>
+
+    <hr>
+
+    <!-- 🎨 Edit Song Formatting (Handled Separately) -->
+    <h3>🎨 Song Formatting</h3>
+    <p class="text-muted">Adjust font size, colors, and spacing via the Song Formatting Editor</p>
+
+    <div class="me-3">
                     {% if user.is_authenticated and user.is_superuser %}
                     <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Edit Song Formatting</a>
                 {% elif user.is_authenticated and user.groups.all|length > 0 and "Power Users" in user.groups.all|join:", " %}
@@ -46,40 +57,21 @@
                     <p>Please send an email to gaulindm@gmail.com to request Power User permission.</p>
                 {% endif %}
                 </div>
-        </li>
-
-      
-      
-    </ul>
-
-</div>
-<div>
-{% if score.metadata.youtube %}
-    <p>YouTube Link: <a href="{{ score.metadata.youtube }}" target="_blank">Watch on YouTube</a></p>
-    <button onclick="playSong('{{ score.metadata.youtube }}')">Play Video</button>
 </div>
 
-<div id="youtube-player-container" style="margin-top: 20px;"></div>
-{% else %}
-    <p>No YouTube video available for this song.</p>
-{% endif %}
-
-</div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    let updatePreviewBtn = document.getElementById("update-preview");
+    let transposeSelect = document.getElementById("transpose-select");
 
-    function refreshPDFPreview() {
-    console.log("🔄 Refreshing PDF preview...");
-
-    fetch(`/format_song/{{ score.id }}/`)  // Adjust if needed
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById("song-content").innerHTML = data.html;
-        console.log("✅ PDF preview updated!");
-    })
-    .catch(error => console.error("❌ PDF Refresh Error:", error));
-}
-
-
-
+    if (updatePreviewBtn && transposeSelect) {
+        updatePreviewBtn.addEventListener("click", function() {
+            let transposeValue = transposeSelect.value;
+            let pdfIframe = document.getElementById("pdf-preview");
+            if (pdfIframe) {
+                pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}`;
+            }
+        });
+    }
+});
 </script>

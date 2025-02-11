@@ -33,7 +33,17 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
     # Load chords and extract relevant ones
     chords = load_chords(instrument)
     used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
-    relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+    
+    # ✅ Transpose chords before extracting relevant diagrams
+    if "transposed" not in used_chords:
+        transposed_chords = {transpose_chord(chord, transpose_value) for chord in used_chords}
+        # ✅ Ensure we only transpose chords once
+        if not hasattr(response, "transposed_chords"):
+            response.transposed_chords = {transpose_chord(chord, transpose_value) for chord in used_chords}
+            used_chords = list(response.transposed_chords)  # ✅ Replace used chords with transposed ones
+
+    relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, transposed_chords)]
+
 
     # Get user formatting settings or create defaults
     formatting, _ = SongFormatting.objects.get_or_create(user=user, song=songs[0])
@@ -281,8 +291,14 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
 
                 elif "lyric" in item:
                     chord = item.get("chord", "")
+                    
+                    # ✅ Ensure transposition happens ONCE
+                    if chord and "transposed" not in item:
+                        item["chord"] = transpose_chord(chord, transpose_value)
+                        item["transposed"] = True  # ✅ Mark it as transposed to avoid duplicate transposition
+
                     lyric = item["lyric"]
-                    line = f"<b>[{chord}]</b> {lyric}" if chord else lyric
+                    line = f"<b>[{item['chord']}]</b> {lyric}" if item["chord"] else lyric
 
                     if section_type:
                         section_buffer.append(line)  # Store for structured sections
