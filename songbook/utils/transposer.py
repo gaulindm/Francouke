@@ -1,6 +1,6 @@
 # transposer.py
 from collections import Counter
-
+import re
 def detect_key(parsed_data):
     key_chords = {
         'C': ['C', 'Dm', 'Em', 'F', 'G', 'Am'],
@@ -28,17 +28,20 @@ def detect_key(parsed_data):
 
     return detected_key
 
-# transposer.py
+def clean_chord(chord):
+    """Removes strumming indicators (slashes) from chords."""
+    return re.sub(r"/+", "", chord)  # ✅ Replace one or more slashes with nothing
+
 def extract_chords(parsed_data, unique=False):
+    """Extract chords from parsed data, removing duplicates if needed."""
     chords = []
     for section in parsed_data:
         for item in section:
             if isinstance(item, dict) and 'chord' in item and item['chord']:
-                chords.append(item['chord'])
+                clean = clean_chord(item['chord'])  # ✅ Remove slashes
+                chords.append(clean)
     
-    if unique:
-        return list(set(chords))  # Return unique chords
-    return chords  # Return all chords
+    return list(set(chords)) if unique else chords  # ✅ Ensure unique chords if needed
 
 ENHARMONIC_EQUIVALENTS = {
     "B#": "C", "E#": "F", "Cb": "B", "Fb": "E",
