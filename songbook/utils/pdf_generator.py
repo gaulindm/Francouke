@@ -35,12 +35,10 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
     used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
     
     # ✅ Transpose chords before extracting relevant diagrams
-    if "transposed" not in used_chords:
-        transposed_chords = {transpose_chord(chord, transpose_value) for chord in used_chords}
-        # ✅ Ensure we only transpose chords once
-        if not hasattr(response, "transposed_chords"):
-            response.transposed_chords = {transpose_chord(chord, transpose_value) for chord in used_chords}
-            used_chords = list(response.transposed_chords)  # ✅ Replace used chords with transposed ones
+    if not hasattr(response, "transposed_chords"):
+        response.transposed_chords = {transpose_chord(chord, transpose_value) for chord in used_chords}
+    transposed_chords = response.transposed_chords  # ✅ Ensure it's always defined
+    used_chords = list(response.transposed_chords)  # Use the cached transposed chords
 
     relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, transposed_chords)]
 
@@ -294,7 +292,7 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
                     
                     # ✅ Ensure transposition happens ONCE
                     if chord and "transposed" not in item:
-                        item["chord"] = transpose_chord(chord, transpose_value)
+                        item["chord"] = chord
                         item["transposed"] = True  # ✅ Mark it as transposed to avoid duplicate transposition
 
                     lyric = item["lyric"]
