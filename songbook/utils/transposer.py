@@ -43,18 +43,19 @@ def extract_chords(parsed_data, unique=False):
     
     return list(set(chords)) if unique else chords  # ✅ Ensure unique chords if needed
 
+
 ENHARMONIC_EQUIVALENTS = {
     "B#": "C", "E#": "F", "Cb": "B", "Fb": "E",
-    "A#": "Bb", "D#": "Eb", "G#": "Ab",
-    "Bb": "A#", "Eb": "D#", "Ab": "G#"
+    "A#": "Bb", "D#": "Eb", "G#": "G#",  # ✅ Force G# notation
+    "Bb": "A#", "Eb": "D#", "Ab": "G#"  # ✅ Always convert Ab → G#
 }
 
 NOTES_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 NOTES_FLAT = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
 
 def normalize_chord(chord):
-    """Convert enharmonic chords to their most common representation."""
-    return ENHARMONIC_EQUIVALENTS.get(chord, chord)  # Convert if it's in the list
+    """Convert enharmonic chords to a consistent sharp (#) format."""
+    return ENHARMONIC_EQUIVALENTS.get(chord, chord)  # ✅ Convert flats to sharps
 
 def transpose_chord(chord, semitones):
     """Transpose a chord up/down by a given number of semitones."""

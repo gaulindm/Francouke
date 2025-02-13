@@ -13,7 +13,7 @@ from .chord_utils import load_chords, extract_used_chords, draw_footer, ChordDia
 from songbook.models import SongFormatting  # Use absolute import
 
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-
+from songbook.utils.transposer import transpose_chord, normalize_chord  # ✅ Import normalize_chord
 from songbook.utils.transposer import transpose_chord  # ✅ Make sure this path is correct!
 
 def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None):
@@ -32,7 +32,7 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
 
     # Load chords and extract relevant ones
     chords = load_chords(instrument)
-    used_chords = extract_used_chords(songs[0].lyrics_with_chords)  # Assuming one song for simplicity
+    used_chords = [normalize_chord(chord) for chord in extract_used_chords(songs[0].lyrics_with_chords)]
     
     # ✅ Transpose chords before extracting relevant diagrams
     if not hasattr(response, "transposed_chords"):
