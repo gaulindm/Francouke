@@ -147,8 +147,11 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
 
         chords = load_chords(instrument)
         used_chords = extract_used_chords(song.lyrics_with_chords)
-        relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
-
+        #relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
+        relevant_chords = [
+            chord for chord in chords 
+            if chord["name"].lower() in map(str.lower, transposed_chords) and chord["name"] != "[N.C.]"  # ✅ Exclude [N.C.]
+        ]
 
 
         # Header Section
@@ -364,4 +367,3 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
             acknowledgement=songs[0].acknowledgement if hasattr(songs[0], 'acknowledgement') else ''
         )
     )
-

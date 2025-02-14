@@ -57,9 +57,64 @@
                     <p>Please send an email to gaulindm@gmail.com to request Power User permission.</p>
                 {% endif %}
                 </div>
-</div>
-
+            </div>
+            <!-- 🎥 YouTube Player Section -->
+            <div>
+                {% if score.metadata.youtube %}
+                <p>YouTube Link: <a href="{{ score.metadata.youtube }}" target="_blank">Watch on YouTube</a></p>
+            </div>
+            
+            <!-- The YouTube player will be embedded here on page load -->
+            <div id="youtube-player-container" style="margin-top: 20px; max-width: 320px; position: relative;"></div>
+            {% else %}
+                <p>No YouTube video available for this song.</p>
+            {% endif %}
+            </div>
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    let youtubeUrl = "{{ score.metadata.youtube }}";
+
+    if (!youtubeUrl) {
+        console.warn("No YouTube URL found.");
+        return;
+    }
+
+    function extractVideoId(url) {
+        if (url.includes("youtu.be/")) {
+            return url.split("youtu.be/")[1]?.split("?")[0];
+        } else if (url.includes("youtube.com/watch?v=")) {
+            return url.split("v=")[1]?.split("&")[0];
+        } else if (url.includes("youtube.com/embed/")) {
+            return url.split("embed/")[1]?.split("?")[0];
+        }
+        return null;
+    }
+
+    let videoId = extractVideoId(youtubeUrl);
+
+    if (!videoId) {
+        console.error("Invalid YouTube URL");
+        return;
+    }
+
+    let playerContainer = document.getElementById("youtube-player-container");
+    if (playerContainer) {
+        playerContainer.innerHTML = `
+            <iframe width="320" height="180" 
+                    src="https://www.youtube.com/embed/${videoId}" 
+                    title="YouTube video player" frameborder="0" 
+                    style="border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>`;
+        console.log("YouTube player embedded successfully.");
+    } else {
+        console.error("YouTube player container not found.");
+    }
+});
+
+
 document.addEventListener("DOMContentLoaded", function() {
     let updatePreviewBtn = document.getElementById("update-preview");
     let transposeSelect = document.getElementById("transpose-select");

@@ -1,0 +1,26 @@
+<!--I beleive that we don't need this file
+It has been replaced by song_simplescore.html
+I kept it for future reference
+We can remove it when site is fully developped-->
+
+
+{% extends "songbook/base.html" %}
+{% block content %}
+  <article class="media content-section">
+    
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-songs' object.contributor.username %}">{{ object.contributor }}</a>
+        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+        {% if object.contributor == user %}
+        <div>
+          <a class="btn btn-secondary btn-sm-mt-1 mb-1" href ="{% url 'song-update' object.id %}">Update</a>
+          <a class="btn btn-danger btn-sm-mt-1 mb-1" href ="{% url 'song-delete' object.id %}">Delete</a>
+        </div>
+          {% endif %}
+      </div>
+      <h2 class="article-title">{{ object.songtitle }}</h2>
+      <p class="article-content">{{ object.songChordPro }}</p>
+    </div>
+  </article>
+{% endblock content %}

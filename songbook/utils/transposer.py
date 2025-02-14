@@ -40,6 +40,8 @@ def extract_chords(parsed_data, unique=False):
             if isinstance(item, dict) and 'chord' in item and item['chord']:
                 clean = clean_chord(item['chord'])  # ✅ Remove slashes
                 chords.append(clean)
+                if clean == "[N.C.]" or clean:  # ✅ Keep [N.C.]
+                    chords.append(clean)
     
     return list(set(chords)) if unique else chords  # ✅ Ensure unique chords if needed
 
@@ -58,35 +60,47 @@ def normalize_chord(chord):
     return ENHARMONIC_EQUIVALENTS.get(chord, chord)  # ✅ Convert flats to sharps
 
 def transpose_chord(chord, semitones):
-    """Transpose a chord up/down by a given number of semitones."""
+    """Transpose a chord by a given number of semitones, but keep [N.C.] unchanged."""
     
+    print(f"DEBUG: Received chord='{chord}'")  # 🔍 Debugging statement
+
+    # ✅ Ensure [N.C.] is returned immediately
+    if chord.strip().upper() == "[N.C.]":
+        print("DEBUG: Detected [N.C.], returning early")  # 🔍 Debugging statement
+        return "[N.C.]"  # ✅ No processing, just return it
+
     root, suffix = "", ""
-    
+
     # ✅ Extract root note + accidental if present
     if len(chord) > 1 and chord[1] in "#b":
-        root, suffix = chord[:2], chord[2:]  # e.g., "D#" → root="D#", suffix="m7"
+        root, suffix = chord[:2], chord[2:]
     else:
-        root, suffix = chord[:1], chord[1:]  # e.g., "Gm7" → root="G", suffix="m7"
+        root, suffix = chord[:1], chord[1:]
 
-    # ✅ Normalize root note (Ds → D#)
+    # ✅ Debug unexpected root note issue
+    print(f"DEBUG: Extracted root='{root}', suffix='{suffix}'")  # 🔍 Debugging statement
+
+    # ✅ Ensure root is valid (fix for unexpected inputs)
+    if root not in NOTES_SHARP and root not in NOTES_FLAT:
+        print(f"DEBUG: Invalid root '{root}', returning original chord")  # 🔍 Debugging statement
+        return chord  # ✅ Return the original chord instead of crashing
+
+    # ✅ Normalize root note
     if root in ENHARMONIC_EQUIVALENTS:
         root = ENHARMONIC_EQUIVALENTS[root]
 
-    # ✅ Ensure root is a valid note
-    if root not in NOTES_SHARP and root not in NOTES_FLAT:
-        raise ValueError(f"Invalid root note: {root}")  # 🚨 Catch unexpected notes
-
-    # ✅ Choose the correct scale (sharp or flat) based on the current root
+    # ✅ Choose the correct scale (sharp or flat)
     notes = NOTES_SHARP if root in NOTES_SHARP else NOTES_FLAT
 
     # ✅ Find new transposed note
     new_index = (notes.index(root) + semitones) % 12
     transposed_root = notes[new_index]
 
-    # ✅ Convert enharmonic equivalents to the most common notation
+    # ✅ Convert to standard notation
     transposed_root = normalize_chord(transposed_root)
 
-    return transposed_root + suffix  # ✅ Keep original chord structure
+    return transposed_root + suffix
+
 
 
 
@@ -108,4 +122,3 @@ def transpose_lyrics(parsed_data, steps):
                 transposed_section.append(item)
         transposed_data.append(transposed_section)
     return transposed_data
-
