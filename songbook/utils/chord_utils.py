@@ -149,69 +149,71 @@ def extract_used_chords(lyrics_with_chords):
 
 def draw_footer(
     canvas, doc, relevant_chords, chord_spacing, row_spacing, 
-    is_lefty, instrument="ukulele", is_printing_alternate_chord=False,
-    acknowledgement=''
+    is_lefty, instrument="ukulele", secondary_instrument=None,
+    is_printing_alternate_chord=False, acknowledgement=''
 ):
     """
-    Draw footer with chord diagrams at the bottom of the page, respecting user preferences.
+    Draw footer with chord diagrams, handling both primary and secondary instruments.
     """
-    # Check if there are chords to draw
-    if not relevant_chords:
-        print("No relevant chords to draw. Skipping footer.")
-        return
 
     # Page dimensions
     page_width, _ = doc.pagesize
-    footer_height = 36  # Height reserved for the footer
+    footer_height = 36  
 
     # Instrument-specific adjustments
-    string_count = 4 if instrument == "ukulele" else 6
-    diagram_scale = 0.5 if instrument == "ukulele" else 0.7
-    min_chord_spacing = 50 if instrument == "ukulele" else 70
+    min_chord_spacing = 10 if instrument == "ukulele" else 70
 
-    # Prepare chord diagrams to draw
-    diagrams_to_draw = []
-    for chord in relevant_chords:
-        # Add the first variation of each chord
-        diagrams_to_draw.append({
-            "name": chord["name"],
-            "variation": chord["variations"][0]
-        })
-        # Add alternate variation if allowed and available
-        if is_printing_alternate_chord and len(chord["variations"]) > 1:
-            diagrams_to_draw.append({
+    # Categorize chords by instrument
+    primary_chords = [chord for chord in relevant_chords if chord.get("instrument") == instrument]
+    secondary_chords = [chord for chord in relevant_chords if secondary_instrument and chord.get("instrument") == secondary_instrument]
+
+    def prepare_chords(chords):
+        diagrams = []
+        for chord in chords:
+            diagrams.append({
                 "name": chord["name"],
-                "variation": chord["variations"][1]
+                "variation": chord["variations"][0]
             })
+            if is_printing_alternate_chord and len(chord["variations"]) > 1:
+                diagrams.append({
+                    "name": chord["name"],
+                    "variation": chord["variations"][1]
+                })
+        return diagrams
 
-    # Validate total diagrams and calculate spacing
-    total_diagrams = len(diagrams_to_draw)
-    chord_spacing = max(
-        (page_width - 2 * doc.leftMargin) / total_diagrams,
-        min_chord_spacing
-    )
-    max_chords_per_row = max(1, int((page_width - 2 * doc.leftMargin) / chord_spacing))  # Ensure at least 1 per row
+    primary_diagrams = prepare_chords(primary_chords)
+    secondary_diagrams = prepare_chords(secondary_chords)
 
-    # Split diagrams into rows
-    rows = [
-        diagrams_to_draw[i:i + max_chords_per_row]
-        for i in range(0, total_diagrams, max_chords_per_row)
-    ]
+    total_primary = len(primary_diagrams)
+    total_secondary = len(secondary_diagrams)
+    
+    # Single instrument scenario: center align
+    if not secondary_instrument:
+    
+        start_x = (page_width - (total_primary * chord_spacing)) / 2
+    
+        sections = [(primary_diagrams, start_x)]
+    
+    # Dual instrument scenario: split left and right
+    else:
+        mid_x = page_width / 2
+        primary_x = mid_x / 2 - (total_primary * chord_spacing) / 2
+        secondary_x = mid_x + (mid_x / 2) - (total_secondary * chord_spacing) / 2
+        sections = [(primary_diagrams, primary_x), (secondary_diagrams, secondary_x)]
+    
 
-    # Draw each row of chords
+
     y_offset = footer_height
-    for row in rows:
-        total_row_width = len(row) * chord_spacing
-        start_x = (page_width - total_row_width) / 2
+    for diagrams, start_x in sections:
+        total_width = len(diagrams) * chord_spacing
         canvas.saveState()
         canvas.translate(start_x, y_offset)
 
         x_offset = 0
-        for chord in row:
-            # Draw each chord diagram
+        for chord in diagrams:
             diagram = ChordDiagram(
                 chord["name"], chord["variation"], 
-                scale=diagram_scale, is_lefty=is_lefty
+                scale=0.5, is_lefty=is_lefty
             )
             diagram.canv = canvas
             canvas.saveState()
@@ -221,11 +223,17 @@ def draw_footer(
             x_offset += chord_spacing
 
         canvas.restoreState()
-        y_offset += row_spacing  # Move to the next row
+
+    # Draw labels for instruments only if both are present
+    if secondary_instrument and total_secondary > 0:
+        canvas.setFont("Helvetica-Bold", 10)
+        canvas.drawCentredString(mid_x / 2, y_offset + 60, instrument.title())  # Centered in left half
+        canvas.drawCentredString(mid_x + (mid_x / 2), y_offset + 60, secondary_instrument.title())  # Centered in right half
+
 
     if acknowledgement:
         canvas.setFont("Helvetica-Oblique", 10)
         canvas.drawCentredString(
-            doc.pagesize[0] / 2, 0.2 * inch,  # Positioning 0.3 inch from the bottom
+            doc.pagesize[0] / 2, 0.2 * inch,  
             f"Gracieusté de: {acknowledgement}"
         )  
