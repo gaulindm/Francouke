@@ -11,7 +11,7 @@ from .views import (
 )
 
 from .views import preview_pdf
-from users.views import update_preferences  # Ensure this import is correct!
+#from users.views import update_preferences  # Ensure this import is correct!
 
 
 urlpatterns = [
@@ -27,7 +27,7 @@ urlpatterns = [
     path('betabugs/', views.betabugs, name='songbook-betabugs'),
     path('', SongListView.as_view(), name='song_list'),  # Define a name for this pattern
     path('generate-song-pdf/<int:song_id>/', views.generate_single_song_pdf, name='generate_single_song_pdf'),
-    path("update_preferences/", update_preferences, name="update_preferences"),
+ #   path("update_preferences/", update_preferences, name="update_preferences"),
     path('chord-dictionary/', views.chord_dictionary, name='chord-dictionary'),
     path('generate_titles_pdf/', views.generate_titles_pdf, name='generate_titles_pdf'),
     path('generate_multi_song_pdf/', views.generate_multi_song_pdf, name='generate_multi_song_pdf'),

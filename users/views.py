@@ -28,34 +28,34 @@ def register(request):
 
 
 @login_required
-def user_preference_view(request):
-    # Get or create the user's preferences
-    preferences, created = UserPreference.objects.get_or_create(user=request.user)
+def user_preferences_view(request):
+    user_pref, created = UserPreference.objects.get_or_create(user=request.user)  # Get or create a preference instance
 
-    if request.method == 'POST':
-        form = UserPreferenceForm(request.POST, instance=preferences)
+    if request.method == "POST":
+        form = UserPreferenceForm(request.POST, instance=user_pref)
         if form.is_valid():
             form.save()
-            return redirect('/')  # Replace with your desired redirect URL
+            return redirect("/")  # Redirect to song list
     else:
-        form = UserPreferenceForm(instance=preferences)
+        form = UserPreferenceForm(instance=user_pref)  # Populate form with current user preferences
 
-    return render(request, 'users/user_preference_form.html', {'form': form})
+    return render(request, "users/user_preference_form.html", {"form": form})
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import UserPreference
 
-@login_required
-def update_preferences(request):
-    if request.method == "POST":
-        preferences = get_object_or_404(UserPreference, user=request.user)
+#@login_required
+#def update_preferences(request):
+#    if request.method == "POST":
+#        preferences = get_object_or_404(UserPreference, user=request.user)
 
         # ✅ Update Global Font Size
-        preferences.font_size = request.POST.get("font_size", preferences.font_size)
-        preferences.save()
+#        preferences.font_size = request.POST.get("font_size", preferences.font_size)
+#        preferences.save()
 
-        return JsonResponse({"status": "success", "font_size": preferences.font_size})
+#        return JsonResponse({"status": "success", "font_size": preferences.font_size})
 
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+#    return JsonResponse({"status": "error", "message": "Invalid request"})
+

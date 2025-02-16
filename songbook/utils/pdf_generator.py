@@ -22,10 +22,17 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
     base_style = styles["BodyText"]
     elements = []
 
+    instrument = user.userpreference.primary_instrument
+    secondary_instrument = user.userpreference.secondary_instrument  # Ensure it's retrieved
+
+    if secondary_instrument:  # Now this will work correctly
+        instruments = [instrument, secondary_instrument]
+    else:
+        instruments = [instrument]
 
 
-    # Get user preferences
-    instrument = user.userpreference.instrument
+
+
     is_lefty = user.userpreference.is_lefty
     is_printing_alternate_chord = user.userpreference.is_printing_alternate_chord
 
@@ -142,10 +149,18 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
 
     for song in songs:
         #preferences = user.userpreference
-        instrument = user.userpreference.instrument
+        primary_instrument = user.userpreference.primary_instrument
+        secondary_instrument = user.userpreference.secondary_instrument  # Optional
+
         is_lefty = user.userpreference.is_lefty
 
-        chords = load_chords(instrument)
+        # Load chords for both instruments
+        chords_primary = load_chords(primary_instrument)
+        chords_secondary = load_chords(secondary_instrument) if secondary_instrument else []
+
+        # Merge the lists instead of using a dictionary merge
+        chords = chords_primary + chords_secondary
+
         used_chords = extract_used_chords(song.lyrics_with_chords)
         #relevant_chords = [chord for chord in chords if chord["name"].lower() in map(str.lower, used_chords)]
         relevant_chords = [

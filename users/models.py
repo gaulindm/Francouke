@@ -24,27 +24,34 @@ class Profile(models.Model):
 
 class UserPreference(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userpreference')
-    transpose_value = models.IntegerField(default=0)  # e.g., semitone adjustments
-    font_size = models.CharField(max_length=5, default="14px")
-    line_spacing = models.FloatField(default=1.2)
-    text_color = models.CharField(max_length=7, default="#000000")  # Hex color
-    chord_color = models.CharField(max_length=7, default="#FF0000")  # Hex color
-    chord_weight = models.CharField(max_length=10, default="normal")
-    instrument = models.CharField(
-           max_length=20,
-            choices=[
+    transpose_value = models.IntegerField(default=0)  # e.g., semiton
+    primary_instrument = models.CharField(
+        max_length=20,
+        choices=[
             ("guitar", "Guitar"),
             ("ukulele", "Ukulele"),
             ("baritone_ukulele", "Baritone Ukulele"),
             ("banjo", "Banjo"),
             ("mandolin", "Mandolin"),
-        ],        
-           default="ukulele")
+        ],
+        default="ukulele"
+    )
+    secondary_instrument = models.CharField(
+        max_length=20,
+        choices=[
+            ("guitar", "Guitar"),
+            ("ukulele", "Ukulele"),
+            ("baritone_ukulele", "Baritone Ukulele"),
+            ("banjo", "Banjo"),
+            ("mandolin", "Mandolin"),
+        ],
+        default=None,  # No secondary instrument by default
+        null=True,
+        blank=True  # Allows the field to be optional
+    )
     is_lefty = models.BooleanField(default=False)
-    chord_diagram_position = models.CharField(max_length=10, default="bottom")
-    chord_placement = models.CharField(max_length=20, default="inline")
-    # New field
     is_printing_alternate_chord = models.BooleanField(default=False)
+
 
 
     def __str__(self):
