@@ -123,7 +123,7 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
 
 
     # Calculate diagrams per row and rows needed
-    chord_spacing = 50 if instrument == "ukulele" else 70  # Adjust spacing per instrument
+    chord_spacing = 20 if instrument == "ukulele" else 70  # Adjust spacing per instrument
     page_width, page_height = letter
     max_chords_per_row = int((page_width - 2 * doc.leftMargin) / chord_spacing)
     total_diagrams = len(relevant_chords) * (2 if len(relevant_chords) < 7 else 1)  # Include 2 variations if < 7 chords
@@ -137,7 +137,7 @@ def generate_songs_pdf(response, songs, user, transpose_value=0, formatting=None
         doc.bottomMargin = max(80, diagram_height + 20)  # Ensure there's enough space for diagrams
 
     # Debugging output
-    print(f"Total diagrams: {total_diagrams}, Rows needed: {rows_needed}, Bottom margin: {doc.bottomMargin}")
+    print(f"Total diagrams for calculatingmargin: {total_diagrams}, Rows needed: {rows_needed}, Bottom margin: {doc.bottomMargin}")
 
 
 

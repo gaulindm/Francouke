@@ -58,7 +58,7 @@ class ChordDiagram(Flowable):
         self.canv.setFont("Helvetica-Bold", 12)
         self.canv.drawCentredString(
             (num_strings - 1) * string_spacing / 2,
-            fret_spacing * (num_frets + 1),
+            fret_spacing * (num_frets + 1)+2,
             self.chord_name
         )
 
@@ -147,26 +147,20 @@ def extract_used_chords(lyrics_with_chords):
     # Return the chords as a sorted list
     return sorted(chords)
 
-def draw_footer(
-    canvas, doc, relevant_chords, chord_spacing, row_spacing, 
-    is_lefty, instrument="ukulele", secondary_instrument=None,
-    is_printing_alternate_chord=False, acknowledgement=''
-):
-    """
-    Draw footer with chord diagrams, handling both primary and secondary instruments.
-    """
-
-    # Page dimensions
+def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing, 
+                 is_lefty, instrument="ukulele", secondary_instrument=None,
+                 is_printing_alternate_chord=False, acknowledgement='',
+                 rows_needed=1, diagram_height=0):
+    
     page_width, _ = doc.pagesize
-    footer_height = 36  
+    max_per_row = 12 if not secondary_instrument else 6
+    footer_height = 100
+    
 
     # Instrument-specific adjustments
-    min_chord_spacing = 10 if instrument == "ukulele" else 70
+    #min_chord_spacing = 10 if instrument == "ukulele" else 70
 
-    # Categorize chords by instrument
-    primary_chords = [chord for chord in relevant_chords if chord.get("instrument") == instrument]
-    secondary_chords = [chord for chord in relevant_chords if secondary_instrument and chord.get("instrument") == secondary_instrument]
-
+    
     def prepare_chords(chords):
         diagrams = []
         for chord in chords:
@@ -181,59 +175,69 @@ def draw_footer(
                 })
         return diagrams
 
-    primary_diagrams = prepare_chords(primary_chords)
-    secondary_diagrams = prepare_chords(secondary_chords)
 
-    total_primary = len(primary_diagrams)
-    total_secondary = len(secondary_diagrams)
-    
-    # Single instrument scenario: center align
-    if not secondary_instrument:
-    
-        start_x = (page_width - (total_primary * chord_spacing)) / 2
-    
-        sections = [(primary_diagrams, start_x)]
-    
-    # Dual instrument scenario: split left and right
+    max_chords_per_row = 12 if not secondary_instrument else 6  # 6 per instrument if two
+
+    primary_diagrams = prepare_chords([chord for chord in relevant_chords if chord.get("instrument") == instrument])
+    secondary_diagrams = prepare_chords([chord for chord in relevant_chords if secondary_instrument and chord.get("instrument") == secondary_instrument])
+
+    if secondary_instrument:
+        primary_rows = (len(primary_diagrams) + max_chords_per_row - 1) // max_chords_per_row  # Per instrument
+        secondary_rows = (len(secondary_diagrams) + max_chords_per_row - 1) // max_chords_per_row  # Per instrument
+        rows_needed = max(primary_rows, secondary_rows)  # Take the max since they stack
     else:
-        mid_x = page_width / 2
-        primary_x = mid_x / 2 - (total_primary * chord_spacing) / 2
-        secondary_x = mid_x + (mid_x / 2) - (total_secondary * chord_spacing) / 2
-        sections = [(primary_diagrams, primary_x), (secondary_diagrams, secondary_x)]
+        rows_needed = (len(primary_diagrams) + max_chords_per_row - 1) // max_chords_per_row  # Full page
+
+    print(f"DEBUG: Number of chords={len(primary_diagrams)}, max_chords_per_row={max_chords_per_row}, rows_needed={rows_needed}")
+
+
+
+    def draw_diagrams(diagrams, start_x, start_y):
+        rows = [diagrams[i:i + max_per_row] for i in range(0, len(diagrams), max_per_row)]
+        
+        first_row_y = start_y  # Capture the original top position
+        
+        y_offset = start_y - (len(rows) - 1) * row_spacing  # Adjust for multiple rows
+        
+        for row in rows:
+            x_offset = start_x + (page_width / 4 - len(row) * chord_spacing / 2)
+            for chord in row:
+                diagram = ChordDiagram(chord["name"], chord["variation"], scale=0.5, is_lefty=is_lefty)
+                diagram.canv = canvas
+                canvas.saveState()
+                canvas.translate(x_offset, y_offset)
+                diagram.draw()
+                canvas.restoreState()
+                x_offset += chord_spacing
+            y_offset -= row_spacing
+
+        return first_row_y  # Always return the original start position
     
 
+    start_y = 34 if rows_needed == 1 else 172
+    print(f"DEBUG: start_y calculated from pdf_generator {start_y}")
+    if not secondary_instrument:
+        label_y = draw_diagrams(primary_diagrams, page_width / 4, start_y)
+    else:
+        label_y = draw_diagrams(primary_diagrams, page_width / 4 - 140, start_y)
+        draw_diagrams(secondary_diagrams, 3 * page_width / 4 - 140, start_y)
 
-    y_offset = footer_height
-    for diagrams, start_x in sections:
-        total_width = len(diagrams) * chord_spacing
-        canvas.saveState()
-        canvas.translate(start_x, y_offset)
 
-        x_offset = 0
-        for chord in diagrams:
-            diagram = ChordDiagram(
-                chord["name"], chord["variation"], 
-                scale=0.5, is_lefty=is_lefty
-            )
-            diagram.canv = canvas
-            canvas.saveState()
-            canvas.translate(x_offset, 0)
-            diagram.draw()
-            canvas.restoreState()
-            x_offset += chord_spacing
 
-        canvas.restoreState()
 
-    # Draw labels for instruments only if both are present
-    if secondary_instrument and total_secondary > 0:
+
+    if secondary_instrument:
+        label_y = 96 if rows_needed == 1 else 165  # Keep it simple!
         canvas.setFont("Helvetica-Bold", 10)
-        canvas.drawCentredString(mid_x / 2, y_offset + 60, instrument.title())  # Centered in left half
-        canvas.drawCentredString(mid_x + (mid_x / 2), y_offset + 60, secondary_instrument.title())  # Centered in right half
+        canvas.drawCentredString(page_width / 4, label_y, instrument.title())
+        if secondary_instrument:
+            canvas.drawCentredString(3 * page_width / 4, label_y, secondary_instrument.title())
 
 
+#Acknowledgment 
     if acknowledgement:
         canvas.setFont("Helvetica-Oblique", 10)
         canvas.drawCentredString(
-            doc.pagesize[0] / 2, 0.2 * inch,  
+            doc.pagesize[0] / 2, 0.2 * inch,  #changer .5 a .25
             f"Gracieusté de: {acknowledgement}"
-        )  
+        )
