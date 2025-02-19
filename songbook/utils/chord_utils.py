@@ -224,7 +224,7 @@ def draw_footer(canvas, doc, relevant_chords, chord_spacing, row_spacing,
 
 
 
-
+    
 
     if secondary_instrument:
         label_y = 96 if rows_needed == 1 else 165  # Keep it simple!

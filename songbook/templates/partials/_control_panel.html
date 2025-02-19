@@ -2,81 +2,82 @@
 
 <div class="content-section">
     {% if user.is_authenticated %}
-        <h3>🎵 Song Editor</h3>
-        <p class="text-muted">Modify the ChordPro file (must be logged in)</p>
+        <h3>🎵 Éditeur de Chansons</h3>
+        <p class="text-muted">Modifiez le fichier ChordPro (connexion requise)</p>
 
         <div class="d-flex gap-2">
-            <a class="btn btn-secondary btn-sm" href="{% url 'song-update' object.id %}" title="Edit the original ChordPro file">
-                ✏️ Update Song
+            <a class="btn btn-secondary btn-sm" href="{% url 'song-update' object.id %}" title="Modifier le fichier ChordPro original">
+                ✏️ Modifier la chanson
             </a>
-
         </div>
     {% endif %}
 
     <hr>
 
-    <!-- 🎸 Transposition Section -->
-    <h3>🎸 Transpose Chords</h3>
-    <p class="text-muted">Change the key of the song dynamically</p>
+    <!-- 🎸 Section de Transposition -->
+    <h3>🎸 Transposer les Accords</h3>
+    <p class="text-muted">Changez la tonalité de la chanson dynamiquement</p>
 
-    <label for="transpose-select">Transpose:</label>
+    <label for="transpose-select">Transposer :</label>
     <select id="transpose-select" class="form-control w-auto d-inline-block">
-        <option value="0">Original Key</option>
-        <option value="-7">-7 semitone</option>
-        <option value="-6">-6 semitone</option>
-        <option value="-5">-5 semitone</option>
-        <option value="-4">-4 semitone</option>
-        <option value="-3">-3 semitone</option>
-        <option value="-2">-2 semitone</option>
-        <option value="-1">-1 semitone</option>
-        <option value="1">+1 semitone</option>
-        <option value="2">+2 semitone</option>
-        <option value="3">+3 semitone</option>
-        <option value="4">+4 semitone</option>
-        <option value="5">+5 semitone</option>
-        <option value="6">+6 semitone</option>
-        <option value="7">+7 semitone</option>
+        <option value="0">Tonalité originale</option>
+        <option value="-7">-7 demi-ton</option>
+        <option value="-6">-6 demi-ton</option>
+        <option value="-5">-5 demi-ton</option>
+        <option value="-4">-4 demi-ton</option>
+        <option value="-3">-3 demi-ton</option>
+        <option value="-2">-2 demi-ton</option>
+        <option value="-1">-1 demi-ton</option>
+        <option value="1">+1 demi-ton</option>
+        <option value="2">+2 demi-tons</option>
+        <option value="3">+3 demi-tons</option>
+        <option value="4">+4 demi-tons</option>
+        <option value="5">+5 demi-tons</option>
+        <option value="6">+6 demi-tons</option>
+        <option value="7">+7 demi-tons</option>
     </select>
-    
+
     <button id="update-preview" class="btn btn-primary btn-sm mt-2">
-        🔄 Apply Transposition
+        🔄 Appliquer la Transposition
     </button>
 
     <hr>
 
-    <!-- 🎨 Edit Song Formatting (Handled Separately) -->
-    <h3>🎨 Song Formatting</h3>
-    <p class="text-muted">Adjust font size, colors, and spacing via the Song Formatting Editor</p>
+    <!-- 🎨 Section de Mise en Forme des Chansons -->
+        <h3>🎨 Mise en Forme des Chansons</h3>
+        <p class="text-muted">Ajustez la taille de la police, les couleurs et l’espacement via l’Éditeur de Mise en Forme</p>
 
-    <div class="me-3">
-                    {% if user.is_authenticated and user.is_superuser %}
-                    <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Edit Song Formatting</a>
-                {% elif user.is_authenticated and user.groups.all|length > 0 and "Power Users" in user.groups.all|join:", " %}
-                    <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Edit Song Formatting</a>
-                {% else %}
-                    <p>Please send an email to gaulindm@gmail.com to request Power User permission.</p>
-                {% endif %}
-                </div>
-            </div>
-            <!-- 🎥 YouTube Player Section -->
-            <div>
-                {% if score.metadata.youtube %}
-                <p>YouTube Link: <a href="{{ score.metadata.youtube }}" target="_blank">Watch on YouTube</a></p>
-            </div>
-            
-            <!-- The YouTube player will be embedded here on page load -->
-            <div id="youtube-player-container" style="margin-top: 20px; max-width: 320px; position: relative;"></div>
+        <div class="me-3">
+            {% if user.is_authenticated and user.is_superuser %}
+                <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Modifier la Mise en Forme</a>
+            {% elif user.is_authenticated and user.groups.all|length > 0 and "Power Users" in user.groups.all|join:", " %}
+                <a href="{% url 'edit_formatting' score.id %}" class="btn btn-warning">Modifier la Mise en Forme</a>
             {% else %}
-                <p>No YouTube video available for this song.</p>
+                <p>Veuillez envoyer un e-mail à <a href="mailto:gaulindm@gmail.com">gaulindm@gmail.com</a> pour demander l’accès en tant qu’utilisateur avancé.</p>
             {% endif %}
-            </div>
+    </div>
+</div>
+
+<!-- 🎥 Section du Lecteur YouTube -->
+<div>
+    {% if score.metadata.youtube %}
+        <p>Lien YouTube : <a href="{{ score.metadata.youtube }}" target="_blank">Regarder sur YouTube</a></p>
+    </div>
+
+    <!-- Le lecteur YouTube sera intégré ici lors du chargement de la page -->
+    <div id="youtube-player-container" style="margin-top: 20px; max-width: 320px; position: relative;"></div>
+    {% else %}
+        <p>Aucune vidéo YouTube disponible pour cette chanson.</p>
+    {% endif %}
+</div>
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
     let youtubeUrl = "{{ score.metadata.youtube }}";
 
     if (!youtubeUrl) {
-        console.warn("No YouTube URL found.");
+        console.warn("Aucune URL YouTube trouvée.");
         return;
     }
 
@@ -94,39 +95,48 @@ document.addEventListener("DOMContentLoaded", function () {
     let videoId = extractVideoId(youtubeUrl);
 
     if (!videoId) {
-        console.error("Invalid YouTube URL");
+        console.error("URL YouTube invalide");
         return;
     }
 
     let playerContainer = document.getElementById("youtube-player-container");
     if (playerContainer) {
         playerContainer.innerHTML = `
-            <iframe width="320" height="180" 
-                    src="https://www.youtube.com/embed/${videoId}" 
-                    title="YouTube video player" frameborder="0" 
-                    style="border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            <iframe width="320" height="180"
+                    src="https://www.youtube.com/embed/${videoId}"
+                    title="Lecteur vidéo YouTube" frameborder="0"
+                    style="border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
             </iframe>`;
-        console.log("YouTube player embedded successfully.");
+        console.log("Lecteur YouTube intégré avec succès.");
     } else {
-        console.error("YouTube player container not found.");
+        console.error("Conteneur du lecteur YouTube introuvable.");
     }
 });
 
-
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM complètement chargé et analysé");
     let updatePreviewBtn = document.getElementById("update-preview");
     let transposeSelect = document.getElementById("transpose-select");
 
     if (updatePreviewBtn && transposeSelect) {
+        console.log("Éléments trouvés. Attachement de l'événement clic.");
         updatePreviewBtn.addEventListener("click", function() {
+            console.log("Bouton de mise à jour prévisualisation cliqué.");
             let transposeValue = transposeSelect.value;
             let pdfIframe = document.getElementById("pdf-preview");
             if (pdfIframe) {
+                console.log("Mise à jour de la source de l'iframe.");
                 pdfIframe.src = `/preview_pdf/{{ score.id }}/?transpose=${transposeValue}`;
+            } else {
+                console.log("Élément pdf-preview introuvable.");
+                console.log(document.body.innerHTML);  // Journalise l'état actuel du document
             }
         });
+    } else {
+        console.log("Impossible de trouver l'élément update-preview ou transpose-select.");
     }
 });
+
 </script>
