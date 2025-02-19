@@ -6,7 +6,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarToggle">
         <div class="navbar-nav mr-auto">
-          <a class="nav-item nav-link" href="{% url 'chord-dictionary' %}">Chord Dictionary</a>
+          <a class="nav-item nav-link" href="{% url 'chord-dictionary' %}">Dictionnaire d'accord</a>
           <a class="nav-item nav-link" href="{% url 'songbook-about' %}">A propos</a>
           <a class="nav-item nav-link" href="{% url 'songbook-betabugs' %}">En dévelopement</a>
         </div>
@@ -22,7 +22,7 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
               <li>
-                  <a class="dropdown-item" href="#">Name: {{ user.first_name }} {{ user.last_name }}</a>
+                  <a class="dropdown-item" href="#">Nom: {{ user.first_name }} {{ user.last_name }}</a>
               </li>
               <li>
                   <a class="dropdown-item" href="{% url 'song-create' %}">Nouvelle Chanson</a>

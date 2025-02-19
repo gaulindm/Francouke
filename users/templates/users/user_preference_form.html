@@ -1,12 +1,12 @@
 {% extends "songbook/base.html" %}
 
 {% block content %}
-<h2>User Preferences</h2>
+<h2>Préférences de l'utilisateur</h2>
 
 <style>
-    /* Basic form styling */
+    /* Mise en forme du formulaire */
     form {
-        max-width: 400px;  /* Restrict form width */
+        max-width: 450px;
         margin: 20px auto;
         padding: 20px;
         background: #f9f9f9;
@@ -14,27 +14,41 @@
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     }
 
-    label {
-        display: block;
-        font-weight: bold;
-        margin-top: 10px;
+    /* Grille pour aligner les labels et les champs */
+    .form-group {
+        display: grid;
+        grid-template-columns: 1fr 2fr; /* Label 1/3, Champ 2/3 */
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
     }
 
-    select, input[type="checkbox"] {
-        margin-top: 5px;
-        padding: 8px;
+    label {
+        font-weight: bold;
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    select, input[type="text"] {
         width: 100%;
+        padding: 8px;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
 
-    .checkbox-container {
-        display: flex;
+    /* Alignement des cases à cocher */
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: 1fr auto; /* Label à gauche, Checkbox à droite */
         align-items: center;
         gap: 10px;
-        margin-top: 10px;
     }
 
+    .checkbox-group input {
+        justify-self: end; /* Aligner la case à droite */
+    }
+
+    /* Bouton de soumission */
     button {
         display: block;
         width: 100%;
@@ -56,30 +70,32 @@
 <form method="post">
     {% csrf_token %}
 
-    <!-- Primary Instrument -->
-    <label for="id_primary_instrument">🎸 Instrument primaire:</label>
-    {{ form.primary_instrument }}
+    <!-- Instrument principal -->
+    <div class="form-group">
+        <label for="id_primary_instrument">🎸 Instrument principal :</label>
+        {{ form.primary_instrument }}
+    </div>
 
-    <!-- Secondary Instrument -->
-    <label for="id_secondary_instrument">🎻 Instrument secondaire (Facultatif):</label>
-    {{ form.secondary_instrument }}
+    <!-- Instrument secondaire -->
+    <div class="form-group">
+        <label for="id_secondary_instrument">🎻 Instrument secondaire (optionnel) :</label>
+        {{ form.secondary_instrument }}
+    </div>
 
-    <!-- Left-handed Checkbox -->
-    <div class="checkbox-container">
-        
-        <label for="id_is_lefty">🖐️ Accords gaucher?</label>
+    <!-- Gaucher -->
+    <div class="checkbox-group">
+        <label for="id_is_lefty">🖐️ Êtes-vous gaucher ?</label>
         {{ form.is_lefty }}
     </div>
 
-    <!-- Alternate Chords Checkbox -->
-    <div class="checkbox-container">
-        
-        <label for="id_is_printing_alternate_chord">🎶 Voulez-vous voir les accords alternes?:</label>
+    <!-- Affichage des accords alternatifs -->
+    <div class="checkbox-group">
+        <label for="id_is_printing_alternate_chord">🎶 Afficher les accords alternatifs ?</label>
         {{ form.is_printing_alternate_chord }}
     </div>
 
-    <!-- Save Button -->
-    <button type="submit">💾 Sauvegarder vos préférences</button>
+    <!-- Bouton de sauvegarde -->
+    <button type="submit">💾 Sauvegarder les préférences</button>
 </form>
 
 {% endblock %}

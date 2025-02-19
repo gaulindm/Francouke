@@ -3,9 +3,9 @@
 
 <div class="container">
     <div class="row">
-        <!-- Left Section (Form) - 8 columns -->
+        <!-- Section Gauche (Formulaire) - 8 colonnes -->
         <div class="col-md-8">
-            <h2>Edit Song Formatting</h2>
+            <h2>Modifier la mise en forme de la chanson</h2>
             <form method="POST" class="formatting-form">
                 {% csrf_token %}
                 {% for field in form %}
@@ -17,50 +17,45 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                <button type="submit">Save Changes</button>
+                <button type="submit">💾 Sauvegarder les modifications</button>
             </form>
         </div>
 
-        <!-- Right Section (Guide) - 4 columns -->
-<div class="col-md-4">
-    <div class="card">
-        <div class="card-header">
-            <h4>Formatting Guide</h4>
-        </div>
-        <div class="card-body">
-            <p>
-                You only need to include values you want to change. 
-                Any missing values will use the defaults below.
-            </p>
-            <ul>
-                <li><strong>font_size</strong>: Adjusts text size (Default: <code>13</code>).</li>
-                <li><strong>font_color</strong>: Changes text color (Default: <code>"#000000"</code>).</li>
-                <li><strong>alignment</strong>: Can be <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (Default: <code>"left"</code>).</li>
-                <li><strong>line_spacing</strong>: Controls space between lines (Default: <code>1.2</code>).</li>
-                <li><strong>spaceBefore</strong>: Space before a section (Default: <code>12</code>).</li>
-                <li><strong>spaceAfter</strong>: Space after a section (Default: <code>12</code>).</li>
-            </ul>
-            <p>✅ Example: If you only want to change the font size, enter:</p>
-            <pre>
+        <!-- Section Droite (Guide) - 4 colonnes -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Guide de mise en forme</h4>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Vous n’avez besoin d’indiquer que les valeurs que vous souhaitez modifier.  
+                        Toutes les valeurs manquantes utiliseront les paramètres par défaut ci-dessous.
+                    </p>
+                    <ul>
+                        <li><strong>font_size</strong> : Ajuste la taille du texte (Défaut : <code>13</code>).</li>
+                        <li><strong>font_color</strong> : Change la couleur du texte (Défaut : <code>"#000000"</code>).</li>
+                        <li><strong>alignment</strong> : Peut être <code>"left"</code>, <code>"center"</code> ou <code>"right"</code> (Défaut : <code>"left"</code>).</li>
+                        <li><strong>line_spacing</strong> : Contrôle l’espacement entre les lignes (Défaut : <code>1.2</code>).</li>
+                        <li><strong>space_Before</strong> : Espacement avant une section (Défaut : <code>12</code>).</li>
+                        <li><strong>space_After</strong> : Espacement après une section (Défaut : <code>12</code>).</li>
+                    </ul>
+                    <p>✅ **Exemple** : Si vous souhaitez uniquement modifier la taille du texte, entrez :</p>
+                    <pre>
 {
     "font_size": 16
 }
-            </pre>
-            <p>⚠️ All other values will remain at their defaults.</p>
-            <p><strong>⚠️ Important:</strong> Do <u>not</u> delete the <code>{}</code> completely!</p>
-<p>If you don’t need any changes, leave the field <code>{}</code> or empty—it will be automatically handled.</p>
-        </div>
-    </div>
-</div>
-
+                    </pre>
+                    <p>⚠️ Toutes les autres valeurs resteront inchangées.</p>
+                    <p><strong>⚠️ Important :</strong> Ne supprimez pas complètement le <code>{}</code> !</p>
+                    <p>Si vous ne souhaitez apporter aucune modification, laissez le champ vide ou utilisez <code>{}</code>, cela sera géré automatiquement.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-
-    
-
     .container {
         margin-top: 20px;
     }
@@ -90,7 +85,7 @@
     .form-group label {
         font-weight: bold;
         margin-bottom: 5px;
-        align-self: flex-start;  /* Ensures label is top-aligned */
+        align-self: flex-start;
     }
 
     .form-group input,

@@ -41,10 +41,10 @@
         {% include "partials/_navbar.html" %}
       </header>
       <br><br>
-    <h1>All Chord Diagrams</h1>
-    <h2>Customize View</h2>
+    <h1>Les diagrammes d'accord</h1>
+    <h2>Variante 1 et 2</h2>
     <form id="instrument-form">
-        <label for="instrument-select">Choose an instrument:</label>
+        <label for="instrument-select">Choisir l'instrument:</label>
         <select id="instrument-select" name="instrument">
             <option value="ukulele" selected>Ukulele</option>
             <option value="guitar">Guitar</option>
@@ -53,9 +53,9 @@
             <option value="baritoneUke">Baritone Ukulele</option>
         </select>
         <label>
-            <input type="checkbox" id="is-lefty"> Left-Handed
+            <input type="checkbox" id="is-lefty"> Gaucher
         </label>
-        <button type="submit">Update</button>
+        <button type="submit">Choisir</button>
     </form>
 
     <div id="chord-tables"></div>
@@ -116,12 +116,12 @@
         function renderChordsTable(container, instrument, chordData, isLefty) {
             const table = document.createElement("table");
             const header = document.createElement("h3");
-            header.textContent = `${instrument.charAt(0).toUpperCase() + instrument.slice(1)} Chords`;
+            header.textContent = `Accords pour  ${instrument.charAt(0).toUpperCase() + instrument.slice(1)}`;
             container.appendChild(header);
 
             // Create table header
             const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Chord Type</th>` + 
+            headerRow.innerHTML = `<th>Type d'accord</th>` + 
                                   Object.keys(chordData).map(root => `<th>${root}</th>`).join("");
             table.appendChild(headerRow);
 
